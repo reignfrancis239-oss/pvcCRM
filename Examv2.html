@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PVC Certification Exam | 200-Item Interactive Assessment</title>
+
+<!-- Screenshot & PDF libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root{
+  --navy:#0b2b5b;--navy-2:#123a75;--navy-3:#1d4e93;
+  --accent:#f2a900;--accent-2:#ffc94d;
+  --red:#d62828;--green:#1b8a5a;--green-2:#3cc27f;
+  --bg:#eef2f7;--card:#ffffff;--text:#1c2430;--muted:#5b6b7f;
+  --border:#dde4ee;--shadow:0 6px 18px rgba(11,43,91,.08);
+  --shadow-lg:0 16px 44px rgba(11,43,91,.14);
+  --shadow-xl:0 24px 60px rgba(11,43,91,.20);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.55;
+  -webkit-font-smoothing:antialiased;font-size:15px;
+}
+button{font-family:inherit}
+
+/* ---------- TOP BAR ---------- */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(90deg,var(--navy) 0%,var(--navy-2) 55%,var(--navy-3) 100%);
+  color:#fff;padding:11px 22px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  box-shadow:0 2px 14px rgba(0,0,0,.18);
+}
+.topbar .brand{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.topbar .mark{
+  width:40px;height:40px;border-radius:10px;flex:none;
+  background:linear-gradient(135deg,var(--accent),#e08c00);
+  color:var(--navy);font-weight:800;font-size:13px;letter-spacing:.5px;
+  display:flex;align-items:center;justify-content:center;
+}
+.topbar .brand-text strong{font-size:14.5px;letter-spacing:.2px;display:block}
+.topbar .brand-text span{font-size:11.5px;color:#b8cbe6}
+.topbar-info{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:#c9dcf5}
+.topbar-info b{color:#fff;font-weight:700}
+.timer{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent-2)}
+
+/* ---------- PROGRESS STRIP ---------- */
+.prog-strip{
+  background:#fff;border-bottom:1px solid var(--border);
+  padding:10px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--muted);position:sticky;top:63px;z-index:99;
+  box-shadow:0 2px 8px rgba(11,43,91,.04);
+}
+.prog-strip .track{
+  flex:1;min-width:150px;height:8px;background:#e8eef8;
+  border-radius:99px;overflow:hidden;
+}
+.prog-strip .fill{
+  height:100%;width:0;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  transition:width .35s ease;border-radius:99px;
+}
+.prog-strip b{color:var(--navy);font-weight:800}
+
+/* ---------- SCREENS ---------- */
+.screen{display:none;animation:fade .3s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- START ---------- */
+.start-wrap{max-width:780px;margin:0 auto;padding:44px 22px 80px}
+.start-card{
+  background:#fff;border-radius:20px;padding:34px 34px 30px;
+  box-shadow:var(--shadow-lg);
+}
+.start-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#eaf1fb;color:var(--navy);font-size:11.5px;font-weight:800;
+  padding:5px 12px;border-radius:99px;letter-spacing:1.3px;text-transform:uppercase;
+  margin-bottom:16px;
+}
+.start-badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 8px var(--accent);
+}
+.start-card h1{
+  font-size:1.85rem;color:var(--navy);letter-spacing:-.4px;
+  margin-bottom:8px;line-height:1.15;
+}
+.start-card .sub{color:var(--muted);font-size:14.5px;margin-bottom:24px;max-width:60ch}
+.exam-meta{
+  background:#f8fafd;border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;margin-bottom:26px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;
+}
+.exam-meta .m-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:3px}
+.exam-meta .m-val{font-size:15px;font-weight:800;color:var(--navy)}
+.exam-meta .m-val.accent{color:var(--accent)}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+.form-grid .full{grid-column:1/-1}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+
+.field label{
+  display:block;font-size:12.5px;font-weight:700;color:var(--navy);
+  margin-bottom:6px;letter-spacing:.2px;
+}
+.field label .req{color:var(--red);margin-left:3px}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 14px;font-family:inherit;font-size:14.5px;
+  border:1.5px solid var(--border);border-radius:10px;
+  background:#fff;color:var(--text);transition:.2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--navy);box-shadow:0 0 0 4px rgba(11,43,91,.08);
+}
+.field .hint{font-size:11.5px;color:var(--muted);margin-top:5px}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:none;border-radius:11px;padding:13px 24px;
+  font-size:14.5px;font-weight:700;cursor:pointer;
+  transition:.2s;letter-spacing:.2px;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--navy),var(--navy-3));
+  color:#fff;box-shadow:0 6px 16px rgba(11,43,91,.25);
+  width:100%;
+}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 24px rgba(11,43,91,.35)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.btn-gold{
+  background:linear-gradient(135deg,var(--accent),#e08c00);
+  color:var(--navy);box-shadow:0 6px 16px rgba(242,169,0,.3);
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(242,169,0,.4)}
+.btn-ghost{background:#fff;color:var(--navy);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--navy);background:#f7faff}
+.btn-red{background:linear-gradient(135deg,var(--red),#b31e1e);color:#fff;}
+.btn-red:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(214,40,40,.3)}
+.btn-sm{padding:9px 16px;font-size:13px}
+
+/* ---------- EXAM LAYOUT ---------- */
+.exam-layout{
+  display:grid;grid-template-columns:280px 1fr;gap:22px;
+  max-width:1300px;margin:0 auto;padding:24px 22px 100px;
+}
+@media(max-width:960px){
+  .exam-layout{grid-template-columns:1fr;padding:16px 12px 100px;gap:14px}
+}
+.exam-side{
+  background:#fff;border-radius:16px;padding:16px;
+  box-shadow:var(--shadow);position:sticky;top:130px;
+  max-height:calc(100vh - 150px);overflow-y:auto;
+}
+@media(max-width:960px){.exam-side{position:static;max-height:none;padding:12px}}
+.exam-side h4{
+  font-size:11px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1.2px;margin-bottom:12px;font-weight:800;
+}
+.mod-group{margin-bottom:12px}
+.mod-group-title{
+  font-size:11px;font-weight:800;color:var(--accent);
+  text-transform:uppercase;letter-spacing:1px;
+  padding:8px 12px 6px;border-top:1px solid var(--border);
+  margin-top:8px;
+}
+.mod-group:first-child .mod-group-title{border-top:none;margin-top:0}
+.sec-btn{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:9px 12px;border-radius:10px;border:1.5px solid transparent;
+  background:transparent;cursor:pointer;text-align:left;
+  font-size:12.8px;color:#3b4a5e;transition:.18s;margin-bottom:2px;
+  font-weight:600;
+}
+.sec-btn:hover{background:#f2f6fc;color:var(--navy)}
+.sec-btn.active{
+  background:linear-gradient(90deg,var(--navy),var(--navy-3));
+  color:#fff;box-shadow:0 4px 12px rgba(11,43,91,.22);
+}
+.sec-btn .sec-ico{font-size:1rem;flex:none;width:20px;text-align:center}
+.sec-btn .sec-info{flex:1;min-width:0}
+.sec-btn .sec-prog{
+  font-size:10.5px;font-weight:700;opacity:.75;
+  margin-left:auto;white-space:nowrap;
+}
+.sec-btn.active .sec-prog{opacity:.95}
+
+.exam-main{
+  background:#fff;border-radius:16px;padding:28px 32px;
+  box-shadow:var(--shadow);min-height:60vh;
+}
+@media(max-width:640px){.exam-main{padding:20px 16px}}
+.sec-head{
+  padding-bottom:18px;border-bottom:2px solid var(--border);
+  margin-bottom:22px;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.sec-head h2{
+  font-size:1.4rem;color:var(--navy);letter-spacing:-.3px;
+  display:flex;align-items:center;gap:10px;
+}
+.sec-head .sec-note{font-size:12.5px;color:var(--muted);margin-top:4px}
+.sec-head .sec-count{
+  font-size:12px;font-weight:800;color:var(--navy);
+  background:#eaf1fb;padding:5px 12px;border-radius:99px;letter-spacing:.3px;
+}
+
+/* ---------- QUESTION ---------- */
+.q-item{padding:18px 0;border-bottom:1px dashed var(--border)}
+.q-item:last-child{border-bottom:none;padding-bottom:0}
+.q-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.q-num{
+  display:inline-block;background:var(--navy);color:#fff;
+  font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:6px;
+  letter-spacing:.3px;
+}
+.q-badge{
+  font-size:10.5px;font-weight:800;letter-spacing:.6px;
+  padding:3px 10px;border-radius:6px;text-transform:uppercase;
+}
+.q-badge.correct{background:#e3f4ec;color:var(--green)}
+.q-badge.retry{background:#fdeeee;color:var(--red)}
+.q-badge.locked{background:#fff4dc;color:#8a5300}
+
+.q-text{font-size:15px;color:var(--text);font-weight:600;margin-bottom:14px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:11px 14px;border:1.5px solid var(--border);
+  border-radius:10px;background:#fafbfd;cursor:pointer;
+  transition:.16s;font-size:14.2px;color:#2c3e50;
+  position:relative;
+}
+.opt:hover:not(.locked-opt){background:#f4f8fd;border-color:var(--navy)}
+.opt input{margin-top:3px;accent-color:var(--navy);cursor:pointer;flex:none;width:16px;height:16px}
+
+/* States */
+.opt.selected{background:#eaf1fb;border-color:var(--navy);color:var(--navy);font-weight:600}
+.opt.wrong-mark{
+  background:#fdeeee;border-color:var(--red);color:#8f1d1d;
+  animation:shake .35s;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+.opt.correct-mark{
+  background:#e3f4ec;border-color:var(--green);color:#0f5c3a;
+  font-weight:700;
+}
+.opt.locked-opt{cursor:default}
+.opt.locked-opt:hover{background:inherit}
+
+.opt .opt-letter{
+  flex:none;font-weight:800;color:var(--muted);font-size:13px;min-width:16px;
+}
+.opt.selected .opt-letter{color:var(--navy)}
+.opt.wrong-mark .opt-letter{color:var(--red)}
+.opt.correct-mark .opt-letter{color:var(--green)}
+
+.opt .opt-mark{
+  flex:none;font-weight:800;font-size:14px;margin-left:auto;
+}
+.opt.wrong-mark .opt-mark{color:var(--red)}
+.opt.correct-mark .opt-mark{color:var(--green)}
+
+.q-feedback{
+  margin-top:10px;padding:10px 14px;border-radius:10px;
+  font-size:13px;font-weight:700;
+  display:none;align-items:center;gap:8px;
+}
+.q-feedback.show{display:flex}
+.q-feedback.ok{background:#e3f4ec;color:#0f5c3a;border-left:4px solid var(--green)}
+.q-feedback.bad{background:#fdeeee;color:#8f1d1d;border-left:4px solid var(--red)}
+
+.submit-area{
+  margin-top:32px;padding-top:22px;border-top:2px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  flex-wrap:wrap;
+}
+.submit-area .nav-group{display:flex;gap:10px;flex-wrap:wrap}
+.submit-area .nav-group .btn{padding:11px 20px;font-size:13.5px}
+
+/* ---------- RESULTS ---------- */
+.results-wrap{max-width:1080px;margin:0 auto;padding:34px 22px 80px}
+.results-card{
+  background:#fff;border-radius:20px;padding:0;
+  box-shadow:var(--shadow-lg);overflow:hidden;
+  position:relative;
+}
+.congrats{
+  background:linear-gradient(135deg,#0b2b5b 0%,#1d4e93 55%,#2a6fd1 100%);
+  color:#fff;padding:38px 40px;position:relative;overflow:hidden;
+}
+.congrats::before{
+  content:'';position:absolute;right:-60px;top:-60px;
+  width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle, rgba(242,169,0,.25), transparent 70%);
+  pointer-events:none;
+}
+.congrats::after{
+  content:'';position:absolute;left:-40px;bottom:-100px;
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.08), transparent 70%);
+  pointer-events:none;
+}
+.congrats-inner{position:relative;z-index:2}
+.congrats .trophy{
+  font-size:56px;line-height:1;margin-bottom:12px;
+  display:inline-block;
+  animation:bounce 2s ease-in-out infinite;
+}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.congrats h2{
+  font-size:2.05rem;letter-spacing:-.5px;line-height:1.15;
+  margin-bottom:8px;color:#fff;
+}
+.congrats h2 .accent{
+  background:linear-gradient(135deg,var(--accent),#ffdd7a);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.congrats p{font-size:1rem;color:#c9dcf5;max-width:62ch;line-height:1.6}
+.congrats .module-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.congrats .m-badge{
+  background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.25);
+  padding:7px 14px;border-radius:99px;
+  font-size:12.5px;font-weight:700;letter-spacing:.3px;
+  display:inline-flex;align-items:center;gap:7px;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.congrats .m-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(63,185,80,.6)}
+.congrats .m-badge.pending .dot{background:var(--accent);box-shadow:0 0 8px rgba(242,169,0,.6)}
+
+.results-body{padding:32px 40px 40px}
+.score-hero{
+  text-align:center;padding:6px 0 26px;
+  border-bottom:1px solid var(--border);margin-bottom:26px;
+}
+.score-hero .lbl{
+  font-size:12px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1.5px;font-weight:800;margin-bottom:6px;
+}
+.score-hero .big{
+  font-size:76px;font-weight:800;line-height:1;
+  letter-spacing:-3px;margin:6px 0;
+  font-variant-numeric:tabular-nums;
+}
+.score-hero .big.pass{color:var(--green)}
+.score-hero .big.fail{color:var(--red)}
+.score-hero .sub{font-size:14.5px;color:var(--muted);margin-top:8px}
+.score-hero .verdict{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 20px;border-radius:99px;font-weight:800;
+  font-size:14px;letter-spacing:.5px;margin-top:14px;
+  text-transform:uppercase;
+}
+.score-hero .verdict.pass{background:#e3f4ec;color:var(--green)}
+.score-hero .verdict.fail{background:#fde6e6;color:var(--red)}
+
+.cand-info{
+  background:#f8fafd;border:1px solid var(--border);border-radius:12px;
+  padding:18px 22px;margin-bottom:26px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;
+}
+.cand-info .ci-lbl{
+  font-size:11px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1px;font-weight:700;margin-bottom:3px;
+}
+.cand-info .ci-val{font-size:14.5px;font-weight:700;color:var(--navy);word-break:break-word}
+
+.module-results h3,.breakdown h3{
+  font-size:16px;color:var(--navy);margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+}
+.module-results h3::before,.breakdown h3::before{
+  content:'';width:5px;height:20px;border-radius:3px;
+  background:var(--accent);
+}
+.mod-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:14px;margin-bottom:30px;
+}
+.mod-card{
+  background:#fff;border:2px solid var(--border);border-radius:14px;
+  padding:18px 20px;position:relative;overflow:hidden;
+  transition:.22s;
+}
+.mod-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.mod-card.pass{border-color:var(--green);background:linear-gradient(180deg,#eefaf3 0%,#fff 40%)}
+.mod-card.fail{border-color:var(--red);background:linear-gradient(180deg,#fdeeee 0%,#fff 40%)}
+.mod-card .mc-num{
+  position:absolute;top:12px;right:14px;
+  font-size:11px;font-weight:800;color:var(--muted);
+  letter-spacing:1px;
+}
+.mod-card.pass .mc-num{color:var(--green)}
+.mod-card.fail .mc-num{color:var(--red)}
+.mod-card .mc-name{
+  font-size:15px;font-weight:800;color:var(--navy);
+  margin-bottom:6px;line-height:1.3;padding-right:50px;
+}
+.mod-card .mc-desc{font-size:12px;color:var(--muted);margin-bottom:12px;min-height:2.4em}
+.mod-card .mc-score{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.mod-card .mc-score .num{
+  font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;
+  letter-spacing:-.5px;
+}
+.mod-card.pass .mc-score .num{color:var(--green)}
+.mod-card.fail .mc-score .num{color:var(--red)}
+.mod-card .mc-score .of{font-size:12.5px;color:var(--muted);font-weight:600}
+.mod-card .mc-bar{height:7px;background:#e8eef8;border-radius:99px;overflow:hidden;margin-bottom:10px}
+.mod-card .mc-bar i{display:block;height:100%;border-radius:99px;transition:width .5s ease}
+.mod-card.pass .mc-bar i{background:linear-gradient(90deg,var(--green),var(--green-2))}
+.mod-card.fail .mc-bar i{background:linear-gradient(90deg,var(--red),#b31e1e)}
+.mod-card .mc-status{
+  font-size:11.5px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;
+}
+.mod-card.pass .mc-status{color:var(--green)}
+.mod-card.fail .mc-status{color:var(--red)}
+.mod-card .mc-status .icon{font-size:14px}
+
+.sec-row{
+  padding:11px 0;border-bottom:1px dashed var(--border);
+  display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;
+}
+.sec-row:last-child{border-bottom:none}
+.sec-row .name{font-size:13.5px;font-weight:700;color:var(--text)}
+.sec-row .ratio{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sec-row .bar{width:110px;height:7px;background:#e8eef8;border-radius:99px;overflow:hidden}
+@media(max-width:560px){.sec-row .bar{width:70px}}
+.sec-row .bar i{
+  display:block;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  transition:width .4s ease;
+}
+.sec-row.pass .bar i{background:linear-gradient(90deg,var(--green),var(--green-2))}
+.sec-row.fail .bar i{background:linear-gradient(90deg,var(--red),#b31e1e)}
+.sec-row .pct{
+  font-size:13px;font-weight:800;color:var(--navy);
+  font-variant-numeric:tabular-nums;min-width:48px;text-align:right;
+}
+
+.result-actions{
+  margin-top:32px;padding-top:26px;border-top:2px solid var(--border);
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+}
+.result-actions .btn{padding:13px 22px;font-size:14px;min-width:170px}
+
+/* ---------- SURVEY ---------- */
+.survey-wrap{max-width:900px;margin:0 auto;padding:44px 22px 80px}
+.survey-card{
+  background:#fff;border-radius:20px;padding:36px 34px;
+  box-shadow:var(--shadow-lg);
+}
+.survey-head{text-align:center;margin-bottom:30px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.survey-head h2{font-size:1.6rem;color:var(--navy);letter-spacing:-.3px;margin-bottom:8px}
+.survey-head p{color:var(--muted);font-size:14.5px;max-width:56ch;margin:0 auto}
+.svy-item{padding:22px 0;border-bottom:1px dashed var(--border)}
+.svy-item:last-child{border-bottom:none}
+.svy-q{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px}
+.svy-num{
+  flex:none;width:26px;height:26px;border-radius:50%;
+  background:var(--navy);color:#fff;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+.svy-q .txt{font-size:14.5px;font-weight:600;color:var(--text);line-height:1.5}
+.svy-q .txt small{display:block;color:var(--muted);font-size:12.5px;font-weight:400;margin-top:3px}
+.scale{display:flex;gap:8px;flex-wrap:wrap;margin-left:38px}
+@media(max-width:560px){.scale{margin-left:0}}
+.scale .r{
+  padding:10px 15px;border:1.5px solid var(--border);
+  border-radius:10px;background:#fafbfd;cursor:pointer;
+  font-size:13px;font-weight:700;color:var(--muted);
+  transition:.16s;min-width:48px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.scale .r:hover{border-color:var(--navy);background:#f4f8fd;color:var(--navy)}
+.scale .r.active{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:0 6px 16px rgba(11,43,91,.22)}
+.scale .r small{font-size:9.5px;opacity:.65;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.scale .r.active small{opacity:.9}
+.scale-lbl{
+  display:flex;justify-content:space-between;
+  font-size:11px;color:var(--muted);margin-left:38px;
+  margin-top:6px;font-weight:600;letter-spacing:.3px;
+  max-width:520px;
+}
+@media(max-width:560px){.scale-lbl{margin-left:0}}
+.yesno{display:flex;gap:10px;margin-left:38px}
+@media(max-width:560px){.yesno{margin-left:0}}
+.yesno .y{
+  padding:10px 22px;border:1.5px solid var(--border);
+  border-radius:10px;background:#fafbfd;cursor:pointer;
+  font-size:13.5px;font-weight:700;color:var(--muted);
+  transition:.16s;
+}
+.yesno .y:hover{border-color:var(--navy);color:var(--navy)}
+.yesno .y.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.svy-textarea{
+  width:100%;margin-left:38px;max-width:calc(100% - 38px);
+  padding:12px 14px;font-family:inherit;font-size:14px;
+  border:1.5px solid var(--border);border-radius:10px;
+  background:#fafbfd;color:var(--text);resize:vertical;min-height:80px;
+  transition:.2s;
+}
+@media(max-width:560px){.svy-textarea{margin-left:0;max-width:100%}}
+.svy-textarea:focus{outline:none;border-color:var(--navy);background:#fff;box-shadow:0 0 0 4px rgba(11,43,91,.08)}
+
+/* ---------- THANK YOU ---------- */
+.thanks-wrap{max-width:640px;margin:0 auto;padding:60px 22px 80px;text-align:center}
+.thanks-card{
+  background:#fff;border-radius:20px;padding:50px 40px;
+  box-shadow:var(--shadow-lg);
+}
+.thanks-icon{font-size:64px;margin-bottom:20px;line-height:1}
+.thanks-card h2{font-size:1.7rem;color:var(--navy);margin-bottom:12px;letter-spacing:-.3px}
+.thanks-card p{color:var(--muted);font-size:15px;margin-bottom:26px;line-height:1.65}
+.summary-box{
+  background:#f8fafd;border:1px solid var(--border);border-radius:12px;
+  padding:18px 20px;margin-bottom:26px;text-align:left;
+}
+.summary-box h4{
+  font-size:12px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1.2px;font-weight:800;margin-bottom:10px;
+}
+.summary-box .row{
+  display:flex;justify-content:space-between;padding:6px 0;
+  font-size:14px;border-bottom:1px dashed var(--border);
+}
+.summary-box .row:last-child{border-bottom:none}
+.summary-box .row span:first-child{color:var(--muted);font-weight:600}
+.summary-box .row span:last-child{color:var(--navy);font-weight:800}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:var(--navy);color:#fff;padding:14px 24px;border-radius:12px;
+  font-size:14px;font-weight:600;
+  box-shadow:0 12px 32px rgba(11,43,91,.35);
+  opacity:0;pointer-events:none;transition:.3s cubic-bezier(.4,0,.2,1);
+  z-index:9999;max-width:90vw;
+  display:flex;align-items:center;gap:10px;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{background:linear-gradient(135deg,var(--green),#0e6b42)}
+.toast.err{background:linear-gradient(135deg,var(--red),#a01818)}
+
+@media print{
+  .topbar,.prog-strip,.exam-side,.submit-area,.nav-group,
+  .result-actions,button{display:none!important}
+  body{background:#fff}
+  .results-card,.survey-card,.thanks-card,.exam-main{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+  .congrats{background:#0b2b5b!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP BAR
+============================================================ -->
+<header class="topbar" id="topbar" style="display:none">
+  <div class="brand">
+    <div class="mark">PVC</div>
+    <div class="brand-text">
+      <strong>Certification Exam</strong>
+      <span>200-Item Comprehensive Assessment</span>
+    </div>
+  </div>
+  <div class="topbar-info">
+    <span>Candidate: <b id="tbName">—</b></span>
+    <span>Position: <b id="tbPos">—</b></span>
+    <span>Elapsed: <b class="timer" id="tbTimer">00:00</b></span>
+  </div>
+</header>
+
+<!-- ============================================================
+     PROGRESS STRIP
+============================================================ -->
+<div class="prog-strip" id="progStrip" style="display:none">
+  <span>Progress: <b id="prAnswered">0</b> / <b>200</b></span>
+  <div class="track"><div class="fill" id="prFill"></div></div>
+  <span id="prSection">Section 1 of 11</span>
+</div>
+
+<!-- ============================================================
+     SCREEN 1 — START
+============================================================ -->
+<section class="screen active" id="screen-start">
+  <div class="start-wrap">
+    <div class="start-card">
+      <div class="start-badge">Certification Exam</div>
+      <h1>PVC Service Technician Certification</h1>
+      <p class="sub">
+        Welcome. This 200-item assessment covers the full training curriculum across
+        <b>4 progressive modules</b> — from Foundation &amp; Safety to Advanced Operations.
+      </p>
+
+      <div class="exam-meta">
+        <div><div class="m-lbl">Total Items</div><div class="m-val">200</div></div>
+        <div><div class="m-lbl">Modules</div><div class="m-val">4</div></div>
+        <div><div class="m-lbl">Passing Score</div><div class="m-val accent">80%</div></div>
+        <div><div class="m-lbl">Answer Mode</div><div class="m-val" style="font-size:13px">Retry Until Correct</div></div>
+      </div>
+
+      <div style="background:#eaf1fb;border:1px solid #c3d8f5;border-radius:12px;padding:16px 18px;margin-bottom:22px;font-size:13.5px;color:#143d75">
+        <b>📚 Module Structure:</b>
+        <div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
+          <div><b>Module 1</b> · Foundation &amp; Safety</div>
+          <div><b>Module 2</b> · Machine Operations</div>
+          <div><b>Module 3</b> · Field Service</div>
+          <div><b>Module 4</b> · Advanced Operations</div>
+        </div>
+      </div>
+
+      <div style="background:#fff8e6;border:1px solid #f5dda0;border-radius:10px;padding:14px 18px;margin-bottom:22px;font-size:13px;color:#7a5300">
+        <b>🎯 How Scoring Works:</b><br>
+        Choose an answer. If it's <b>wrong</b>, it will be marked <span style="color:var(--red);font-weight:800">✕</span>
+        and you must keep trying until you find the <b>correct</b> answer.<br>
+        Your <b>score is based on your FIRST attempt</b> — if you answered wrong first, the item is
+        counted as incorrect even after you find the right answer.
+      </div>
+
+      <div class="field full" style="margin-bottom:20px">
+        <label style="font-size:14px;margin-bottom:12px;color:var(--navy)">Candidate Information</label>
+      </div>
+
+      <form id="candForm" onsubmit="return false;">
+        <div class="form-grid">
+          <div class="field full">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="cName" placeholder="e.g. Juan Dela Cruz" required autocomplete="name">
+          </div>
+          <div class="field">
+            <label>Position <span class="req">*</span></label>
+            <select id="cPos" required>
+              <option value="">Select position…</option>
+              <option>Route Sale Ambassador (RSA)</option>
+              <option>Service Technician</option>
+              <option>Technical Supervisor</option>
+              <option>Maintenance Personnel</option>
+              <option>Route Sale Supervisor</option>
+              <option>Installation Technician</option>
+              <option>Quality Assurance Staff</option>
+              <option>Operations Staff</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Years of Service <span class="req">*</span></label>
+            <select id="cYrs" required>
+              <option value="">Select…</option>
+              <option>Less than 1 year</option>
+              <option>1–3 years</option>
+              <option>3–5 years</option>
+              <option>5–10 years</option>
+              <option>More than 10 years</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>Area of Responsibility <span class="req">*</span></label>
+            <input type="text" id="cArea" placeholder="e.g. Metro Manila North, Laguna–Batangas Route" required>
+            <div class="hint">Enter your assigned route, region, or coverage area.</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="startBtn" type="button">Begin Exam →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 2 — EXAM
+============================================================ -->
+<section class="screen" id="screen-exam">
+  <div class="exam-layout">
+    <aside class="exam-side">
+      <h4>Module Navigation</h4>
+      <div id="secNav"></div>
+    </aside>
+
+    <main class="exam-main">
+      <div class="sec-head">
+        <div>
+          <h2 id="secTitle">—</h2>
+          <div class="sec-note" id="secNote">—</div>
+        </div>
+        <div class="sec-count" id="secCount">—</div>
+      </div>
+
+      <div id="questions"></div>
+
+      <div class="submit-area">
+        <div class="nav-group">
+          <button class="btn btn-ghost" id="prevSec">← Previous</button>
+          <button class="btn btn-ghost" id="nextSec">Next →</button>
+        </div>
+        <button class="btn btn-gold" id="submitExam">Submit &amp; Finish Exam</button>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 3 — RESULTS
+============================================================ -->
+<section class="screen" id="screen-results">
+  <div class="results-wrap">
+    <div class="results-card" id="resultsCard"></div>
+    <div class="result-actions">
+      <button class="btn btn-ghost" id="screenshotBtn">📸 Save as Image</button>
+      <button class="btn btn-ghost" id="pdfBtn">📄 Download PDF</button>
+      <button class="btn btn-ghost" onclick="window.print()">🖨 Print</button>
+      <button class="btn btn-gold" id="toSurveyBtn">Proceed to Survey →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 4 — SURVEY
+============================================================ -->
+<section class="screen" id="screen-survey">
+  <div class="survey-wrap">
+    <div class="survey-card">
+      <div class="survey-head">
+        <h2>Training Experience Survey</h2>
+        <p>Your feedback helps us improve the training program for future batches. All responses are appreciated.</p>
+      </div>
+      <div id="surveyForm"></div>
+      <div class="submit-area" style="margin-top:30px;padding-top:22px;border-top:2px solid var(--border)">
+        <div></div>
+        <button class="btn btn-primary" id="submitSurvey" style="width:auto">Submit Feedback →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 5 — THANK YOU
+============================================================ -->
+<section class="screen" id="screen-thanks">
+  <div class="thanks-wrap">
+    <div class="thanks-card">
+      <div class="thanks-icon">🎉</div>
+      <h2>Thank You!</h2>
+      <p>Your certification exam and feedback have been recorded successfully. Well done on completing the assessment.</p>
+      <div class="summary-box" id="thanksSummary"></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:22px">
+        Keep this result for your records. Screenshot or print for submission to your supervisor.
+      </p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="window.print()">🖨 Print</button>
+        <button class="btn btn-gold" id="restartBtn">↺ Start New Candidate</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   1. DATA — MODULES, SECTIONS, QUESTIONS
+============================================================ */
+const MODULES = [
+  { id:1, name:'Foundation & Safety', desc:'Safety rules, PPE, and machine overview',
+    sectionIds:['safety','apex'], color:'#1d4e93' },
+  { id:2, name:'Machine Operations', desc:'Keyboard labs and machine-specific procedures',
+    sectionIds:['fx22','sl1000'], color:'#c98a00' },
+  { id:3, name:'Field Service', desc:'Cleaning, beverage quality, and product loading',
+    sectionIds:['cleaning','beverage','product'], color:'#1b8a5a' },
+  { id:4, name:'Advanced Operations', desc:'Cash handling, pest control, customer service, barista',
+    sectionIds:['cash','pest','customer','barista'], color:'#7043c4' }
+];
+
+const SECTIONS = [
+/* ---------- MODULE 1 ---------- */
+{
+id:'safety', moduleId:1, title:'General Safety & PPE', icon:'⚠️',
+note:'Basic safety rules, personal protective equipment, and general precautions.',
+qs:[
+['What does PPE stand for?',['Personal Protective Equipment','Public Protection Equipment','Personal Prevention Ensemble','Professional Protective Ensemble'],0],
+['Which PPE should be worn when handling hot-water components?',['Safety glasses','Heat-resistant gloves','Face mask','Clean uniform'],1],
+['What should you do before cleaning or maintenance on a vending machine?',['Turn on all systems','Disconnect power','Call the supervisor','Open the door immediately'],1],
+['Can the ground wire be connected to a water pipe?',['Yes, always','No, never','Only if plastic','Only if 100 V'],1],
+['What is the minimum outlet rating required for a vending machine?',['5 A','10 A','15 A','20 A'],2],
+['What should NEVER be done on a vending machine?',['Clean the exterior','Climb on top of it','Change product','Read the display'],1],
+['What should NEVER be mixed when cleaning?',['Water and soap','Cleaning chemicals','Hot and cold water','Cloths'],1],
+['Which PPE is required where there is risk of splash exposure?',['Safety shoes','Safety glasses','Regular gloves','None extra'],1],
+['Why should gloves be worn?',['For style','To prevent cross-contamination','To keep hands warm','It is optional'],1],
+['What should you do if the machine or cable is damaged?',['Ignore it','Take it out of service and contact the service centre','Use it anyway','Fix it with tape'],1],
+['Where should vending machines NOT be installed?',['Indoors','Dry rooms','Outdoors / wet areas','On level floors'],2],
+['What is required for earthquake protection?',['A water filter','Tipping-prevention measures','Extra cable length','Nothing'],1]
+]
+},
+{
+id:'apex', moduleId:1, title:'APEX QV Series', icon:'🥤',
+note:'Cup-type vending machine models, keypad navigation, error codes, and operational tests.',
+qs:[
+['Which APEX QV model has the largest canister count (14)?',['APEX 120QV','APEX 120QVR','APEX 100QVR','APEX 80QI'],1],
+['What does CMS stand for?',['Coffee Management System','Cup Mixing Station','Cup Management System','Central Motor System'],2],
+['How long does the APEX QV control system initialization take?',['10 seconds','Approximately 50 seconds','5 minutes','It is instant'],1],
+['Which DIP switch setting is the factory default on the Main Box?',['60 Hz','50 Hz','None','Both'],1],
+['Which key sequence opens the Output Signal Check menu?',['Management → 8 → 2 → Set','Timer → 0 → 0 → Set','Service → Sanitation','Operation Test → Ice'],0],
+['What does error code 0100 "Drain Full" require?',['Replace the drain bucket','Empty the drain bucket and reset the dam/full SW','Replace the ice maker','Press Food Sanitation Reset'],1],
+['What does error code 0022 indicate?',['Coin mech error','Main–sub controller communication error','Ice maker failure','Drain full'],1],
+['Which error code indicates CO₂ gas is empty?',['0110','0201','0340','0380'],2],
+['What is the APEX QV cooling configuration?',['1 compressor / 1 evaporator','1 compressor / 2 evaporators','2 compressors / 2 evaporators','None'],1],
+['What is the max selections on the APEX 120QVR?',['28','55','66','73'],3],
+['When should the impeller be replaced at the latest?',['50,000 bends or 6 months','100,000 bends or 1 year','500,000 bends or 3 years','Only when broken'],1],
+['What does the * (star) key do?',['Multiply values','Toggle timer valid/invalid and change sign','Delete all data','Print a report'],1],
+['Which key stops continuous hot water discharge early?',['Set','Operation (press again)','Correct','Management'],1],
+['What does an "×" on the CMS Sensor test indicate?',['Sensor working','Sensor disabled by design','Abnormality — sales operation stops','Sensor needs cleaning'],2],
+['What is the tolerance for hot water VH1/VH2 reference amount?',['150 ± 3 cc','100 ± 3 cc','200 ± 5 cc','250 ± 5 cc'],0],
+['During normal use, where does the 3-way cock lever point?',['Up','Forward','Down','Left'],1],
+['Which operating mode uses upper heater 87 °C and lower heater OFF?',['Setup','Normal','Multiple','Energy saving'],3],
+['What triggers the Multiple (peak) mode?',['Power ON','Last 10-min sales ≥ set cups','Timer 40 window','Jul–Sep, 12:00–16:00'],1],
+['How often should you clean the RC brewer?',['Every visit','Weekly','Every 1000 bends or monthly','Yearly'],2],
+['What should NEVER be applied to the bill validator belt?',['Rubber cleaner','Dry towel','Machine oil or grease','Cotton swab'],2],
+['What is the factory default for DIP SW1 (frequency)?',['60 Hz','50 Hz','Automatic','None'],1],
+['What does error code 0910 indicate?',['Sales timer active','Water outage timer active','Ice maker error','Coin mech error'],1],
+['Which key stops a running program or returns to standby?',['Set','Operation','Complete','Correct'],2],
+['Which sub-menu contains Door, X-Y, and Cup tests?',['Management 80','Management 82','Management 51','Service menu'],1],
+['What does the "Food Sanitation Reset" key do?',['Reset all data','Release food-sanitation hold','Restart the machine','Clear all errors'],1]
+]
+},
+/* ---------- MODULE 2 ---------- */
+{
+id:'fx22', moduleId:2, title:'FX22 Keyboard Operations', icon:'⌨️',
+note:'Maintenance keyboard functions, sub-menus, and button sequences.',
+qs:[
+['Which FX22 key stores data after entering a value?',['Register','Memory','Clear','End'],1],
+['Which FX22 key returns the machine to standby and discards unsaved changes?',['Complete','End','Clear','Return'],1],
+['Which key displays and manages ingredient remaining amounts?',['Ingredient','Remaining Amount','Cleaning','Price'],1],
+['Which key configures current date, energy-saving schedules, and sales time zones?',['Timer','Inspection','Mechanical Setting','Sales'],0],
+['Which key is used to diagnose failures and view sold-out causes?',['Cleaning','Inspection','Memory','Test'],1],
+['Which key executes component tests such as mill motor and CMS motion?',['Test','Service','QC Work','Register'],0],
+['Which key is used to register frequently used screens to M1–M5?',['Memory','Register','Number','Clear'],1],
+['Which key directly performs an all-system rinse?',['Brewer Rinse','All Rinse','Powder Rinse','Syrup Cont'],1],
+['What does the FX22 "End" key do?',['Save the current data','Return machine to standby and discard unsaved changes','Print the report','Reset counters'],1],
+['Which sub-menu item under Cleaning executes "All rinse"?',['01','02','03','52'],1],
+['Which sub-menu item under Cleaning is the "Hot System Sanitation"?',['52','53','67','07'],1],
+['What does FX22 Price menu item 01 do?',['All column same price','Group-specific price','Card discount amount','My cup discount'],0],
+['Which FX22 key clears data, holds, and history?',['End','Clear','Register','Memory'],1],
+['Which memory key registers frequently used item screens?',['M1','M2','Register','Memory'],2],
+['What does FX22 Test menu item 02 do?',['Individual test','Cup test','Continuous dispensing','Pseudo vending'],1],
+['In the FX22 Price menu, which item handles card discount amount?',['01','02','03','04'],2],
+['Which FX22 key is used to set coffee grinder level?',['Mechanical Setting','Beverage','Timer','Test'],0],
+['In Mechanical Setting, what does option 04 control?',['Mill motor setting','Ice remaining calculation','Cup mechanism setting','Z-axis setting'],1],
+['What does the FX22 "Prev Page" key do?',['Advance to next screen','Return to previous screen','Clear screen','Print screen'],1],
+['Which FX22 key controls and executes all cleaning operations?',['Service','Cleaning','QC Work','Test'],1],
+['Which key on the FX22 toggles timer valid/invalid and changes sign?',['Star (*)','Set','Register','Memory'],0],
+['What is FX22 Beverage menu item 999 used for?',['All column same price','Increase/decrease amount','Flow rate adjustment','Operation copy'],2],
+['In the FX22 Timer menu, which item sets the current date/time?',['00','01','10','40'],1],
+['Which FX22 sub-menu contains "Current Sold-out Monitor"?',['Cleaning','Inspection','Timer','Test'],1],
+['What does FX22 Cleaning item 53 do?',['Water reservoir drain','Auto-rinse start time','Hot System Sanitation','Paddle rinse setting'],2]
+]
+},
+{
+id:'sl1000', moduleId:2, title:'SL 1000 S-Line', icon:'☕',
+note:'Spengler SL 1000 operations, menu structure, and technical specifications.',
+qs:[
+['What is the main power of the Spengler SL 1000?',['1.5 kW','2.7 kW','3.5 kW','5.0 kW'],1],
+['What is the recommended default boiler temperature on the SL 1000?',['85 °C','90 °C','97 °C','100 °C'],2],
+['What is the minimum back clearance required for SL 1000 installation?',['20 mm','40 mm','60 mm','100 mm'],2],
+['What is the right-side clearance required for door opening beyond 90°?',['3 mm','5 mm','10 mm','20 mm'],1],
+['Which key on the SL 1000 opens the Operator Menu?',['START','RESET','RETURN','9'],1],
+['Which key on the SL 1000 confirms and saves the value?',['START','RESET','RETURN','0'],0],
+['What is the max cup height on the SL 1000?',['10 cm','13 cm','16 cm','20 cm'],1],
+['What is the max pot height on the SL 1000?',['20 cm','25 cm','30 cm','35 cm'],1],
+['What is the SL 1000 cup capacity per dispensing side?',['250 cups','500 cups','750 cups','1000 cups'],1],
+['What is the default water pressure range for the SL 1000?',['0.5–1 bar','1–2 bar','2–5 bar','5–8 bar'],2],
+['What is the max water hardness before a filter is mandatory?',['4 °dH','6 °dH','8 °dH','12 °dH'],2],
+['Which password level is required to fill or empty the boiler?',['100','150','200','250'],3],
+['Which password level is required to edit recipes?',['50','100','250','No password'],1],
+['What is the correct sequence to reach the Fill Boiler program?',['RESET → 9 → password → 2 → 4 → 3','RESET → 2 → 9 → password → 4','Timer → 0 → 0 → Set','Service → Sanitation'],0],
+['How much water capacity should the vessel have when draining the boiler?',['500 ml','1000 ml','1500 ml','2000 ml'],2],
+['Which grinder setting is correct for espresso (in lines)?',['5 lines','9 lines','13 lines','17 lines'],1],
+['Which grinder setting is correct for filter coffee (in lines)?',['5 lines','9 lines','13 lines','17 lines'],3],
+['How much does one grinder adjustment line correspond to?',['10 µm','18 µm','28 µm','40 µm'],2],
+['How long does automatic return take if there is no input?',['10 seconds','20 seconds','30 seconds','60 seconds'],2],
+['Which product container door is used for whole coffee beans?',['Product container','Beans container','Sugar container','Cup dispenser'],1],
+['What is the maximum stick length (ES version)?',['80 mm','96–116 mm','120–140 mm','Any length'],1],
+['Where is the stick dispenser located on the SL 1000 ES?',['Right dispensing side','Left dispensing side','Both sides','Centre'],1],
+['What is the typical SL 1000 daily capacity?',['~50 cups/day','~100 cups/day','~150 cups/day','~300 cups/day'],2],
+['What is the stick feeder fill level?',['To the top','About 10 mm below upper rim','Half full','25 mm below rim'],1],
+['What is the correct password for the Machine menu on the SL 1000?',['100','200','250','999'],2],
+['Which pressure is required for the safety valve on the SL 1000 water circuit?',['5 bar','10 bar','15 bar','20 bar'],2],
+['What is the correct sequence for Rinsing (short)?',['RESET → 9 → password → 2 → 4 → select "Rinsing (short)"','Timer → 0 → 0 → Set','Service → Sanitation','Operation Test → Ice'],0],
+['What does the SL 1000 keyboard RESET key do in the main menu?',['Restarts the machine','Deletes keyed-in information','Prints a report','Refunds coins'],1],
+['Which SL 1000 menu contains the Recipes section?',['0. Quick Menu','1. Components','2. Machine → 3','4. Test functions'],2],
+['What is the SL 1000 default language?',['German','French','English','Spanish'],2]
+]
+},
+/* ---------- MODULE 3 ---------- */
+{
+id:'cleaning', moduleId:3, title:'Cleaning & Sanitation', icon:'🧽',
+note:'Frequency matrix, cleaning solutions, and complete cleaning procedures.',
+qs:[
+['How often should the interior and exterior of vending machines be cleaned?',['Daily','Weekly','Monthly','Quarterly'],1],
+['How often should waste bins near machines be emptied?',['Weekly','Daily','Every other day','Monthly'],1],
+['How often should a pest inspection checklist be conducted?',['Weekly','Monthly','Quarterly','Annually'],1],
+['What cleaner is recommended for exterior vending surfaces?',['Thinner','Wipe Out (surface-safe)','Benzene','Acetone'],1],
+['What is the maximum cleaning temperature for plastic parts?',['45 °C','55 °C','65 °C','85 °C'],2],
+['Why should the machine interior ceiling be cleaned BEFORE other cleaning?',['It is easier','Dust falls downward','It saves time','It looks better'],1],
+['What should NEVER be applied to the bill validator belt?',['Rubber cleaner','Machine oil or grease','Dry cloth','Cotton swab'],1],
+['Which cloth is best for streak-free glass cleaning?',['Damp towel','Microfiber cloth','Food-safe cloth','Paper towel'],1],
+['What is the daily cleaning requirement for the brewer?',['Full disassembly every visit','Accessible areas, drink circuit rinse, and paddle inspection','Monthly only','Only when visibly dirty'],1],
+['How often should you clean the RC brewer (full disassembly)?',['Every visit','Weekly','Every 1000 bends or monthly','Yearly'],2],
+['After every refilling of syrup, what must be done?',['Nothing','Press remaining + reset ×2 to preset','Change the pump','Replace the BIB'],1],
+['What does the "All Rinse" function do?',['Rinses only the brewer','Sequentially rinses brewer, paddle, and syrup system','Rinses only the syrup lines','Rinses only the ice maker'],1],
+['Where should the "All Rinse" cover be hooked?',['On the mixer housing','On the ingredient chute cover','On the door handle','On the payment panel'],1],
+['How long should hot water be applied during cleaning?',['As needed','Only to drain pan and bend stage','Only to electrical parts','Over the entire interior'],1],
+['What should you do with the 3-way cock lever after cleaning?',['Leave in cleaning position','Return to specified position','Remove it','Turn off supply'],1],
+['What is the recommended soaking time for the filter in Limandes solution (1:1)?',['30 minutes','1 hour','3 to 8 hours','24 hours'],2],
+['How often should the product dispensing tubes be replaced?',['Monthly','Quarterly','Annually','Every 5 years'],2],
+['What must be removed before running hot system sanitation?',['Cup dispenser','Mill dispensing chute','Payment panel','Ice maker'],1],
+['What pH level should be confirmed after sanitation?',['pH ≤ 6','pH ≤ 7','pH ≤ 8.5','pH ≤ 10'],2],
+['What is the correct solution ratio for Sanol cloth cleaning?',['1 part Sanol : 10 parts water','1 part Sanol : 50 parts water','1 part Sanol : 100 parts water','Pure Sanol'],1],
+['After running the rinse program, what must be reinstalled in the drain bucket?',['Fresh bag','The float','New gasket','Nothing'],1],
+['Which cleaning step is performed on the water reservoir every 2–3 months?',['Scrub with brush','Drain and wash','Replace it','Add chlorine'],1],
+['What should be worn when handling chemicals and waste?',['Gloves','Nothing special','Sunglasses','Regular shoes'],0],
+['How often should the condenser filter and brewer filter be cleaned?',['Every visit','Every 1000 bends or monthly','Every 6 months','Yearly'],1],
+['After cleaning, what should the machine pass before returning to service?',['A taste test only','A hygiene and pest-clearance check','A physical inspection only','No check required'],1]
+]
+},
+{
+id:'beverage', moduleId:3, title:'Beverage Quality & Testing', icon:'🥤',
+note:'Temperature standards, taste evaluation, appearance, and carbonation.',
+qs:[
+['What is the ideal serving temperature range for a dispensed beverage?',['0–1 °C','1–4 °C','4–8 °C','8–12 °C'],1],
+['How long should cold water be dispensed during post-cleaning quality checks?',['5 seconds','10 seconds','At least 30 seconds','2 minutes'],2],
+['What should be done with the first pour when drawing a beverage sample?',['Serve it to the customer','Discard it and draw fresh','Cool it and serve','Mix it into the next pour'],1],
+['To what level should the sample cup be filled for evaluation?',['Half','¾ of the cup','To the brim','One quarter'],1],
+['Why should the thermometer NOT touch the sides of the cup?',['It might break','It gives an inaccurate reading','It is not allowed','It wastes time'],1],
+['Which of these is NOT an acceptable beverage parameter?',['Clear coffee aroma','Balanced bitterness','Metallic off-taste','Medium body'],2],
+['What does visible bubbling in a carbonated drink indicate?',['Spoilage','Proper carbonation','Water contamination','Temperature too cold'],1],
+['If a beverage parameter fails, what is the FIRST action?',['Log it in the Machine Setup Logbook','Refund the customer','Isolate the machine from public use','Re-test immediately'],2],
+['What form must be completed after a beverage test?',['Beverage Quality Checklist','Maintenance Report','Cash Report','Coin Test Form'],0],
+['Which taste profile indicates under-extracted espresso?',['Bitter / burnt','Sharp / sour','Watery / weak','Sweet / balanced'],1],
+['Which taste profile indicates over-extracted espresso?',['Bitter / burnt','Sharp / sour','Watery / weak','Sweet / balanced'],0],
+['Which of these is a warning sign in appearance?',['Clean foam','Even fill','Floating particles','Correct color'],2],
+['How long should sparkling water be dispensed during post-cleaning QC?',['5 seconds','10 seconds','At least 30 seconds','2 minutes'],2],
+['What does the term "off-taste" refer to?',['Correct flavor','Unexpected or unpleasant flavor','Strong flavor','Weak flavor'],1],
+['What form documents post-cleaning water/ice quality?',['Post-Cleaning Quality Check Log','Maintenance Checklist','Sales Log','Service Report'],0],
+['How long must completed quality check logs be maintained?',['At least 1 month','At least 3 months','At least 6 months','At least 5 years'],2],
+['What is the correct fill for a sample cup during beverage testing?',['Half','¾ of the cup','Full to the brim','Any amount'],1],
+['What should you do if the beverage passes all parameters?',['Immediately discard the sample','Approve the beverage for public use and log the result','Report to supervisor for approval','Wait 24 hours before serving'],1],
+['What document is used to raise failures that need technical attention?',['Sales Log','RTC Route Technical Call','Maintenance Form','Cash Collection Sheet'],1],
+['Which is NOT a valid temperature benchmark for a beverage?',['1 °C','2 °C','4 °C','12 °C'],3]
+]
+},
+{
+id:'product', moduleId:3, title:'Product Loading & Inventory', icon:'📦',
+note:'Planogram verification, canister inspection, and inventory procedures.',
+qs:[
+['What should be verified first when arriving at a machine?',['Product load','Machine ID and location','Coin mech','Compressor'],1],
+['What must always match the product planogram?',['Cup color','SKU, canister, and location','Cash amount','Route schedule'],1],
+['Before opening the machine, what check must be done?',['Appearance inspection','Cash count','Ice test','Brewer cleaning'],0],
+['What must be done with a canister before loading?',['Place in freezer','Shake gently to confirm free flow','Rinse in water','Disassemble'],1],
+['What conditions require removing a canister from service?',['Caking, lumps, moisture, discoloration, foreign material','Slightly below fill level','Canister has a small scratch','Only if empty'],0],
+['What must you do with cups before loading to prevent jamming?',['Rinse them','Shuffle them','Cool them','Warm them'],1],
+['What is the max product fill on a canister?',['Fill to brim','Do not overfill','Half fill','Two-thirds'],1],
+['What must be checked for correct product SKU?',['The color of the label','The brand logo only','The correct SKU against the planogram','The price only'],2],
+['What must be documented after loading?',['Counters and refill quantity','Customer feedback','Employee time','Weather conditions'],0],
+['What is the correct sequence after loading?',['Close and lock','Test vend','Photograph interior','All of the above'],3],
+['What should NOT be done with damaged cups?',['Segregate them','Mark them HOLD – DO NOT USE','Load them anyway','Report them to supervisor'],2],
+['What does FIFO stand for in cup storage?',['First In First Out','Fast In Fast Out','Full In Full Out','Feed Inventory For Orders'],0],
+['What is the maximum cup storage on the SL 1000?',['500','750','1000','1500'],2],
+['When should a planogram be changed?',['Whenever','Only with authorization','After each visit','Only if cups run out'],1],
+['What is the correct canister loading position check?',['Correct rack position','Correct SKU','Fully seated','All of the above'],3]
+]
+},
+/* ---------- MODULE 4 ---------- */
+{
+id:'cash', moduleId:4, title:'Coin Test & Cash Collection', icon:'💵',
+note:'Coin acceptance, price setting, and cash handling procedures.',
+qs:[
+['When is the coin test performed?',['Before opening the machine','After locking the machine','Only at night','Only when coins are missing'],1],
+['Which PHP coins are typically used for test insertion?',['1, 5, 10, 20','1, 2, 5','10, 20, 50','25, 50, 100'],0],
+['Where should rejected or counterfeit coins be directed?',['Into the coin box','Back into the coin slot','To the coin return tray','They are retained in the acceptor'],2],
+['What does the credit display show after inserting coins?',['The total inventory','The inserted amount','The change due only','Nothing'],1],
+['What does an illuminated Exact Change lamp indicate?',['Machine has plenty of change','Machine cannot give change','Machine is in test mode','Machine is out of service'],1],
+['What should the Service/Error lamp show when everything is OK?',['Red','Green','OFF','Blinking'],2],
+['In the cash collection SOP, what does coinset replenishment represent?',['Collected sales cash','An operating float adjustment','A customer refund','A penalty fee'],1],
+['What is a coinset shortage?',['Excess cash in the box','Actual coinset less than assigned coinset','Missing bills only','Fake coins detected'],1],
+['When should counters be cleared in the cash collection process?',['Before recording readings','After recording readings and validation','At any time','Never'],1],
+['What must be done if a discrepancy is found during reconciliation?',['Ignore and continue','Report immediately to supervisor','Adjust the numbers','Log in the sales report only'],1],
+['What should be done with the collection bag after cash collection?',['Store in the van','Seal, label, and submit to cash processing area','Give to customer','Keep in pocket'],1],
+['Which form must be completed after cash collection?',['Service Report','Route Log and Collection Bag Label','Quiz Sheet','Beverage Test Form'],1],
+['What must be done BEFORE collecting cash from the bill acceptor?',['Turn off the machine','Open the bill acceptor per authorized procedure','Reset the machine','Call the supervisor'],1],
+['When should the test coin be inserted during a coin test?',['Before locking','After locking the machine','Before inserting the coin mech','Never'],0],
+['What should be done if the bill validator belt needs cleaning?',['Apply machine oil','Use rubber cleaner only','Use thinner','Use benzene'],1]
+]
+},
+{
+id:'pest', moduleId:4, title:'Pest Control', icon:'🐜',
+note:'Prevention, Thomas Cohan trap monitoring, severity matrix, and response.',
+qs:[
+['What is the recommended inspection frequency for pest control?',['Weekly','Monthly','Quarterly','Annually'],1],
+['What is the Thomas Cohan trap used for?',['Mice','Cockroaches','Flies','Rats'],1],
+['In the severity matrix, how many cockroaches indicate LOW severity?',['0','1','2–4','5 or more'],1],
+['In the severity matrix, how many cockroaches trigger HIGH severity?',['1','2–4','5 or more','10 or more'],2],
+['What is the machine status when severity is HIGH?',['Operational','Out of service until cleared','Partially operational','No action'],1],
+['What must be done FIRST when an infestation is found?',['Continue sales','Cease use and place an Out-of-Service sign','Replace the machine','Empty the trap'],1],
+['What is the appropriate sign to place on an infested machine?',['Sold Out','Out of Service – Under Maintenance','Temporarily Closed','Please Wait'],1],
+['What action should be taken for severity LOW (1 cockroach)?',['Replace machine','Clean, sanitize, and monitor','Stop all operations','No action'],1],
+['Who is responsible for HIGH severity interventions?',['Route Sale Ambassador only','Technician / Internal Team','Customer','Security guard'],1],
+['How often should the treatment barrier (spray) be monitored?',['Weekly','Monthly','Quarterly','Annually'],1],
+['Where should Petroleum Jelly be applied as a pest deterrent?',['On the glass','On the machine legs, exposed wires, and hoses','On products','Inside the boiler'],1],
+['Where should Diatomaceous Earth be applied?',['Around machine base and feet','Inside the brewer','On the payment panel','On the dispenser'],0],
+['What is the minimum retention period for completed quality check logs?',['1 month','3 months','6 months','2 years'],2],
+['What must be inspected inside the machine for pest signs?',['Droppings, gnaw marks, nests, webs','Coins only','Cups only','Ice only'],0],
+['Before returning an infested machine to service, what must be done?',['Pass hygiene and pest-clearance inspection','Change all products','Replace the payment system','Reinstall new trap only'],0]
+]
+},
+{
+id:'customer', moduleId:4, title:'Customer Handling', icon:'💬',
+note:'Complaint handling, refund policy, and customer interaction standards.',
+qs:[
+['What is the PVC customer complaint principle?',['Argue – Defend – Deny','Listen – Accept – Assist – Resolve – Document','Ignore – Redirect – Delay','Refund – Apologize – Close'],1],
+['What should you do FIRST when a customer complains?',['Argue back','Listen carefully without interrupting','Offer a refund immediately','Call the police'],1],
+['Which of these is a DON\'T in customer handling?',['Listening carefully','Being polite','Blaming the customer','Documenting the issue'],2],
+['Which is a common customer complaint type?',['Product not dispensed','Cashier missing','Store closed','Weather conditions'],0],
+['What is the standard immediate resolution for a paid but not dispensed product?',['Cash refund','Product replacement / remote dispensing','Free future purchase','Cancel the transaction'],1],
+['Can cash refunds be given directly by the route man?',['Yes, always','No, never','Only if amount is small','Only in cash'],1],
+['How should you respond when a customer requests a cash refund?',['Give cash immediately','Refer the customer to the proper refund process','Ignore the request','Promise a refund without authorization'],1],
+['What should you do after resolving a customer complaint?',['Move on to the next customer','Confirm resolution and record the incident','Tell other customers about it','Forget about it'],1],
+['For payment or QR transaction concerns, what should you do?',['Refund in cash','Verify transaction details, check payment status, coordinate with finance/team, follow official refund process','Tell the customer to come back later','Replace the machine'],1],
+['Which action improves customer satisfaction?',['Keeping the customer informed','Making them wait','Raising your voice','Delegating the complaint'],0]
+]
+},
+{
+id:'barista', moduleId:4, title:'Barista & Beverage Knowledge', icon:'☕',
+note:'Five core drinks, recipes, sensory standards, and defect control.',
+qs:[
+['Which beverage is made by diluting espresso with hot water?',['Cappuccino','Americano','Latte','Mocha'],1],
+['What is the primary difference between a latte and a cappuccino?',['Cup size','Foam volume and structure','Coffee origin','Sugar amount'],1],
+['Approximately how much chocolate is used in a mocha per serving?',['5–10 g','15–25 g','35–50 g','100 g'],1],
+['What should be done to cocoa powder before adding milk in hot chocolate?',['Add directly to cold milk','Whisk into a smooth paste with warm liquid','Microwave it','Add to boiling water'],1],
+['What does "scalded milk" taste like?',['Sweet and creamy','Cooked or burnt','Sour','Salty'],1],
+['Which defect occurs when milk foam has large visible bubbles?',['Good microfoam','Improper aeration technique','Too much milk','Perfect pour'],1],
+['What is the typical target milk temperature for steaming?',['35–45 °C','55–65 °C','75–85 °C','95–100 °C'],1],
+['Why must chocolate in a mocha be measured?',['To save money','For consistent product and to prevent unbalanced flavor','For appearance only','It is optional'],1]
+]
+}
+];
+
+/* Flatten */
+const ALL_QUESTIONS = [];
+SECTIONS.forEach((sec, si) => {
+  sec.qs.forEach((q, qi) => {
+    ALL_QUESTIONS.push({
+      sectionId: sec.id,
+      sectionIdx: si,
+      moduleId: sec.moduleId,
+      qIdx: qi,
+      text: q[0],
+      options: q[1],
+      answer: q[2],
+      globalIdx: ALL_QUESTIONS.length
+    });
+  });
+});
+const TOTAL_Q = ALL_QUESTIONS.length;
+
+/* ============================================================
+   2. STATE
+   firstAnswer[gidx] = index of FIRST option clicked (score basis)
+   solved[gidx]      = true when correct answer eventually clicked
+   wrongAttempts[gidx] = Set of wrong option indices tried
+============================================================ */
+let state = {
+  candidate: { name:'', position:'', years:'', area:'' },
+  firstAnswer: {},      // gidx -> option index (first ever click)
+  wrongAttempts: {},    // gidx -> array of wrong option indexes
+  solved: {},           // gidx -> true when correct clicked
+  currentSec: 0,
+  started: false,
+  submitted: false,
+  startTime: null,
+  elapsed: 0,
+  timerInterval: null,
+  survey: {},
+  results: null
+};
+
+/* ============================================================
+   3. UTILITIES
+============================================================ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function escapeHtml(t){
+  return String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function toast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.className = 'toast show ' + type;
+  t.innerHTML = msg;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+function sectionOffset(secIdx){
+  let o = 0;
+  for(let i = 0; i < secIdx; i++) o += SECTIONS[i].qs.length;
+  return o;
+}
+function isAnswered(gidx){
+  return state.firstAnswer[gidx] !== undefined;
+}
+function isSolved(gidx){
+  return state.solved[gidx] === true;
+}
+function wasFirstTryCorrect(gidx){
+  return state.firstAnswer[gidx] === ALL_QUESTIONS[gidx].answer;
+}
+
+/* ============================================================
+   4. START SCREEN
+============================================================ */
+document.getElementById('startBtn').addEventListener('click', () => {
+  const name = document.getElementById('cName').value.trim();
+  const pos = document.getElementById('cPos').value;
+  const yrs = document.getElementById('cYrs').value;
+  const area = document.getElementById('cArea').value.trim();
+
+  if(!name){ alert('Please enter your full name.'); document.getElementById('cName').focus(); return; }
+  if(!pos){ alert('Please select your position.'); document.getElementById('cPos').focus(); return; }
+  if(!yrs){ alert('Please select your years of service.'); document.getElementById('cYrs').focus(); return; }
+  if(!area){ alert('Please enter your area of responsibility.'); document.getElementById('cArea').focus(); return; }
+
+  state.candidate = { name, position:pos, years:yrs, area };
+  state.started = true;
+  state.startTime = Date.now();
+
+  document.getElementById('tbName').textContent = name;
+  document.getElementById('tbPos').textContent = pos;
+  document.getElementById('topbar').style.display = '';
+  document.getElementById('progStrip').style.display = '';
+
+  state.timerInterval = setInterval(updateTimer, 1000);
+
+  buildSectionNav();
+  loadSection(0);
+  showScreen('screen-exam');
+});
+
+function updateTimer(){
+  const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+  const m = String(Math.floor(elapsed / 60)).padStart(2,'0');
+  const s = String(elapsed % 60).padStart(2,'0');
+  document.getElementById('tbTimer').textContent = m + ':' + s;
+  state.elapsed = elapsed;
+}
+
+/* ============================================================
+   5. SECTION NAVIGATION
+============================================================ */
+function buildSectionNav(){
+  const nav = document.getElementById('secNav');
+  nav.innerHTML = '';
+
+  MODULES.forEach(mod => {
+    const group = document.createElement('div');
+    group.className = 'mod-group';
+
+    const title = document.createElement('div');
+    title.className = 'mod-group-title';
+    title.textContent = `Module ${mod.id} · ${mod.name}`;
+    group.appendChild(title);
+
+    mod.sectionIds.forEach(secId => {
+      const idx = SECTIONS.findIndex(s => s.id === secId);
+      if(idx < 0) return;
+      const sec = SECTIONS[idx];
+      const btn = document.createElement('button');
+      btn.className = 'sec-btn' + (idx === 0 ? ' active' : '');
+      btn.dataset.idx = idx;
+      btn.innerHTML = `
+        <span class="sec-ico">${sec.icon}</span>
+        <span class="sec-info">${sec.title}</span>
+        <span class="sec-prog" data-prog="${idx}">0/${sec.qs.length}</span>
+      `;
+      btn.addEventListener('click', () => loadSection(idx));
+      group.appendChild(btn);
+    });
+
+    nav.appendChild(group);
+  });
+}
+
+function loadSection(idx){
+  state.currentSec = idx;
+  const sec = SECTIONS[idx];
+
+  document.querySelectorAll('.sec-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.idx) === idx);
+  });
+
+  const modInfo = MODULES.find(m => m.id === sec.moduleId);
+  document.getElementById('secTitle').textContent = sec.icon + ' ' + sec.title;
+  document.getElementById('secNote').textContent = `Module ${sec.moduleId} · ${modInfo.name} — ${sec.note}`;
+  document.getElementById('secCount').textContent = sec.qs.length + ' items';
+
+  const container = document.getElementById('questions');
+  container.innerHTML = '';
+  const offset = sectionOffset(idx);
+
+  sec.qs.forEach((q, qi) => {
+    const globalIdx = offset + qi;
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    div.dataset.gidx = globalIdx;
+    div.innerHTML = renderQuestionHTML(globalIdx);
+    container.appendChild(div);
+  });
+
+  attachQuestionListeners(container);
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderQuestionHTML(gidx){
+  const q = ALL_QUESTIONS[gidx];
+  const correctIdx = q.answer;
+  const first = state.firstAnswer[gidx];
+  const wrongs = state.wrongAttempts[gidx] || [];
+  const solved = isSolved(gidx);
+
+  /* Status badge */
+  let badge = '';
+  if(solved){
+    if(first === correctIdx){
+      badge = '<span class="q-badge correct">✓ Correct on first try</span>';
+    } else {
+      badge = '<span class="q-badge locked">✓ Solved after retry</span>';
+    }
+  } else if(first !== undefined){
+    badge = '<span class="q-badge retry">✕ Retry — find the correct answer</span>';
+  }
+
+  let html = `
+    <div class="q-head">
+      <span class="q-num">Q${gidx + 1}</span>
+      ${badge}
+    </div>
+    <div class="q-text">${escapeHtml(q.text)}</div>
+    <div class="opts">
+  `;
+
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, oi) => {
+    let cls = 'opt';
+    let mark = '';
+
+    if(solved){
+      cls += ' locked-opt';
+      if(oi === correctIdx){
+        cls += ' correct-mark';
+        mark = '<span class="opt-mark">✓</span>';
+      } else if(wrongs.includes(oi)){
+        cls += ' wrong-mark';
+        mark = '<span class="opt-mark">✕</span>';
+      }
+    } else {
+      if(wrongs.includes(oi)){
+        cls += ' wrong-mark';
+        mark = '<span class="opt-mark">✕</span>';
+      }
+    }
+
+    html += `
+      <label class="${cls}" data-gidx="${gidx}" data-opt="${oi}">
+        <input type="radio" name="q${gidx}" value="${oi}" ${solved && oi === correctIdx ? 'checked' : ''} ${solved ? 'disabled' : ''}>
+        <span class="opt-letter">${letters[oi]}</span>
+        <span>${escapeHtml(opt)}</span>
+        ${mark}
+      </label>
+    `;
+  });
+  html += `</div>`;
+
+  /* Feedback message */
+  if(solved && first !== correctIdx){
+    html += `<div class="q-feedback show bad">⚠ Answered wrong on first attempt — score for this item is <b>0</b>. But you have now found the correct answer. Well done for persisting!</div>`;
+  } else if(solved && first === correctIdx){
+    html += `<div class="q-feedback show ok">✓ Correct on the first try — this item scores <b>1 point</b>.</div>`;
+  } else if(first !== undefined && !solved){
+    html += `<div class="q-feedback show bad">✕ That answer is wrong. Try again — you must find the correct answer to move on.</div>`;
+  }
+
+  return html;
+}
+
+function attachQuestionListeners(container){
+  container.querySelectorAll('.opt').forEach(opt => {
+    /* Skip locked options */
+    if(opt.classList.contains('locked-opt')) return;
+
+    opt.addEventListener('click', e => {
+      e.preventDefault();
+      const gidx = parseInt(opt.dataset.gidx);
+      const oidx = parseInt(opt.dataset.opt);
+      handleAnswer(gidx, oidx);
+    });
+  });
+}
+
+/* ============================================================
+   6. ANSWER HANDLING — Retry logic
+============================================================ */
+function handleAnswer(gidx, oidx){
+  const q = ALL_QUESTIONS[gidx];
+  const correctIdx = q.answer;
+
+  /* Already solved → ignore */
+  if(isSolved(gidx)) return;
+
+  /* First-ever click on this question */
+  if(state.firstAnswer[gidx] === undefined){
+    state.firstAnswer[gidx] = oidx;
+  }
+
+  if(oidx === correctIdx){
+    /* Correct! Lock the question */
+    state.solved[gidx] = true;
+
+    /* Give visual feedback */
+    const item = document.querySelector(`.q-item[data-gidx="${gidx}"]`);
+    if(item){
+      const wasFirstTry = state.firstAnswer[gidx] === correctIdx;
+      item.innerHTML = renderQuestionHTML(gidx);
+      attachQuestionListeners(item);
+    }
+    updateProgress();
+
+    /* Small toast for correct first-try vs retry-solved */
+    if(state.firstAnswer[gidx] === correctIdx){
+      /* silent — just UI changes */
+    } else {
+      toast('✓ Correct! But score for this item is 0 (first attempt was wrong).', 'err');
+    }
+
+  } else {
+    /* Wrong answer */
+    if(!state.wrongAttempts[gidx]) state.wrongAttempts[gidx] = [];
+    if(!state.wrongAttempts[gidx].includes(oidx)){
+      state.wrongAttempts[gidx].push(oidx);
+    }
+
+    /* Update visuals */
+    const item = document.querySelector(`.q-item[data-gidx="${gidx}"]`);
+    if(item){
+      item.innerHTML = renderQuestionHTML(gidx);
+      attachQuestionListeners(item);
+    }
+    toast('✕ Wrong. Try again — you must find the correct answer.', 'err');
+  }
+}
+
+/* ============================================================
+   7. PROGRESS
+============================================================ */
+function updateProgress(){
+  const answered = Object.keys(state.firstAnswer).length;
+  const pct = (answered / TOTAL_Q) * 100;
+  document.getElementById('prAnswered').textContent = answered;
+  document.getElementById('prFill').style.width = pct + '%';
+  document.getElementById('prSection').textContent = `Section ${state.currentSec + 1} of ${SECTIONS.length}`;
+
+  SECTIONS.forEach((sec, idx) => {
+    const offset = sectionOffset(idx);
+    let done = 0;
+    for(let i = 0; i < sec.qs.length; i++){
+      if(state.firstAnswer[offset + i] !== undefined) done++;
+    }
+    const el = document.querySelector(`[data-prog="${idx}"]`);
+    if(el) el.textContent = `${done}/${sec.qs.length}`;
+  });
+}
+
+/* ============================================================
+   8. NAV BUTTONS
+============================================================ */
+document.getElementById('prevSec').addEventListener('click', () => {
+  if(state.currentSec > 0) loadSection(state.currentSec - 1);
+});
+document.getElementById('nextSec').addEventListener('click', () => {
+  if(state.currentSec < SECTIONS.length - 1) loadSection(state.currentSec + 1);
+});
+
+/* ============================================================
+   9. SUBMIT EXAM
+============================================================ */
+document.getElementById('submitExam').addEventListener('click', () => {
+  const attempted = Object.keys(state.firstAnswer).length;
+  const unattempted = TOTAL_Q - attempted;
+  const unsolved = Object.keys(state.firstAnswer).filter(g => !isSolved(parseInt(g))).length;
+
+  let msg = 'Submit your exam now?\n\n';
+  if(unattempted > 0){
+    msg += `• ${unattempted} question(s) never attempted.\n`;
+  }
+  if(unsolved > 0){
+    msg += `• ${unsolved} question(s) answered wrong but not yet solved.\n`;
+  }
+  msg += '\nScoring is based on FIRST attempts only.\nOnce submitted, answers cannot be changed.';
+
+  if(!confirm(msg)) return;
+  finishExam();
+});
+
+function finishExam(){
+  if(state.timerInterval) clearInterval(state.timerInterval);
+
+  /* Score strictly by first answer */
+  let correct = 0;
+  const perSection = SECTIONS.map((sec, idx) => {
+    const offset = sectionOffset(idx);
+    let secCorrect = 0;
+    for(let i = 0; i < sec.qs.length; i++){
+      const gidx = offset + i;
+      if(wasFirstTryCorrect(gidx)) secCorrect++;
+    }
+    correct += secCorrect;
+    return {
+      id: sec.id, moduleId: sec.moduleId, title: sec.title, icon: sec.icon,
+      correct: secCorrect, total: sec.qs.length,
+      pct: (secCorrect / sec.qs.length) * 100
+    };
+  });
+
+  const perModule = MODULES.map(m => {
+    const sections = perSection.filter(s => s.moduleId === m.id);
+    const modCorrect = sections.reduce((a,s) => a + s.correct, 0);
+    const modTotal = sections.reduce((a,s) => a + s.total, 0);
+    const modPct = modTotal ? (modCorrect / modTotal) * 100 : 0;
+    return {
+      id:m.id, name:m.name, desc:m.desc, color:m.color,
+      correct: modCorrect, total: modTotal, pct: modPct,
+      passed: modPct >= 80, sectionCount: sections.length
+    };
+  });
+
+  const pct = (correct / TOTAL_Q) * 100;
+  const passed = pct >= 80;
+  state.submitted = true;
+  state.results = {
+    correct, total: TOTAL_Q, pct, passed,
+    perSection, perModule,
+    elapsed: state.elapsed,
+    attempted: Object.keys(state.firstAnswer).length,
+    unattempted: TOTAL_Q - Object.keys(state.firstAnswer).length
+  };
+
+  renderResults();
+  showScreen('screen-results');
+}
+
+/* ============================================================
+   10. RESULTS SCREEN
+============================================================ */
+function renderResults(){
+  const r = state.results;
+  const c = state.candidate;
+  const min = Math.floor(r.elapsed / 60);
+  const sec = r.elapsed % 60;
+
+  const m1 = r.perModule.find(m => m.id === 1);
+  const m2 = r.perModule.find(m => m.id === 2);
+  const m3 = r.perModule.find(m => m.id === 3);
+  const m4 = r.perModule.find(m => m.id === 4);
+
+  const firstThreePassed = m1.passed && m2.passed && m3.passed;
+  const allFourPassed = firstThreePassed && m4.passed;
+
+  let banner = '';
+  if(allFourPassed){
+    banner = `
+      <div class="congrats">
+        <div class="congrats-inner">
+          <span class="trophy">🏆</span>
+          <h2>Congratulations — <span class="accent">Fully Certified!</span></h2>
+          <p>You have passed <b>all 4 modules</b> with distinction. You are now a certified PVC Service Technician.</p>
+          <div class="module-badges">
+            ${r.perModule.map(m => `<span class="m-badge"><span class="dot"></span>Module ${m.id} · Passed</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  } else if(firstThreePassed && !m4.passed){
+    banner = `
+      <div class="congrats">
+        <div class="congrats-inner">
+          <span class="trophy">🎉</span>
+          <h2>Congratulations! You passed <span class="accent">Modules 1, 2, and 3</span></h2>
+          <p>
+            Excellent work — you have successfully completed the foundation, machine operations,
+            and field service modules. You are now eligible to <b>proceed to Module 4</b> —
+            Advanced Operations (Cash Handling, Pest Control, Customer Service, and Barista Knowledge).
+          </p>
+          <div class="module-badges">
+            <span class="m-badge"><span class="dot"></span>Module 1 · Passed</span>
+            <span class="m-badge"><span class="dot"></span>Module 2 · Passed</span>
+            <span class="m-badge"><span class="dot"></span>Module 3 · Passed</span>
+            <span class="m-badge pending"><span class="dot"></span>Module 4 · Review &amp; Retake</span>
+          </div>
+        </div>
+      </div>`;
+  } else if(r.passed){
+    banner = `
+      <div class="congrats">
+        <div class="congrats-inner">
+          <span class="trophy">✓</span>
+          <h2>Congratulations — <span class="accent">You Passed!</span></h2>
+          <p>Your overall score meets the passing threshold. Review the module breakdown below.</p>
+          <div class="module-badges">
+            ${r.perModule.map(m => `<span class="m-badge ${m.passed ? '' : 'pending'}"><span class="dot"></span>Module ${m.id} · ${m.passed ? 'Passed' : 'Review'}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  } else {
+    banner = `
+      <div class="congrats" style="background:linear-gradient(135deg,#5a1010 0%,#8f1d1d 55%,#b31e1e 100%)">
+        <div class="congrats-inner">
+          <span class="trophy">📚</span>
+          <h2>Keep Going — <span class="accent">Review Required</span></h2>
+          <p>Your overall score is below the 80% passing threshold. Review the module breakdown below, then retake the exam.</p>
+          <div class="module-badges">
+            ${r.perModule.map(m => `<span class="m-badge ${m.passed ? '' : 'pending'}"><span class="dot"></span>Module ${m.id} · ${m.passed ? 'Passed' : 'Review'}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  const moduleCards = r.perModule.map(m => `
+    <div class="mod-card ${m.passed ? 'pass' : 'fail'}">
+      <div class="mc-num">MODULE ${m.id}</div>
+      <div class="mc-name">${m.name}</div>
+      <div class="mc-desc">${m.desc}</div>
+      <div class="mc-score">
+        <span class="num">${m.pct.toFixed(1)}%</span>
+        <span class="of">${m.correct}/${m.total} correct</span>
+      </div>
+      <div class="mc-bar"><i style="width:${m.pct}%"></i></div>
+      <div class="mc-status">
+        <span class="icon">${m.passed ? '✓' : '✕'}</span>
+        ${m.passed ? 'Passed' : 'Needs Review'}
+      </div>
+    </div>
+  `).join('');
+
+  const sectionRows = r.perSection.map(s => {
+    const cls = s.pct >= 80 ? 'pass' : (s.pct >= 60 ? '' : 'fail');
+    return `
+      <div class="sec-row ${cls}">
+        <div class="name">${s.icon} ${s.title}</div>
+        <div class="ratio">${s.correct}/${s.total}</div>
+        <div class="bar"><i style="width:${s.pct}%"></i></div>
+        <div class="pct">${s.pct.toFixed(0)}%</div>
+      </div>
+    `;
+  }).join('');
+
+  const html = `
+    ${banner}
+    <div class="results-body">
+      <div class="score-hero">
+        <div class="lbl">Overall Score</div>
+        <div class="big ${r.passed ? 'pass' : 'fail'}">${r.pct.toFixed(1)}%</div>
+        <div class="sub">${r.correct} correct on first attempt · out of ${r.total} items</div>
+        <div class="verdict ${r.passed ? 'pass' : 'fail'}">
+          ${r.passed ? '✓ PASSED — Certified' : '✗ FAILED — Review Required'}
+        </div>
+      </div>
+
+      <div class="cand-info">
+        <div><div class="ci-lbl">Name</div><div class="ci-val">${escapeHtml(c.name)}</div></div>
+        <div><div class="ci-lbl">Position</div><div class="ci-val">${escapeHtml(c.position)}</div></div>
+        <div><div class="ci-lbl">Years of Service</div><div class="ci-val">${escapeHtml(c.years)}</div></div>
+        <div><div class="ci-lbl">Area of Responsibility</div><div class="ci-val">${escapeHtml(c.area)}</div></div>
+        <div><div class="ci-lbl">Time Elapsed</div><div class="ci-val">${min}m ${sec}s</div></div>
+        <div><div class="ci-lbl">Date</div><div class="ci-val">${new Date().toLocaleDateString()}</div></div>
+      </div>
+
+      <div class="module-results">
+        <h3>Module Breakdown</h3>
+        <div class="mod-grid">${moduleCards}</div>
+      </div>
+
+      <div class="breakdown">
+        <h3>Section Detail</h3>
+        ${sectionRows}
+      </div>
+
+      <div style="text-align:center;margin-top:30px;padding-top:22px;border-top:1px solid var(--border);font-size:12.5px;color:var(--muted)">
+        <div style="margin-bottom:6px"><b>Philippine Vending Corporation</b> · Technical Department</div>
+        <div>Clean Machines · Safe Products · Satisfied Customers</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('resultsCard').innerHTML = html;
+}
+
+/* ============================================================
+   11. SCREENSHOT & PDF
+============================================================ */
+document.getElementById('screenshotBtn').addEventListener('click', async () => {
+  if(typeof html2canvas === 'undefined'){
+    toast('⚠️ Screenshot library not loaded. Use Print instead.', 'err');
+    return;
+  }
+  toast('📸 Generating image…');
+  try {
+    const target = document.getElementById('resultsCard');
+    const canvas = await html2canvas(target, {
+      scale: 2, backgroundColor: '#ffffff', logging: false, useCORS: true,
+      windowWidth: target.scrollWidth, windowHeight: target.scrollHeight
+    });
+    const link = document.createElement('a');
+    const safeName = state.candidate.name.replace(/[^a-z0-9]/gi,'_') || 'candidate';
+    link.download = `PVC-Exam-Result_${safeName}_${new Date().toISOString().slice(0,10)}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    toast('✓ Screenshot saved!', 'ok');
+  } catch(err){
+    console.error(err);
+    toast('⚠️ Could not generate screenshot. Try Print instead.', 'err');
+  }
+});
+
+document.getElementById('pdfBtn').addEventListener('click', async () => {
+  if(typeof html2canvas === 'undefined' || !window.jspdf){
+    toast('⚠️ PDF library not loaded. Use Print instead.', 'err');
+    return;
+  }
+  toast('📄 Generating PDF…');
+  try {
+    const target = document.getElementById('resultsCard');
+    const canvas = await html2canvas(target, {
+      scale: 2, backgroundColor: '#ffffff', logging: false, useCORS: true
+    });
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageW = 210, pageH = 297, margin = 8;
+    const imgW = pageW - (margin * 2);
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    if(imgH <= pageH - (margin * 2)){
+      pdf.addImage(imgData, 'PNG', margin, margin, imgW, imgH);
+    } else {
+      const pageContentH = pageH - (margin * 2);
+      let remaining = imgH, sourceY = 0;
+      const totalPixels = canvas.height;
+      const sliceHeightPx = (pageContentH / imgH) * totalPixels;
+      while(remaining > 0){
+        const sliceH = Math.min(pageContentH, remaining);
+        const sliceHeightPxThis = (sliceH / imgH) * totalPixels;
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sliceHeightPxThis;
+        const ctx = pageCanvas.getContext('2d');
+        ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPxThis, 0, 0, canvas.width, sliceHeightPxThis);
+        const sliceImg = pageCanvas.toDataURL('image/png');
+        if(sourceY > 0) pdf.addPage();
+        pdf.addImage(sliceImg, 'PNG', margin, margin, imgW, sliceH);
+        sourceY += sliceHeightPxThis;
+        remaining -= sliceH;
+      }
+    }
+    const safeName = state.candidate.name.replace(/[^a-z0-9]/gi,'_') || 'candidate';
+    pdf.save(`PVC-Exam-Result_${safeName}_${new Date().toISOString().slice(0,10)}.pdf`);
+    toast('✓ PDF downloaded!', 'ok');
+  } catch(err){
+    console.error(err);
+    toast('⚠️ Could not generate PDF. Try Print instead.', 'err');
+  }
+});
+
+/* ============================================================
+   12. SURVEY
+============================================================ */
+const SURVEY = [
+  { type:'scale', q:'How would you rate the overall training experience?', sub:'Consider the quality of content, materials, and delivery.' },
+  { type:'scale', q:'How relevant was the training to your daily work?', sub:'Does it apply to the tasks you actually perform?' },
+  { type:'scale', q:'How clear and easy to understand were the training materials?', sub:'Includes manuals, diagrams, and interactive modules.' },
+  { type:'scale', q:'How useful were the interactive modules (keypad labs, simulators)?', sub:'Hands-on practice vs. reading only.' },
+  { type:'scale', q:'How confident are you in applying what you learned?', sub:'Will you be able to perform these procedures on-site?' },
+  { type:'scale', q:'How would you rate the pace of the training?', sub:'Too slow, just right, or too fast?' },
+  { type:'select', q:'Which training section did you find MOST valuable?', sub:'Choose one.', options:['Safety & PPE','APEX QV Series','FX22 Keyboard','SL 1000 S-Line','Cleaning & Sanitation','Beverage Quality','Product Loading','Coin & Cash Collection','Pest Control','Customer Handling','Barista Knowledge'] },
+  { type:'yesno', q:'Would you recommend this training to a colleague?', sub:'' },
+  { type:'textarea', q:'What topics would you like MORE training on?', sub:'Any areas where you feel less confident.' },
+  { type:'textarea', q:'Any additional comments or suggestions for improvement?', sub:'Open feedback — we read every response.' }
+];
+const RATING_LABELS = ['Very Poor','Poor','Fair','Good','Excellent'];
+
+function renderSurvey(){
+  const box = document.getElementById('surveyForm');
+  box.innerHTML = '';
+  SURVEY.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'svy-item';
+    let html = `
+      <div class="svy-q">
+        <span class="svy-num">${idx + 1}</span>
+        <div class="txt">${escapeHtml(item.q)}${item.sub ? '<small>' + escapeHtml(item.sub) + '</small>' : ''}</div>
+      </div>
+    `;
+    if(item.type === 'scale'){
+      html += `<div class="scale" data-q="${idx}">`;
+      for(let i = 1; i <= 5; i++){
+        html += `<button type="button" class="r" data-val="${i}">${i}<small>${RATING_LABELS[i-1]}</small></button>`;
+      }
+      html += `</div>`;
+      html += `<div class="scale-lbl"><span>Very Poor</span><span>Excellent</span></div>`;
+    } else if(item.type === 'select'){
+      html += `<select class="svy-textarea" data-q="${idx}" style="min-height:auto"><option value="">Select a section…</option>`;
+      item.options.forEach(o => { html += `<option>${escapeHtml(o)}</option>`; });
+      html += `</select>`;
+    } else if(item.type === 'yesno'){
+      html += `<div class="yesno" data-q="${idx}">
+        <button type="button" class="y" data-val="Yes">✓ Yes</button>
+        <button type="button" class="y" data-val="No">✗ No</button>
+      </div>`;
+    } else if(item.type === 'textarea'){
+      html += `<textarea class="svy-textarea" data-q="${idx}" placeholder="Type your response…"></textarea>`;
+    }
+    div.innerHTML = html;
+    box.appendChild(div);
+  });
+
+  box.querySelectorAll('.scale .r').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.r').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      state.survey[parseInt(parent.dataset.q)] = parseInt(btn.dataset.val);
+    });
+  });
+  box.querySelectorAll('.yesno .y').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.y').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      state.survey[parseInt(parent.dataset.q)] = btn.dataset.val;
+    });
+  });
+  box.querySelectorAll('select.svy-textarea').forEach(sel => {
+    sel.addEventListener('change', () => { state.survey[parseInt(sel.dataset.q)] = sel.value; });
+  });
+  box.querySelectorAll('textarea.svy-textarea').forEach(ta => {
+    ta.addEventListener('input', () => { state.survey[parseInt(ta.dataset.q)] = ta.value; });
+  });
+}
+
+document.getElementById('toSurveyBtn').addEventListener('click', () => {
+  renderSurvey();
+  showScreen('screen-survey');
+});
+
+document.getElementById('submitSurvey').addEventListener('click', () => {
+  const required = [0,1,2,3,4,5,6,7];
+  const missing = required.filter(i => state.survey[i] === undefined || state.survey[i] === '');
+  if(missing.length > 0){
+    if(!confirm(`You have ${missing.length} unanswered required question(s).\nSubmit anyway?`)) return;
+  }
+  renderThanks();
+  showScreen('screen-thanks');
+});
+
+function renderThanks(){
+  const r = state.results;
+  const c = state.candidate;
+  const min = Math.floor(r.elapsed / 60);
+  const sec = r.elapsed % 60;
+
+  const m1 = r.perModule.find(m => m.id === 1);
+  const m2 = r.perModule.find(m => m.id === 2);
+  const m3 = r.perModule.find(m => m.id === 3);
+  const m4 = r.perModule.find(m => m.id === 4);
+  const firstThreePassed = m1.passed && m2.passed && m3.passed;
+  const allPassed = firstThreePassed && m4.passed;
+
+  let nextStep = '';
+  if(allPassed){
+    nextStep = '<span style="color:var(--green);font-weight:800">✓ Fully Certified</span>';
+  } else if(firstThreePassed){
+    nextStep = '<span style="color:var(--accent);font-weight:800">→ Proceed to Module 4</span>';
+  } else {
+    nextStep = '<span style="color:var(--red);font-weight:800">✗ Review &amp; Retake</span>';
+  }
+
+  document.getElementById('thanksSummary').innerHTML = `
+    <h4>Certification Summary</h4>
+    <div class="row"><span>Candidate</span><span>${escapeHtml(c.name)}</span></div>
+    <div class="row"><span>Position</span><span>${escapeHtml(c.position)}</span></div>
+    <div class="row"><span>Years of Service</span><span>${escapeHtml(c.years)}</span></div>
+    <div class="row"><span>Area of Responsibility</span><span>${escapeHtml(c.area)}</span></div>
+    <div class="row"><span>Overall Score (first-try basis)</span><span>${r.correct}/${r.total} (${r.pct.toFixed(1)}%)</span></div>
+    <div class="row"><span>Module 1 · Foundation</span><span style="color:${m1.passed ? 'var(--green)' : 'var(--red)'}">${m1.pct.toFixed(0)}% ${m1.passed ? '✓' : '✗'}</span></div>
+    <div class="row"><span>Module 2 · Machine Ops</span><span style="color:${m2.passed ? 'var(--green)' : 'var(--red)'}">${m2.pct.toFixed(0)}% ${m2.passed ? '✓' : '✗'}</span></div>
+    <div class="row"><span>Module 3 · Field Service</span><span style="color:${m3.passed ? 'var(--green)' : 'var(--red)'}">${m3.pct.toFixed(0)}% ${m3.passed ? '✓' : '✗'}</span></div>
+    <div class="row"><span>Module 4 · Advanced</span><span style="color:${m4.passed ? 'var(--green)' : 'var(--red)'}">${m4.pct.toFixed(0)}% ${m4.passed ? '✓' : '✗'}</span></div>
+    <div class="row"><span>Next Step</span><span>${nextStep}</span></div>
+    <div class="row"><span>Time Elapsed</span><span>${min}m ${sec}s</span></div>
+    <div class="row"><span>Date</span><span>${new Date().toLocaleDateString()}</span></div>
+  `;
+}
+
+/* ============================================================
+   13. RESTART
+============================================================ */
+document.getElementById('restartBtn').addEventListener('click', () => {
+  if(!confirm('Start a new exam? All current data will be cleared.')) return;
+  if(state.timerInterval) clearInterval(state.timerInterval);
+
+  state = {
+    candidate: { name:'', position:'', years:'', area:'' },
+    firstAnswer: {},
+    wrongAttempts: {},
+    solved: {},
+    currentSec: 0,
+    started: false,
+    submitted: false,
+    startTime: null,
+    elapsed: 0,
+    timerInterval: null,
+    survey: {},
+    results: null
+  };
+
+  document.getElementById('candForm').reset();
+  document.getElementById('topbar').style.display = 'none';
+  document.getElementById('progStrip').style.display = 'none';
+
+  showScreen('screen-start');
+});
+
+/* ============================================================
+   14. INIT
+============================================================ */
+console.log(`PVC Certification Exam — ${TOTAL_Q} items · ${SECTIONS.length} sections · ${MODULES.length} modules`);
+console.log('Answer Mode: Retry-until-correct · Scoring: first-attempt basis');
+</script>
+</body>
+</html>
