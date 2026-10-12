@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SL 1000 S-Line — Interactive Service Training</title>
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1c232c; --line:#2a3441;
+  --txt:#e6edf3; --dim:#9aa7b4; --accent:#e8a33d; --accent2:#c8792a;
+  --ok:#3fb950; --warn:#d29922; --err:#f85149; --info:#58a6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--txt);line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--info)}
+/* ---------- HEADER ---------- */
+header{
+  background:linear-gradient(135deg,#1a1005,#241708 40%,#161b22);
+  border-bottom:2px solid var(--accent2);
+  padding:22px 28px;position:relative;overflow:hidden;
+}
+header::after{
+  content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(232,163,61,.18),transparent 70%);border-radius:50%;
+}
+header h1{font-size:1.55rem;letter-spacing:.5px}
+header h1 span{color:var(--accent)}
+header p{color:var(--dim);font-size:.86rem;margin-top:4px}
+.badge{display:inline-block;background:var(--accent2);color:#0d1117;font-weight:700;
+  font-size:.68rem;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;letter-spacing:.6px}
+/* ---------- TABS ---------- */
+nav{
+  display:flex;flex-wrap:wrap;gap:4px;padding:10px 18px;background:var(--panel);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100;
+}
+nav button{
+  background:transparent;border:1px solid transparent;color:var(--dim);
+  padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.83rem;font-weight:600;
+  transition:.18s;font-family:inherit;
+}
+nav button:hover{background:var(--panel2);color:var(--txt)}
+nav button.active{background:var(--accent);color:#0d1117;border-color:var(--accent)}
+/* ---------- LAYOUT ---------- */
+main{max-width:1180px;margin:0 auto;padding:26px 20px 80px}
+section{display:none;animation:fade .25s ease}
+section.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{font-size:1.35rem;margin-bottom:6px;color:var(--accent)}
+h2 + .sub{color:var(--dim);font-size:.86rem;margin-bottom:20px}
+h3{font-size:1.05rem;margin:26px 0 10px;color:var(--txt);border-left:3px solid var(--accent);padding-left:10px}
+h4{font-size:.93rem;margin:18px 0 8px;color:var(--accent)}
+p,li{font-size:.9rem}
+ul,ol{margin:8px 0 8px 22px}
+li{margin:4px 0}
+code{background:#0b0f14;border:1px solid var(--line);padding:1px 6px;border-radius:5px;
+  font-size:.83rem;color:var(--accent);font-family:ui-monospace,Consolas,monospace}
+/* ---------- CARDS ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+.card.tight{padding:14px 16px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px}
+.stat .k{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.7px}
+.stat .v{font-size:1.15rem;font-weight:700;color:var(--accent);margin-top:3px}
+/* ---------- CALLOUTS ---------- */
+.call{border-left:4px solid var(--info);background:rgba(88,166,255,.08);
+  padding:11px 15px;border-radius:0 8px 8px 0;margin:12px 0;font-size:.87rem}
+.call.danger{border-color:var(--err);background:rgba(248,81,73,.09)}
+.call.warn{border-color:var(--warn);background:rgba(210,153,34,.09)}
+.call.ok{border-color:var(--ok);background:rgba(63,185,80,.09)}
+.call b{color:inherit}
+.call .lbl{display:block;font-weight:700;font-size:.75rem;letter-spacing:.9px;
+  text-transform:uppercase;margin-bottom:3px;opacity:.85}
+/* ---------- TABLES ---------- */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.84rem}
+th{background:var(--panel2);text-align:left;padding:9px 11px;color:var(--accent);
+  font-size:.74rem;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--line);position:sticky;top:0}
+td{padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:rgba(255,255,255,.025)}
+/* ---------- KEYBOARD LAB ---------- */
+.lab{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:20px;align-items:start}
+@media(max-width:820px){.lab{grid-template-columns:1fr}}
+.kb-wrap{background:#0a0d12;border:1px solid var(--line);border-radius:16px;padding:18px;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.6)}
+.sim-display{
+  background:linear-gradient(180deg,#04121f,#061a2c);border:1px solid #1d3a55;border-radius:8px;
+  padding:11px 13px;font-family:ui-monospace,Consolas,monospace;font-size:.76rem;color:#7fd4ff;
+  min-height:132px;margin-bottom:16px;white-space:pre-wrap;line-height:1.45;
+  box-shadow:inset 0 0 18px rgba(0,120,200,.18);
+}
+.sim-display .hd{color:#ffd479;font-weight:700}
+.sim-display .bar{color:#5ce07a}
+.sim-display .err{color:#ff7b72}
+.kb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.key{
+  background:linear-gradient(180deg,#232c37,#161c24);
+  border:1px solid #303b48;border-radius:10px;color:#c9d6e3;
+  font-size:1.05rem;font-weight:700;padding:15px 4px;cursor:pointer;
+  transition:.12s;font-family:inherit;position:relative;
+}
+.key:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.key:active,.key.flash{background:var(--accent);color:#0d1117;border-color:var(--accent);
+  box-shadow:0 0 18px rgba(232,163,61,.55)}
+.key.wide{font-size:.72rem;letter-spacing:1.1px;padding:13px 4px}
+.key.start{color:#8ee89b;border-color:#2c5a34}
+.key.start:hover,.key.start.flash{background:var(--ok);color:#0d1117;border-color:var(--ok);box-shadow:0 0 18px rgba(63,185,80,.5)}
+.key.reset{color:#ffb86b;border-color:#5a4327}
+.key.reset:hover,.key.reset.flash{background:var(--warn);color:#0d1117;border-color:var(--warn);box-shadow:0 0 18px rgba(210,153,34,.5)}
+.key.ret{color:#7fb6ff;border-color:#2a4364}
+.key.ret:hover,.key.ret.flash{background:var(--info);color:#0d1117;border-color:var(--info);box-shadow:0 0 18px rgba(88,166,255,.5)}
+.kb-hint{font-size:.72rem;color:var(--dim);margin-top:12px;text-align:center}
+.detail{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;min-height:340px}
+.detail h3{margin-top:0;border:none;padding:0;color:var(--accent);font-size:1.2rem}
+.detail .tag{display:inline-block;background:var(--panel2);border:1px solid var(--line);
+  border-radius:20px;font-size:.68rem;padding:2px 10px;color:var(--dim);margin:0 6px 8px 0;letter-spacing:.5px}
+.detail .row{border-top:1px solid var(--line);padding:11px 0}
+.detail .row:first-of-type{border-top:none}
+.detail .row .lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent);font-weight:700;margin-bottom:3px}
+.detail .row p{font-size:.87rem;color:#cfd9e4}
+.seq{display:inline-block;background:#0b0f14;border:1px solid var(--line);border-radius:6px;
+  padding:2px 8px;font-family:ui-monospace,monospace;font-size:.8rem;color:var(--accent);margin:2px 4px 2px 0}
+/* ---------- CHECKLIST ---------- */
+.prog{height:7px;background:#0b0f14;border-radius:20px;overflow:hidden;margin:8px 0 16px;border:1px solid var(--line)}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0;transition:width .3s}
+.chk{display:flex;gap:11px;align-items:flex-start;padding:9px 11px;border-radius:8px;
+  border:1px solid transparent;transition:.15s;cursor:pointer}
+.chk:hover{background:var(--panel2);border-color:var(--line)}
+.chk input{margin-top:5px;width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.chk.done{opacity:.5}
+.chk.done .t{text-decoration:line-through}
+.chk .t{font-size:.88rem}
+.chk .t small{display:block;color:var(--dim);font-size:.78rem;margin-top:2px}
+/* ---------- ERROR TABLE ---------- */
+.filters{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.chip{background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  padding:5px 13px;border-radius:20px;font-size:.76rem;cursor:pointer;transition:.15s;font-family:inherit}
+.chip:hover{color:var(--txt);border-color:var(--accent)}
+.chip.active{background:var(--accent);color:#0d1117;border-color:var(--accent);font-weight:700}
+input[type=search]{
+  width:100%;background:#0b0f14;border:1px solid var(--line);border-radius:9px;
+  padding:11px 14px;color:var(--txt);font-size:.88rem;font-family:inherit;outline:none;
+}
+input[type=search]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,163,61,.13)}
+.ecode{font-family:ui-monospace,monospace;font-weight:700;color:var(--err);font-size:.8rem;white-space:nowrap}
+.sev{display:inline-block;font-size:.65rem;padding:1px 7px;border-radius:10px;font-weight:700;letter-spacing:.5px}
+.sev.g{background:rgba(248,81,73,.18);color:#ff8b82}
+.sev.y{background:rgba(210,153,34,.18);color:#f0c14b}
+.sev.b{background:rgba(88,166,255,.18);color:#8cc4ff}
+/* ---------- MISC ---------- */
+details{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:11px 15px;margin:9px 0}
+details summary{cursor:pointer;font-weight:600;font-size:.88rem;color:var(--accent);list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"▸ ";transition:.2s;display:inline-block}
+details[open] summary::before{transform:rotate(90deg)}
+details p,details ul{margin-top:9px}
+.pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);
+  border-radius:6px;padding:1px 8px;font-size:.75rem;color:var(--dim);margin:2px}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+.flow .step{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+  padding:7px 12px;font-size:.8rem}
+.flow .arw{color:var(--accent);font-weight:700}
+.reset-btn{background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  padding:6px 13px;border-radius:8px;cursor:pointer;font-size:.76rem;font-family:inherit}
+.reset-btn:hover{border-color:var(--err);color:var(--err)}
+footer{text-align:center;color:var(--dim);font-size:.75rem;padding:26px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Spengler <span>SL 1000</span> S-Line <span class="badge">SERVICE TRAINING</span></h1>
+  <p>Interactive learning module — Operation · Keyboard Lab · Cleaning · Diagnostics</p>
+</header>
+
+<nav id="nav">
+  <button data-tab="overview" class="active">Overview</button>
+  <button data-tab="safety">Safety</button>
+  <button data-tab="install">Installation</button>
+  <button data-tab="operation">Operation</button>
+  <button data-tab="keyboard">⌨ Keyboard Lab</button>
+  <button data-tab="testmenu">Test &amp; Service Menu</button>
+  <button data-tab="cleaning">Cleaning</button>
+  <button data-tab="errors">Error Codes</button>
+  <button data-tab="specs">Tech Data</button>
+</nav>
+
+<main>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="active">
+  <h2>Machine Overview</h2>
+  <p class="sub">Spengler SL 1000 S-Line — commercial hot drinks vending machine (café+co).</p>
+
+  <div class="grid g4">
+    <div class="stat"><div class="k">Mains</div><div class="v">230 V~ / 50 Hz</div></div>
+    <div class="stat"><div class="k">Power</div><div class="v">2.7 kW</div></div>
+    <div class="stat"><div class="k">Water</div><div class="v">2–5 bar</div></div>
+    <div class="stat"><div class="k">Weight</div><div class="v">150–160 kg</div></div>
+    <div class="stat"><div class="k">Dimensions</div><div class="v">1830×664×700</div></div>
+    <div class="stat"><div class="k">Cups</div><div class="v">max 13 cm</div></div>
+    <div class="stat"><div class="k">Pots</div><div class="v">max 25 cm</div></div>
+    <div class="stat"><div class="k">Capacity</div><div class="v">~150 / day</div></div>
+  </div>
+
+  <h3>Machine Variants</h3>
+  <div class="grid g4">
+    <div class="stat"><div class="k">ES</div><div class="v">Espresso</div></div>
+    <div class="stat"><div class="k">FB</div><div class="v">FreshBrew</div></div>
+    <div class="stat"><div class="k">IN</div><div class="v">Instant</div></div>
+    <div class="stat"><div class="k">BTC</div><div class="v">Bean To Cup</div></div>
+  </div>
+
+  <h3>Exterior Components</h3>
+  <table>
+    <tr><th style="width:60px">Pos</th><th>Component</th><th>Function</th></tr>
+    <tr><td>1</td><td>Display</td><td>Shows main menu, product list, operator menus, fault messages</td></tr>
+    <tr><td>2</td><td>Cup carrier / cup table</td><td>Holds cup or pot. Push sideways to fit a pot (max 25 cm)</td></tr>
+    <tr><td>3</td><td>Keyboard</td><td>Illuminated touch keys 0–9, ◁ ▷, RETURN, RESET, START</td></tr>
+  </table>
+
+  <h3>Interior Components (SL 1000 ES shown)</h3>
+  <table>
+    <tr><th style="width:60px">Pos</th><th>Component</th><th>Pos</th><th>Component</th></tr>
+    <tr><td>1</td><td>Product container</td><td>9</td><td>Water filter (optional)</td></tr>
+    <tr><td>2</td><td>Beans container</td><td>10</td><td>Wastewater bucket</td></tr>
+    <tr><td>3</td><td>Grinding gear</td><td>11</td><td>Infrared interface (IRDA)</td></tr>
+    <tr><td>4</td><td>Brewing units</td><td>12</td><td>Cup dispenser</td></tr>
+    <tr><td>5</td><td>Mixing units</td><td>13</td><td>Sugar container</td></tr>
+    <tr><td>6</td><td>Main switch</td><td>14</td><td>Sugar dispenser</td></tr>
+    <tr><td>7</td><td>Cold water unit (optional)</td><td>15</td><td>Draining hose</td></tr>
+    <tr><td>8</td><td>Grounds bucket</td><td>16</td><td>Door-angle limiting hook</td></tr>
+  </table>
+
+  <div class="call">
+    <span class="lbl">Type badge location</span>
+    Inside the machine, on the <b>right-hand side of the door frame</b>: connection plan (1) and type badge (2).
+    The badge carries machine type, production number, mains voltage, amperage, production year, frequency, power usage and cable pressure.
+  </div>
+</section>
+
+<!-- ============ SAFETY ============ -->
+<section id="safety">
+  <h2>Safety &amp; User Groups</h2>
+  <p class="sub">Read before any work on the machine.</p>
+
+  <h3>User Groups</h3>
+  <table>
+    <tr><th>Group</th><th>Responsibility</th></tr>
+    <tr><td><b>User</b></td><td>Customer / consumer. Only obtains products. No access to internal parts or programming.</td></tr>
+    <tr><td><b>Service technician</b></td><td>Trained expert. Knows hazards, sets up, maintains, repairs and programmes the machine.</td></tr>
+    <tr><td><b>Person who sets up</b></td><td>Responsible for correct setup and maintenance.</td></tr>
+    <tr><td><b>Person who runs</b></td><td>Responsible for regular replenishment and cleaning.</td></tr>
+    <tr><td><b>Replenishing technician</b></td><td>Replenishes and cleans the machine.</td></tr>
+  </table>
+
+  <h3>General Safety Rules</h3>
+  <ul>
+    <li>Read the manual completely before use.</li>
+    <li>Only connect to mains matching the voltage on the type badge.</li>
+    <li>Never store or use near heat or gas sources.</li>
+    <li><b>Disconnect power before cleaning or maintenance.</b></li>
+    <li>Protect from splash water — never pull the cable to unplug.</li>
+    <li>Never put the machine or cable into water.</li>
+    <li>Water hardness max 8°dH — otherwise a filter is mandatory.</li>
+    <li>Place on stable, firm ground, out of reach of small children.</li>
+    <li>If machine or cable is damaged → take out of service, contact service centre.</li>
+    <li>Never use outdoors. Protect from weather.</li>
+    <li>Only original spare parts.</li>
+  </ul>
+
+  <div class="call danger">
+    <span class="lbl">Danger — Electric shock</span>
+    Always turn off the machine and pull the plug before performing maintenance or repair work.
+  </div>
+  <div class="call warn">
+    <span class="lbl">Caution — Scalding</span>
+    Hot surfaces and hot water inside. Allow the machine to cool before cleaning. After selecting <b>Fill Boiler</b> or <b>Empty Boiler</b> the machine immediately dispenses hot water — place a vessel first.
+  </div>
+  <div class="call warn">
+    <span class="lbl">Caution — Crushing</span>
+    The fresh brewing unit and espresso brewing unit have parts that move on their own. Never put hands inside while the machine is switched on.
+  </div>
+  <div class="call warn">
+    <span class="lbl">Caution — Pressure</span>
+    Before working on the boiler or pipes: interrupt the water supply → dispense hot water until <b>Check inlet</b> appears → disconnect from mains.
+  </div>
+  <div class="call danger">
+    <span class="lbl">Attention — Destruction</span>
+    Never hose the machine down or use a high-pressure cleaner. Risk of electric shock and internal damage.
+  </div>
+  <div class="call">
+    <span class="lbl">Hygiene</span>
+    Wash hands before replenishing. Avoid direct contact with product. Do not cough or sneeze into containers. Do not touch the inside of a container after cleaning. Respect use-by dates.
+  </div>
+
+  <h3>Wear Parts (not covered by warranty)</h3>
+  <p>Mechanical parts and parts in the hot-water circuit: hoses, seals, outlets and similar. Defects caused by wear must be resolved by manufacturer-trained service technicians.</p>
+</section>
+
+<!-- ============ INSTALLATION ============ -->
+<section id="install">
+  <h2>Installation &amp; First Setup</h2>
+  <p class="sub">Machine may only be set up and started by trained personnel.</p>
+
+  <h3>Steps for First Use</h3>
+  <div class="flow">
+    <span class="step">1. Unpack</span><span class="arw">→</span>
+    <span class="step">2. Position</span><span class="arw">→</span>
+    <span class="step">3. Water supply</span><span class="arw">→</span>
+    <span class="step">4. Mains electricity</span><span class="arw">→</span>
+    <span class="step">5. Emergency lock</span><span class="arw">→</span>
+    <span class="step">6. Fill products</span><span class="arw">→</span>
+    <span class="step">7. Fill cups</span><span class="arw">→</span>
+    <span class="step">8. Fill sticks (ES)</span><span class="arw">→</span>
+    <span class="step">9. Switch on</span><span class="arw">→</span>
+    <span class="step">10. Fill boiler</span><span class="arw">→</span>
+    <span class="step">11. Programme</span><span class="arw">→</span>
+    <span class="step">12. Calibrate + final control</span>
+  </div>
+
+  <h3>Positioning</h3>
+  <div class="call warn">
+    <span class="lbl">Important</span>
+    Dry, well-ventilated room only. Even ground. Align with a spirit level using the four adjustable feet.
+  </div>
+  <ul>
+    <li><b>Back clearance:</b> min. 60 mm (ventilation + water supply).</li>
+    <li><b>Right clearance:</b> 5 mm (door opening angle &gt; 90°).</li>
+    <li>Water hose must not be bent.</li>
+    <li>Enough room around machine for maintenance, cleaning and repair.</li>
+  </ul>
+
+  <h3>Water Connection</h3>
+  <ol>
+    <li>Only use mains with drinking-safe water. Rinse the mains thoroughly before connecting.</li>
+    <li>Lead the water hose through the opening at the back.</li>
+    <li>Connect to the connection spout (G3/8" outer thread) inside the machine.</li>
+    <li>Make sure the connection is tight.</li>
+  </ol>
+  <div class="call">
+    <span class="lbl">Note</span>
+    Allowed water pressure <b>2–5 bar</b>. Lower → separate water pump required.<br>
+    Water hardness max <b>8°dH</b> — otherwise a water filter must be used.
+  </div>
+
+  <h3>Electrical Connection</h3>
+  <ul>
+    <li>Check the type badge for correct voltage/frequency.</li>
+    <li>Do not connect to a network subject to voltage variations from heavy-duty machinery.</li>
+    <li>Use a grounded socket with protective grounding.</li>
+    <li>The plug must remain easily accessible so power can be interrupted.</li>
+  </ul>
+
+  <h3>Emergency Lock Installation</h3>
+  <ol>
+    <li>Remove the faceplate at the front (pull out in arrow direction).</li>
+    <li>Insert a screwdriver into the door opening and push the bolting bar upwards — door is unbolted.</li>
+    <li>Take the emergency lock out of the grounds bucket.</li>
+    <li>Put it into the opening at the machine door.</li>
+    <li>Turn until it engages in its final position, then pull out the key.</li>
+  </ol>
+
+  <h3>Opening the Door with an IR Key</h3>
+  <p>Hold the IR key towards the machine door and press the send button. The door is unbolted.</p>
+  <div class="call warn">
+    <span class="lbl">Note</span>
+    When using the technician's key, the belonging password must be keyed in additionally. The IR key must be ordered separately.
+  </div>
+
+  <h3>Coffee Grinder Setting (BTC / ES)</h3>
+  <div class="call">
+    <span class="lbl">Note</span>
+    Default setting is for reference beans. Grinding level is changed with the screw in the grinder lid. Turning direction <i>grob/fein</i> is depicted on the lid. <b>Only trained personnel may change the grinding level.</b>
+  </div>
+  <ol>
+    <li>Make sure there are <b>no coffee beans</b> in the grinder.</li>
+    <li>Loosen the counter disk with a face spanner for angle grinders (35 mm).</li>
+    <li>Activate the grinder in the operator menu.</li>
+    <li>With the grinder running, turn the adjustment screw <b>clockwise (fein)</b> until the grinding wheels touch.</li>
+    <li>With the grinder running, turn <b>counter-clockwise (grob)</b> to the desired level (1 line = 28 µm).</li>
+    <li>Filter level → open <b>17 lines</b>. Espresso level → open <b>9 lines</b>.</li>
+    <li>Switch the grinder off.</li>
+    <li>Pull the counter disk tight — hold the adjustment screw with a screwdriver so the setting does not change.</li>
+  </ol>
+
+  <h3>Filling the Boiler</h3>
+  <div class="call warn">
+    <span class="lbl">Caution — Scalding</span>
+    After choosing <b>Fill boiler</b> the machine starts immediately dispensing hot water. Put a vessel (~1000 ml) underneath the drinks dispenser first. <b>Password level 250 required.</b>
+  </div>
+  <div class="flow">
+    <span class="step">Main switch ON</span><span class="arw">→</span>
+    <span class="step"><span class="seq">RESET</span></span><span class="arw">→</span>
+    <span class="step"><span class="seq">9</span> Password</span><span class="arw">→</span>
+    <span class="step">enter password</span><span class="arw">→</span>
+    <span class="step"><span class="seq">2</span> Machine</span><span class="arw">→</span>
+    <span class="step"><span class="seq">4</span> Programs</span><span class="arw">→</span>
+    <span class="step"><span class="seq">3</span> Fill boiler</span><span class="arw">→</span>
+    <span class="step"><span class="seq">7</span> Reset automat</span>
+  </div>
+  <p>When restarted, the heater heats water to the programmed temperature (default <b>97 °C</b>). The boiler is secured by two safety temperature regulators (STR) that switch off the heater if temperature gets too high.</p>
+
+  <h3>Draining the Boiler (before transport / long shutdown)</h3>
+  <div class="call warn">
+    <span class="lbl">Caution — Scalding</span>
+    After selecting <b>Empty Boiler</b>, the machine starts immediately and dispenses hot water. Put a vessel with about <b>1500 ml</b> capacity underneath the drinks dispensers first. <b>Password level 250 required.</b>
+  </div>
+  <ol>
+    <li>Turn off the machine water supply.</li>
+    <li>Open the machine door.</li>
+    <li>Press <code>RESET</code> → Operator Menu.</li>
+    <li>Press <code>9</code> (Password) → key in password.</li>
+    <li>Press <code>2</code> (Machine).</li>
+    <li>Press <code>3</code> (Empty Boiler).</li>
+    <li>Boiler is drained. Switch off the machine after about 10 seconds.</li>
+  </ol>
+
+  <h3>Calibration</h3>
+  <div class="call danger">
+    <span class="lbl">Important — Wrong dosage</span>
+    Before each calibration, a <b>3× test-dosage</b> must be performed to make sure the dispenser coils are filled. Calibration must be performed for <b>each container</b>. When changing a container, motor or product, always calibrate again.
+  </div>
+  <p><b>Access:</b> Operator Menu → <span class="seq">9</span> Password → password → <span class="seq">2</span> Machine → <span class="seq">1</span> Components → select container with <span class="seq">◁</span> <span class="seq">▷</span> → <span class="seq">4</span> Calibr. [gr/kEMK].</p>
+  <ol>
+    <li>Demount the component underneath the container (brewing unit or mixer) and disassemble it.</li>
+    <li>Have a vessel ready to catch the ingredient and a scale (0.1 g resolution) — zero it with the empty vessel.</li>
+    <li>Press <code>START</code> twice. After 3 seconds there is a threefold dispensation.</li>
+    <li>Weigh the served ingredient.</li>
+    <li>Compare with the amount stated by the machine.</li>
+    <li>Press <code>RESET</code> and key in the calculated amount.</li>
+    <li>Save with <code>START</code>.</li>
+    <li>Test dosage is requested → start with <code>START</code> → after 3 s the ingredient is served → weigh and compare.</li>
+    <li>If amounts do not match, calibrate again. Otherwise leave with repeated <code>RESET</code>.</li>
+  </ol>
+  <div class="call ok">
+    <span class="lbl">Tip</span>
+    Write the calibration numbers down. If you must calibrate again (e.g. after replacing a Main- or I/O-Board), you can key in these numbers directly.
+  </div>
+
+  <h3>Recipe Settings</h3>
+  <p><b>Password level 100 required.</b></p>
+  <p>Open door → <span class="seq">RESET</span> → <span class="seq">9</span> Password → password → <span class="seq">2</span> Machine → <span class="seq">3</span> Recipes → choose product group → choose product → choose ingredient → choose dosage level → change with <span class="seq">◁</span> <span class="seq">▷</span> or key in numbers → save with <span class="seq">START</span> → repeated <span class="seq">RESET</span> returns to main menu.</p>
+  <div class="call">
+    <span class="lbl">Note</span>
+    An ingredient in square brackets <code>[ ]</code> means the setting is inherited from a superior product and can only be changed there.
+  </div>
+
+  <h3>Final Control</h3>
+  <ul>
+    <li>Check the machine is waterproof — special attention to couplings, connections and links.</li>
+    <li>Control dispensed water amounts and product doses.</li>
+    <li>Lock the front door and pull out the key.</li>
+  </ul>
+</section>
+
+<!-- ============ OPERATION ============ -->
+<section id="operation">
+  <h2>Daily Operation</h2>
+  <p class="sub">Product selection, replenishment and consumables.</p>
+
+  <h3>Product Selection — Step by Step</h3>
+  <ol>
+    <li>Place a cup (or pot) underneath the product dispensation units. The display shows <b>Please select</b>.</li>
+    <li><b>For a pot:</b> push the cup table to the right first.</li>
+    <li>Select a product using the number keys <code>0</code>–<code>9</code>.</li>
+    <li>Select the strength (e.g. coffee amount) with the arrow keys <code>◁</code> and <code>▷</code>.</li>
+    <li>Confirm with <code>START</code>. The drink is served.</li>
+    <li>The display shows <b>Product preparation</b>.</li>
+    <li>Only remove your cup or pot when the display shows <b>Remove product</b>.</li>
+    <li><b>For a pot:</b> push the cup table back into starting position.</li>
+  </ol>
+  <div class="call">
+    <span class="lbl">Note</span>
+    Before setting the strength with the arrow keys, the additional product must be reactivated with the selection keys. Non-illuminated keys are non-functional.
+  </div>
+
+  <h3>Sample Main Menu</h3>
+  <table>
+    <tr><th>Key</th><th>Product</th><th>Key</th><th>Product</th></tr>
+    <tr><td>1</td><td>Espresso</td><td>6</td><td>Espresso choc</td></tr>
+    <tr><td>2</td><td>Double espresso</td><td>7</td><td>Chocolate</td></tr>
+    <tr><td>3</td><td>Fresh leaf tea</td><td>8</td><td>Whipped chocolate</td></tr>
+    <tr><td>4</td><td>Cappuccino</td><td>9</td><td>Hot water</td></tr>
+    <tr><td>5</td><td>American coffee</td><td>0</td><td>Flask</td></tr>
+  </table>
+  <p style="font-size:.82rem;color:var(--dim)">The listing can be re-ordered to match customer popularity. Default language is English.</p>
+
+  <h3>Product Replenishment</h3>
+  <ol>
+    <li>Open the machine door.</li>
+    <li>Slightly lift the product container at the front <b>(1)</b> and pull it out towards you <b>(2)</b>.</li>
+    <li>Lift the lid off the container you want to replenish and put in the product.</li>
+    <li>Repeat for every product — <b>except</b> whole coffee beans (BTC / ES).</li>
+    <li>For whole beans (BTC / ES): lift off the lid of the separate bean container and put in the beans.</li>
+  </ol>
+  <div class="call warn">
+    <span class="lbl">Important</span>
+    Products may only be filled in <b>loosely</b>. Avoid any compression.
+  </div>
+  <div class="call">
+    <span class="lbl">Note</span>
+    After first filling — or after filling from completely empty (cleaning) — run a couple of test dispensations so the dispenser coils fill up completely.
+    Only use suitable products and note their use-by date.
+  </div>
+
+  <h3>Cup Dispenser Replenishment</h3>
+  <ul>
+    <li>Capacity: up to <b>1000 cups</b> — 500 per dispensing side.</li>
+    <li>Open the machine door.</li>
+    <li>Fill each of the ten shaft tubes (five per dispensing side) from the top with up to <b>100 cups</b>.</li>
+    <li>Adjust the cup rings so that roughly every <b>25 cm</b> there is one cup ring in place (they are at the very top at delivery).</li>
+  </ul>
+  <div class="call warn">
+    <span class="lbl">Attention</span>
+    Max cup height <b>13 cm</b>, max pot height <b>25 cm</b>. If one side runs out, drinks can only be dispensed into separate cups on that side.
+  </div>
+
+  <h3>Stick Dispenser (version ES)</h3>
+  <ul>
+    <li>SL 1000 ES can add a stick automatically — <b>left dispensing side only</b>.</li>
+    <li>Sticks must be between <b>96 and 116 mm</b> long.</li>
+  </ul>
+  <ol>
+    <li>Open the machine door.</li>
+    <li>Remove the weight axis from the stick dispenser at the back of the machine door.</li>
+    <li>Take the bunch of sticks from the packaging and lay them out on a flat surface as accurately as possible.</li>
+    <li>From the top, push the bunch of sticks into the stick feeder.</li>
+    <li>Remove the seal from the bunch of sticks.</li>
+    <li>Fill the stick feeder to about <b>10 mm below the upper rim</b>.</li>
+    <li>Put the weight axis back in.</li>
+    <li>Close the machine door.</li>
+  </ol>
+
+  <h3>Sugar Container (version ES)</h3>
+  <ol>
+    <li>Take off the lid of the sugar container.</li>
+    <li>Replenish the sugar.</li>
+    <li>Close the lid again.</li>
+  </ol>
+</section>
+
+<!-- ============ KEYBOARD LAB ============ -->
+<section id="keyboard">
+  <h2>⌨ Keyboard Lab</h2>
+  <p class="sub">Click any key on the simulated panel (or use your physical keyboard) to see exactly what that key does.</p>
+
+  <div class="lab">
+    <div class="kb-wrap">
+      <div class="sim-display" id="simDisplay"></div>
+      <div class="kb-grid" id="kbGrid"></div>
+      <div class="kb-hint">Physical keys: 0–9 · ← → arrows · Enter = START · Esc = RESET · Backspace = RETURN</div>
+    </div>
+    <div class="detail" id="keyDetail"></div>
+  </div>
+
+  <h3>Keyboard Behaviour Summary</h3>
+  <table>
+    <tr><th>Key</th><th>Main menu (user mode)</th><th>Menu / programming mode</th></tr>
+    <tr><td class="ecode">0–9</td><td>Select product by number</td><td>Select menu item by number · key in passwords, dosages, calibration weights</td></tr>
+    <tr><td class="ecode">◁ ▷</td><td>Change product strength (coffee / sugar amount)</td><td>Move between containers / components · select programme in list · change dosage values</td></tr>
+    <tr><td class="ecode">RETURN</td><td>Cancel / return card &amp; coins</td><td>Back one step · repeated press → main menu</td></tr>
+    <tr><td class="ecode">RESET</td><td>Delete keyed-in info · <b>opens Operator Menu</b></td><td>Delete entry · exit to main menu (repeated press)</td></tr>
+    <tr><td class="ecode">START</td><td>Confirm selection → prepare drink</td><td>Save value · start test dosage · start programme</td></tr>
+  </table>
+
+  <div class="call">
+    <span class="lbl">Auto-return</span>
+    If there is no input within <b>30 seconds</b>, the display automatically returns to the main menu.
+  </div>
+</section>
+
+<!-- ============ TEST MENU ============ -->
+<section id="testmenu">
+  <h2>Test &amp; Service Menu — Which Button to Press</h2>
+  <p class="sub">Complete key sequences for every service task.</p>
+
+  <h3>Keyboard Test (what button to press)</h3>
+  <div class="call ok">
+    <span class="lbl">Purpose</span>
+    Verifies that every key on the front panel is recognised by the mainboard. Use this before replacing a keyboard or mainboard.
+  </div>
+  <ol>
+    <li>Open the machine door.</li>
+    <li>Press <code>RESET</code> → you reach the <b>Operator Menu</b>.</li>
+    <li>Press <code>9</code> (Enter password).</li>
+    <li>Key in your password using the number keys, confirm with <code>START</code>.</li>
+    <li>Press <code>4</code> (Test functions).</li>
+    <li>Press <code>1</code> (Keyboard test).</li>
+    <li><b>Press each key one at a time.</b> The display must react / show the identifier of the key you pressed.</li>
+    <li>Any key that produces <b>no reaction</b> is faulty — check the keypad ribbon cable and its connector on the mainboard (75360, located in the machine door).</li>
+    <li>If <b>all</b> keys are dead, look for fault code <span class="ecode">KBH01</span> (Keyboard does not respond).</li>
+    <li>Exit with repeated <code>RESET</code> back to the main menu.</li>
+  </ol>
+  <p style="font-size:.84rem;color:var(--dim)">Related: <code>4</code> (Test functions) → <code>2</code> (LCD test) checks the display itself.</p>
+
+  <h3>Master Key Sequence Table</h3>
+  <table>
+    <tr><th>Task</th><th>Key sequence</th><th>Password</th></tr>
+    <tr><td>Enter Operator Menu (from main menu)</td><td><span class="seq">RESET</span></td><td>—</td></tr>
+    <tr><td>Enter password</td><td><span class="seq">9</span> → digits → <span class="seq">START</span></td><td>—</td></tr>
+    <tr><td>Machine menu</td><td><span class="seq">2</span></td><td>250</td></tr>
+    <tr><td>Components menu</td><td><span class="seq">2</span> → <span class="seq">1</span></td><td>250</td></tr>
+    <tr><td>Recipes</td><td><span class="seq">2</span> → <span class="seq">3</span></td><td>100</td></tr>
+    <tr><td>Programs menu</td><td><span class="seq">2</span> → <span class="seq">4</span></td><td>250</td></tr>
+    <tr><td>Air test brewer</td><td><span class="seq">2</span> → <span class="seq">4</span> → <span class="seq">1</span></td><td>250</td></tr>
+    <tr><td>Esp. brewer declog</td><td><span class="seq">2</span> → <span class="seq">4</span> → <span class="seq">2</span></td><td>250</td></tr>
+    <tr><td>Fill boiler</td><td><span class="seq">2</span> → <span class="seq">4</span> → <span class="seq">3</span></td><td>250</td></tr>
+    <tr><td>Airtest valves</td><td><span class="seq">2</span> → <span class="seq">4</span> → <span class="seq">4</span></td><td>250</td></tr>
+    <tr><td>Valves cleaning</td><td><span class="seq">2</span> → <span class="seq">4</span> → <span class="seq">5</span></td><td>250</td></tr>
+    <tr><td>Empty boiler</td><td><span class="seq">2</span> → <span class="seq">3</span></td><td>250</td></tr>
+    <tr><td>Service mode</td><td><span class="seq">2</span> → <span class="seq">7</span></td><td>250</td></tr>
+    <tr><td>Calibration</td><td><span class="seq">2</span> → <span class="seq">1</span> → <span class="seq">◁</span><span class="seq">▷</span> select → <span class="seq">4</span></td><td>250</td></tr>
+    <tr><td>Purification (weekly)</td><td><span class="seq">0</span> (Quick Menu) → <span class="seq">7</span></td><td>250</td></tr>
+    <tr><td>Rinsing (short) — daily</td><td><span class="seq">2</span> → <span class="seq">4</span> → <span class="seq">◁</span><span class="seq">▷</span> select "Rinsing (short)"</td><td>250</td></tr>
+    <tr><td>Keyboard test</td><td><span class="seq">4</span> → <span class="seq">1</span></td><td>100+</td></tr>
+    <tr><td>LCD test</td><td><span class="seq">4</span> → <span class="seq">2</span></td><td>100+</td></tr>
+    <tr><td>Test drink</td><td><span class="seq">4</span> → (Test functions 200) → <span class="seq">1</span></td><td>200</td></tr>
+    <tr><td>Test consumption</td><td><span class="seq">8</span></td><td>250</td></tr>
+    <tr><td>Reset automat</td><td><span class="seq">7</span></td><td>250</td></tr>
+  </table>
+
+  <h3>Operator Menu Structure (sample)</h3>
+  <div class="grid g2">
+    <div class="card tight">
+      <h4>OPERATOR MENU (255) — before password</h4>
+      <p><code>2.</code> Machine<br><code>4.</code> Test functions<br><code>5.</code> Log<br><code>6.</code> Miscellaneous<br><code>7.</code> Reset automat<br><code>9.</code> Enter password</p>
+    </div>
+    <div class="card tight">
+      <h4>OPERATOR MENU (250) — after password</h4>
+      <p><code>0.</code> Quick menu<br><code>1.</code> Client data<br><code>2.</code> Machine<br><code>3.</code> Pay functions<br><code>4.</code> Test functions<br><code>5.</code> Log<br><code>6.</code> Miscellaneous<br><code>7.</code> Reset automat<br><code>8.</code> Test consumption<br><code>9.</code> Enter password</p>
+    </div>
+    <div class="card tight">
+      <h4>MACHINE</h4>
+      <p><code>1.</code> Components<br><code>2.</code> Preparations<br><code>3.</code> Recipes<br><code>4.</code> Programs<br><code>5.</code> Durations<br><code>6.</code> Assortment<br><code>7.</code> Service mode<br><code>8.</code> Miscellaneous<br><code>9.</code> Test compl.</p>
+    </div>
+    <div class="card tight">
+      <h4>PROGRAMS</h4>
+      <p><code>1.</code> Air test brewer<br><code>2.</code> Esp. brewer declog<br><code>3.</code> Fill boiler<br><code>4.</code> Airtest valves<br><code>5.</code> Valves cleaning</p>
+    </div>
+  </div>
+
+  <h3>Key Functions While Working in the Operator Menu</h3>
+  <table>
+    <tr><th>Key</th><th>Function</th></tr>
+    <tr><td class="ecode">1 … 9</td><td>Selection of a choice / function</td></tr>
+    <tr><td class="ecode">◁</td><td>1 step up (back)</td></tr>
+    <tr><td class="ecode">▷</td><td>1 step down (forward)</td></tr>
+    <tr><td class="ecode">RETURN</td><td>Back to previous screen</td></tr>
+    <tr><td class="ecode">START</td><td>Activating an action (saving the information)</td></tr>
+  </table>
+</section>
+
+<!-- ============ CLEANING ============ -->
+<section id="cleaning">
+  <h2>Cleaning &amp; Maintenance</h2>
+  <p class="sub">Only a well looked-after machine can function perfectly. Tick items as you complete them.</p>
+
+  <h3>Cleaning Agents (Pictograms)</h3>
+  <table>
+    <tr><th style="width:70px">Code</th><th>Method</th></tr>
+    <tr><td><b>①</b></td><td>Clean with a water-dampened cloth</td></tr>
+    <tr><td><b>②</b></td><td>Clean with a Sanol-dampened cloth (1 part Sanol : 50 parts water)</td></tr>
+    <tr><td><b>③</b></td><td>Clean with Sanol solution applied via atomizer (1 : 50)</td></tr>
+    <tr><td><b>④</b></td><td>Soak in Limandes solution (1 : 100) for approx. 3 hours</td></tr>
+    <tr><td><b>⑤</b></td><td>Soak in Limandes solution (1 : 1) for 3 to 8 hours</td></tr>
+  </table>
+  <div class="call warn">
+    <span class="lbl">Attention — Plastic parts</span>
+    Cleaning temperature must not exceed <b>65 °C</b>. Designer parts made of aluminium must <b>not</b> be cleaned in a dishwasher.
+  </div>
+  <div class="call warn">
+    <span class="lbl">Attention — Cleaning solutions</span>
+    Only use products suitable for food environments that are approved and recommended. Unsuitable products may cause early wear or defects. Follow the manufacturer's use and safety advice.
+  </div>
+
+  <h3>Basic Cleaning Schedule</h3>
+  <table>
+    <tr><th>Construction group</th><th>Part</th><th>Daily</th><th>Weekly</th><th>Monthly</th></tr>
+    <tr><td>Grounds bucket</td><td>Grounds bucket with aperture</td><td>③</td><td></td><td></td></tr>
+    <tr><td rowspan="3">Dripping bowl</td><td>Dripping bowl</td><td>③</td><td>⑤</td><td></td></tr>
+    <tr><td>Dripping grid</td><td>③</td><td>⑤</td><td></td></tr>
+    <tr><td>Connection brace</td><td>③</td><td>⑤</td><td></td></tr>
+    <tr><td>Machine outside</td><td>—</td><td>③</td><td></td><td></td></tr>
+    <tr><td rowspan="2">Cup table</td><td>Cup grid</td><td>③</td><td>⑤</td><td></td></tr>
+    <tr><td>Cup carrier bar</td><td>③</td><td></td><td></td></tr>
+    <tr><td rowspan="5">Fresh brewing unit</td><td>Cover fresh brewing unit</td><td>①</td><td></td><td></td></tr>
+    <tr><td>Exterior fresh brewing unit</td><td>①</td><td></td><td></td></tr>
+    <tr><td>Driver fresh brewing unit</td><td colspan="3">Remove dust if necessary</td></tr>
+    <tr><td>Sieve table</td><td></td><td>④</td><td></td></tr>
+    <tr><td>Filter</td><td></td><td>⑤</td><td></td></tr>
+    <tr><td>—</td><td>Sealing ring</td><td>①</td><td></td><td></td></tr>
+    <tr><td>—</td><td>Wiper arm</td><td>②</td><td></td><td></td></tr>
+  </table>
+  <div class="call">
+    <span class="lbl">Note</span>
+    The interval shown is the <b>minimum frequency</b>. The exact cleaning time depends, amongst other things, on the number of drinks the machine has prepared.
+  </div>
+
+  <!-- DAILY -->
+  <h3>Daily Cleaning Works</h3>
+  <p style="font-size:.84rem;color:var(--dim)">Perform all duties in the correct sequence.</p>
+  <div class="prog"><i id="p-daily"></i></div>
+  <div class="card tight">
+    <h4>1 · Preparatory Works</h4>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Open the machine door<small>Unhook the hook restricting the door's opening angle. Open the door as wide as possible.</small></span></label>
+
+    <h4>2 · Rinsing Programme (Short)</h4>
+    <div class="call warn">
+      <span class="lbl">Caution — Scalding</span>
+      Danger of scalding by hot rinsing water. Must be performed <b>daily</b>.
+    </div>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Place an empty vessel (min. 1 litre) under the product dispensation units</span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Operator Menu → <span class="seq">9</span> Password → key in password</span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Press <span class="seq">2</span> (Machine)</span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Press <span class="seq">4</span> (Programs)</span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">With <span class="seq">◁</span> or <span class="seq">▷</span> select programme <b>Rinsing (short)</b> — machine starts automatically</span></label>
+
+    <h4>3 · Output Area</h4>
+    <p style="font-size:.84rem;color:var(--dim)">All parts must be cleaned thoroughly every day under running water or with a dampened cloth.</p>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Remove dripping grid from support → clean under running water → dry → refit</span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Pull cup carrier safety catch upwards → remove cup carrier → clean → dry → refit</span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Remove dripping grid carrier → clean under running water → dry</span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Wipe cup catcher sensors with a moist cloth<small>Sensors must be clean and dry on both inside and outside.</small></span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Refit dripping grid carrier — <b>watch the draining hose position</b></span></label>
+
+    <h4>4 · Grounds Bucket &amp; Wastewater Bucket</h4>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Remove grounds bucket → dispose of used plastic bag → put in a new bag → refit<small>For hygienic reasons empty and clean every day after the rinsing programme.</small></span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Remove wastewater bucket → empty and clean → refit<small>Moisture sensors at the end of the tube must be clean and dry on both inside and outside.</small></span></label>
+
+    <h4>5 · Finishing Works</h4>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Put the door-angle limiting hook back into place</span></label>
+    <label class="chk"><input type="checkbox" data-g="daily"><span class="t">Close the machine door</span></label>
+  </div>
+
+  <!-- WEEKLY -->
+  <h3>Weekly Cleaning Works</h3>
+  <div class="prog"><i id="p-weekly"></i></div>
+  <div class="card tight">
+    <h4>1 · Preparatory Works</h4>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Open door · unhook the door-angle limiting hook · open as wide as possible</span></label>
+
+    <h4>2 · Purification</h4>
+    <div class="call">
+      <span class="lbl">Note</span>
+      Special cleaning tabs can be used to clean the brewing units (FB and ES). Order from Spengler.
+    </div>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Main menu → <span class="seq">RESET</span> → <span class="seq">9</span> (Password) → key in password</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Press <span class="seq">0</span> (Quick Menu)</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Press <span class="seq">7</span> (Purification) — brewing unit moves to service position</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Put one cleaning tab into the brewing unit</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Press <span class="seq">START</span> — purification programme starts, follow display instructions</span></label>
+
+    <h4>3 · Fresh Brewing Unit</h4>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Enter Service Mode: <span class="seq">RESET</span> → <span class="seq">9</span> → password → <span class="seq">2</span> (Machine) → <span class="seq">7</span> (Service Mode)</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Remove the plastic cover</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Pull off the tube</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Pull the brewing unit slightly upwards and out of the machine interior</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Disassemble: lift shower head → unbolt pusher and pull out → remove shower head → pull out sieve carrier → remove brewing cylinder</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Press in the water inlet tube and take it out</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Clean all parts (see basic schedule: sieve table ④, filter ⑤, sealing ring ①, wiper arm ②)</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Reassemble in reverse sequence and refit</span></label>
+
+    <h4>4 · Espresso Brewing Unit</h4>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Put the machine into Service Mode</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Twist the coffee tube into the position shown and pull it out</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Loosen the inlet tube at one end<small>Recommended: loosen at the drive side.</small></span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Pull the upper part of the brewing unit slightly towards you and take it out</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Disassemble: remove the pusher → turn the piston upwards and remove it</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Clean parts, reassemble in reverse sequence</span></label>
+
+    <h4>5 · Mixer Housing</h4>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Close the outlets of all product containers (turn button upwards, arrow points up)</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Shake off powder leftovers by lightly knocking against the outlet funnels</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Unbolt mixer housing — turn red bayonet ring clockwise until it engages</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Remove mixer bowl and its lid to the front (towards you), pull off the tubes</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Separate mixer bowl and lid, clean these parts</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Check the small inflow tubes — lift upwards and out of the mixer carrier if cleaning is needed</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Assemble in reverse sequence</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Open the outlets of all product containers (turn button downwards, arrow points down)</span></label>
+    <div class="call warn">
+      <span class="lbl">Important</span>
+      Tubes may only be installed at the appropriate tube upper part. Make sure the tube marking at the mixer housing is still recognisable and renew it if necessary.
+    </div>
+
+    <h4>6 · Airway</h4>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Pull out the middle block</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Remove the airway and separate the two parts</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Clean both parts individually under running water and dry them</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Position the <b>square gaps</b> of the lower airway over the mixer bowls</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Position the <b>round gaps</b> of the upper airway beneath the radial airway (right-hand side at the back)</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Clean lid of middle block, front of middle block, mixer and small in-/outflow tubes with a moist cloth</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Open the outlets of all product containers (arrow points down)</span></label>
+
+    <h4>7 · Finishing Works</h4>
+    <div class="call warn">
+      <span class="lbl">Attention</span>
+      Only put the machine back to work when all parts have been reassembled correctly and all protection covers have been put back into place.
+    </div>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Put the door-angle limiting hook back into place</span></label>
+    <label class="chk"><input type="checkbox" data-g="weekly"><span class="t">Close the machine door</span></label>
+  </div>
+
+  <!-- MONTHLY -->
+  <h3>Monthly Cleaning Works</h3>
+  <div class="prog"><i id="p-monthly"></i></div>
+  <div class="card tight">
+    <label class="chk"><input type="checkbox" data-g="monthly"><span class="t">Preparatory: open door · unhook door-angle hook · open as wide as possible</span></label>
+    <label class="chk"><input type="checkbox" data-g="monthly"><span class="t">Product dispensing tubes — cleaned automatically during purification</span></label>
+    <div class="call">
+      <span class="lbl">Note</span>
+      The dispensing tubes should be <b>exchanged annually</b>.
+    </div>
+    <label class="chk"><input type="checkbox" data-g="monthly"><span class="t">Finishing: hook back into place · close door</span></label>
+  </div>
+
+  <!-- 6 MONTH -->
+  <h3>Every Six Months</h3>
+  <div class="prog"><i id="p-half"></i></div>
+  <div class="card tight">
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Preparatory: open door · unhook door-angle hook · open as wide as possible</span></label>
+    <h4>Product Container</h4>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Close the product container outlet (arrows point up)</span></label>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Slightly lift the container at the front and pull it out towards you</span></label>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Remove the product from the container</span></label>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Clean and dry the container thoroughly</span></label>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Clean and dry the container base plate</span></label>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Put the product back in and insert the product container</span></label>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Open the product container outlet (arrows point down)</span></label>
+    <h4>Bean Container</h4>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Remove the bean container lid</span></label>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Clean the bean container with a Sanol-dampened cloth (1 : 50)</span></label>
+    <h4>Finishing Works</h4>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Put the door-angle limiting hook back into place</span></label>
+    <label class="chk"><input type="checkbox" data-g="half"><span class="t">Close the machine door</span></label>
+    <div class="call warn">
+      <span class="lbl">Before putting back to work — check</span>
+      <ul style="margin-bottom:0">
+        <li>Product container outlets point towards the middle of the mixer housing and are open</li>
+        <li>The mixer housing is correctly bolted</li>
+        <li>Grounds bucket and dripping bowl are positioned correctly</li>
+        <li>All protective covers have been correctly reassembled</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- BOILER -->
+  <h3>Replacing the Boiler (as required)</h3>
+  <div class="call danger">
+    <span class="lbl">Caution — Machine parts under pressure</span>
+    Danger of injury and damage by components under (hot) water pressure.
+  </div>
+  <div class="grid g2">
+    <div class="card tight">
+      <h4>Remove Boiler</h4>
+      <ol>
+        <li>Put a vessel underneath to catch the boiler water.</li>
+        <li>In the Operator menu, start the programme <b>Empty Boiler</b>.</li>
+        <li>Interrupt the water supply.</li>
+        <li>Allow the machine to cool off.</li>
+        <li>Remove the cover plate of the middle block.</li>
+        <li>Loosen the boiler connections.</li>
+        <li>Remove the old boiler.</li>
+      </ol>
+    </div>
+    <div class="card tight">
+      <h4>Install Boiler</h4>
+      <ol>
+        <li>Put in the new boiler.</li>
+        <li>Connect the boiler.</li>
+        <li>Reinstall the cover plate.</li>
+        <li>Switch on the machine.</li>
+        <li>Re-establish the water supply.</li>
+        <li>In the Operator menu, choose <b>Fill boiler</b>.</li>
+        <li>Restart the machine.</li>
+      </ol>
+    </div>
+  </div>
+  <p style="font-size:.82rem;color:var(--dim)">Water circuit components: safety valve 15 bar · outlet block (FB / IN / HW) · temperature sensor · boiler and couplings · tubes · water pump · airpump · flow-meter · inlet valve · display.</p>
+</section>
+
+<!-- ============ ERROR CODES ============ -->
+<section id="errors">
+  <h2>Error Codes &amp; Definitions</h2>
+  <p class="sub">Full default message list. Use the search box or filter by component.</p>
+
+  <input type="search" id="errSearch" placeholder="🔍  Search code, short name or description… e.g. WAT57, cup, brewer, no water">
+  <div class="filters" id="errFilters"></div>
+  <div id="errCount" style="font-size:.78rem;color:var(--dim);margin-bottom:8px"></div>
+  <div style="max-height:640px;overflow:auto;border:1px solid var(--line);border-radius:10px">
+    <table id="errTable">
+      <thead><tr><th style="width:110px">Code</th><th style="width:150px">Component</th><th style="width:150px">Short text</th><th>Description / Action</th></tr></thead>
+      <tbody id="errBody"></tbody>
+    </table>
+  </div>
+
+  <h3>Quick Diagnostic Cheat Sheet</h3>
+  <table>
+    <tr><th>Symptom</th><th>Likely code</th><th>First check</th></tr>
+    <tr><td>No key reacts at all</td><td class="ecode">KBH01</td><td>Keypad ribbon cable + connector on mainboard 75360 (in door). Run Keyboard test.</td></tr>
+    <tr><td>Door will not open</td><td class="ecode">DIO01</td><td>Door drive not found — check door motor wiring (J2 pins 4/5).</td></tr>
+    <tr><td>Machine not dispensing, no water</td><td class="ecode">WAT57</td><td>Inlet control — check water supply, inlet valve, flow-meter.</td></tr>
+    <tr><td>Boiler not filled</td><td class="ecode">WAT01</td><td>Run Fill boiler programme (password 250).</td></tr>
+    <tr><td>Too little water</td><td class="ecode">WAT60</td><td>Flow too low — check filter, inlet valve, limescale.</td></tr>
+    <tr><td>Heating not working</td><td class="ecode">WAT58</td><td>Heating defect (STB1) — check safety temperature regulator.</td></tr>
+    <tr><td>Temperature wrong</td><td class="ecode">WAT55</td><td>Temperature sensor defect — replace sensor.</td></tr>
+    <tr><td>Dripping bowl / bucket overflowing</td><td class="ecode">WAT02</td><td>Empty dripping bowl or wastewater bucket.</td></tr>
+    <tr><td>Cup dispenser empty</td><td class="ecode">UKB01 / UKB11</td><td>Refill cup column 1 (left) or 2 (right).</td></tr>
+    <tr><td>Cup stuck</td><td class="ecode">UKB03 / UKB13</td><td>Cup blocked — remove jammed cups from the column.</td></tr>
+    <tr><td>Cup dispensing motor not found</td><td class="ecode">UKB04 / UKB14</td><td>Check motor connector on cup dispenser PCB (J2/J3).</td></tr>
+    <tr><td>No communication with cup PCB</td><td class="ecode">COM21 / COM22</td><td>Check bus wiring, addresses 0x10 / 0x11.</td></tr>
+    <tr><td>Brewer blocked</td><td class="ecode">BRW08 / BRW18</td><td>Brewer 1 / 2 motion default — clean and check for obstruction.</td></tr>
+    <tr><td>Brewer motor missing</td><td class="ecode">BRW03 / BRW13</td><td>Brewer safety — check motor connection.</td></tr>
+    <tr><td>Sieve head blocked (ES)</td><td class="ecode">BRW41–45</td><td>Clean sieve head, check closing/opening motion sequence.</td></tr>
+    <tr><td>Grounds bucket full</td><td class="ecode">BRW61</td><td>Empty the grounds bucket.</td></tr>
+    <tr><td>Not enough product in cylinder</td><td class="ecode">BRW60</td><td>Empty — check grinder / dosage.</td></tr>
+    <tr><td>Wrong dose from container</td><td class="ecode">IK0…01-15</td><td>Motor running time exceeds limit / dose not reached → recalibrate container.</td></tr>
+    <tr><td>Motor missing on container</td><td class="ecode">IK1…01-15</td><td>Check motor connector and I/O board output.</td></tr>
+    <tr><td>Extender (sugar column) blocked</td><td class="ecode">MOV02</td><td>Free the sugar extender, check for clumped sugar.</td></tr>
+    <tr><td>Outlet not found</td><td class="ecode">VAL…01-06</td><td>Outlet defect / coil defect — check valve coil and wiring.</td></tr>
+    <tr><td>Descaling not finished</td><td class="ecode">VAL10 / WAT61</td><td>Purification — run the purification programme to completion.</td></tr>
+    <tr><td>Coin stuck</td><td class="ecode">AMC07</td><td>Open coin acceptor, remove jammed coins.</td></tr>
+    <tr><td>Reader not responding</td><td class="ecode">ALC01</td><td>Integrated card reader — check connection.</td></tr>
+    <tr><td>No air pump</td><td class="ecode">WAT51</td><td>Compressor defect — check air pump.</td></tr>
+    <tr><td>Stick motor not found</td><td class="ecode">STC01</td><td>Check stick dispenser motor connector (J2 pin 9/10).</td></tr>
+    <tr><td>Dispenser arm blocked</td><td class="ecode">UKA02</td><td>Free the dispenser arm, check switch.</td></tr>
+  </table>
+</section>
+
+<!-- ============ SPECS ============ -->
+<section id="specs">
+  <h2>Technical Data</h2>
+  <p class="sub">Technical specifications subject to alteration without notice.</p>
+
+  <table>
+    <tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Main voltage</td><td>230 V~ / 50 Hz ± 15 %</td></tr>
+    <tr><td>Main power</td><td>2.7 kW</td></tr>
+    <tr><td>Minimum water pressure (flow limit 3 l/min)</td><td>0.2 MPa (2 bar)</td></tr>
+    <tr><td>Maximum allowed water pressure</td><td>0.5 MPa (5 bar) — higher pressure requires a pressure reducer</td></tr>
+    <tr><td>Drinking water supply</td><td>G3/8" outside thread</td></tr>
+    <tr><td>Water hardness</td><td>Max. 8°dH — otherwise a filter must be used</td></tr>
+    <tr><td>Infrared interface MDE</td><td>Yes</td></tr>
+    <tr><td>Number of product containers</td><td>IN 7 · IN 8 · FB 2 · FB 2-UK · FB 3 · BTC FB · BTC FB UK · ES FB: 7 / 8 / 7 / 8 / 7 / 6 + Beans / 6 + Beans / 7 + Beans / 7 + Beans</td></tr>
+    <tr><td>Volume — narrow container (70×300×270)</td><td>3.8 dm³</td></tr>
+    <tr><td>Volume — wide container (140×300×270)</td><td>8.5 dm³</td></tr>
+    <tr><td>Beans container</td><td>8.7 dm³</td></tr>
+    <tr><td>Measurements (h × w × d)</td><td>1830 mm × 664 mm × 700 mm</td></tr>
+    <tr><td>Required free space — back</td><td>60 mm (drinking water supply)</td></tr>
+    <tr><td>Required free space — right</td><td>5 mm (door &gt; 90°)</td></tr>
+    <tr><td>Weight</td><td>150 kg / 160 kg (depending on variant)</td></tr>
+    <tr><td>Max cup height</td><td>13 cm</td></tr>
+    <tr><td>Max pot height</td><td>25 cm</td></tr>
+    <tr><td>Cup capacity</td><td>Up to 1000 cups (500 per side)</td></tr>
+    <tr><td>Stick length (ES)</td><td>96 – 116 mm</td></tr>
+    <tr><td>Default boiler temperature</td><td>97 °C</td></tr>
+    <tr><td>Grinder adjustment</td><td>1 line = 28 µm · Filter = 17 lines · Espresso = 9 lines</td></tr>
+  </table>
+
+  <h3>CE Conformity</h3>
+  <div class="card tight">
+    <p><b>Manufacturer:</b> Spengler GmbH &amp; Co. KG, John-Deere-Straße 30, D-76646 Bruchsal, Germany</p>
+    <p><b>Product:</b> Automat für Heißgetränke: SLINE Standgerät (hot drinks vending machine)</p>
+    <p><b>CE marking applied:</b> 2005</p>
+    <p><b>Directives:</b> 73/23/EWG (Low Voltage) · 89/336/EWG (EMC) · 89/37/EG (Machinery)</p>
+    <p><b>Harmonised standards:</b> DIN EN 60335-1 · DIN EN 60335-2-75 · DIN EN 55014-1 · DIN EN 55014-2</p>
+  </div>
+
+  <h3>Disposal</h3>
+  <div class="call warn">
+    <span class="lbl">WEEE</span>
+    This machine underlies the Waste Electrical and Electronic Equipment Directive (WEEE/EU) and must <b>not</b> be disposed of in domestic waste. Machines out of order cannot be returned — dispose of in an environmentally friendly way. Plastic parts are clearly labelled. Badges and belonging parts must be disposed of as electronic waste.
+  </div>
+</section>
+
+</main>
+
+<footer>
+  SL 1000 S-Line — Interactive Service Training Module · Based on the Spengler SL 1000 Service Manual<br>
+  For trained service personnel only. Always follow the original manual and local safety regulations.
+</footer>
+
+<script>
+/* ============================================================
+   1. TAB NAVIGATION
+   ============================================================ */
+document.querySelectorAll('#nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+/* ============================================================
+   2. KEYBOARD LAB
+   ============================================================ */
+const KEY_DATA = {
+  '1': {
+    name:'Key 1', tags:['Number key','Product selection'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 1 — by default <b>Espresso</b>. The product list is freely programmable, so always check the actual machine menu.'},
+      {lbl:'Operator / programming menus', t:'Selects menu item number 1. Example: <span class="seq">2</span> Machine → <span class="seq">1</span> Components; <span class="seq">4</span> Test functions → <span class="seq">1</span> Keyboard test.'},
+      {lbl:'Password / value entry', t:'Used to key in passwords (e.g. 250, 100), calibration weights, dosage values and time/date settings.'},
+      {lbl:'Keyboard test', t:'In <b>Test functions → Keyboard test</b>, pressing this key makes the display react with the key identifier. No reaction = key, ribbon cable or mainboard fault.'},
+      {lbl:'Note', t:'Number keys are only active when illuminated. Non-illuminated keys are non-functional.'}
+    ]
+  },
+  '2': {
+    name:'Key 2', tags:['Number key','Product selection'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 2 — by default <b>Double espresso</b>.'},
+      {lbl:'Operator / programming menus', t:'Selects menu item 2. Example: <span class="seq">RESET</span> → <span class="seq">9</span> password → <span class="seq">2</span> opens the <b>Machine</b> menu.'},
+      {lbl:'Password / value entry', t:'Digit entry for passwords and numeric values.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed. If dead, check keypad connector.'}
+    ]
+  },
+  '3': {
+    name:'Key 3', tags:['Number key','Product selection'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 3 — by default <b>Fresh leaf tea</b>.'},
+      {lbl:'Operator / programming menus', t:'Selects menu item 3. Examples: <span class="seq">2</span> Machine → <span class="seq">3</span> Recipes; <span class="seq">2</span> Machine → <span class="seq">4</span> Programs → <span class="seq">3</span> Fill boiler; <span class="seq">2</span> Machine → <span class="seq">3</span> Empty Boiler.'},
+      {lbl:'Password / value entry', t:'Digit entry.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed.'}
+    ]
+  },
+  '4': {
+    name:'Key 4', tags:['Number key','Product selection'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 4 — by default <b>Cappuccino</b>.'},
+      {lbl:'Operator / programming menus', t:'Selects menu item 4. Examples: <span class="seq">4</span> Test functions (from Operator Menu); <span class="seq">2</span> Machine → <span class="seq">4</span> Programs; <span class="seq">2</span> → <span class="seq">1</span> Components → <span class="seq">4</span> Calibr. [gr/kEMK].'},
+      {lbl:'Password / value entry', t:'Digit entry.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed.'}
+    ]
+  },
+  '5': {
+    name:'Key 5', tags:['Number key','Product selection'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 5 — by default <b>American coffee</b>.'},
+      {lbl:'Operator / programming menus', t:'Selects menu item 5. Example: <span class="seq">2</span> Machine → <span class="seq">4</span> Programs → <span class="seq">5</span> Valves cleaning; <span class="seq">5</span> Log.'},
+      {lbl:'Password / value entry', t:'Digit entry.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed.'}
+    ]
+  },
+  '6': {
+    name:'Key 6', tags:['Number key','Product selection'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 6 — by default <b>Espresso choc</b>.'},
+      {lbl:'Operator / programming menus', t:'Selects menu item 6. Example: <span class="seq">6</span> Miscellaneous; <span class="seq">2</span> Machine → <span class="seq">6</span> Assortment.'},
+      {lbl:'Password / value entry', t:'Digit entry.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed.'}
+    ]
+  },
+  '7': {
+    name:'Key 7', tags:['Number key','Product selection'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 7 — by default <b>Chocolate</b>.'},
+      {lbl:'Operator / programming menus', t:'Selects menu item 7. Important: <span class="seq">0</span> Quick Menu → <span class="seq">7</span> <b>Purification</b> (weekly cleaning). Also <span class="seq">2</span> Machine → <span class="seq">7</span> <b>Service mode</b> and <span class="seq">7</span> Reset automat (used after filling the boiler).'},
+      {lbl:'Password / value entry', t:'Digit entry.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed.'}
+    ]
+  },
+  '8': {
+    name:'Key 8', tags:['Number key','Product selection'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 8 — by default <b>Whipped chocolate</b>.'},
+      {lbl:'Operator / programming menus', t:'Selects menu item 8. Example: <span class="seq">8</span> Test consumption; <span class="seq">2</span> Machine → <span class="seq">8</span> Miscellaneous.'},
+      {lbl:'Password / value entry', t:'Digit entry.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed.'}
+    ]
+  },
+  '9': {
+    name:'Key 9', tags:['Number key','Product selection','Password entry'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 9 — by default <b>Hot water</b>.'},
+      {lbl:'Operator / programming menus', t:'Most important key in service: <span class="seq">9</span> = <b>Enter password</b>. It is the entry point to every protected menu.'},
+      {lbl:'Password / value entry', t:'Digit entry — used as part of passwords such as 250, 255, 100.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed.'},
+      {lbl:'Typical sequence', t:'<span class="seq">RESET</span> → <span class="seq">9</span> → password → <span class="seq">START</span>'}
+    ]
+  },
+  '0': {
+    name:'Key 0', tags:['Number key','Product selection','Quick Menu'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Selects product number 0 — by default <b>Flask</b> (fill a pot / flask).'},
+      {lbl:'Operator / programming menus', t:'<span class="seq">0</span> = <b>Quick Menu</b> (available after entering password 250). The Quick Menu gives direct access to the most-used service functions.'},
+      {lbl:'Quick Menu contents', t:'View turnover · Log · Service mode · Esp. brewer declog · Rinsing (short) · Purification · Counter'},
+      {lbl:'Password / value entry', t:'Digit entry.'},
+      {lbl:'Keyboard test', t:'Display must react when pressed.'}
+    ]
+  },
+  'left': {
+    name:'Arrow ◁ (Left)', tags:['Navigation key'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Decreases the product strength — e.g. less coffee or less sugar. The strength bar on the display moves one step.'},
+      {lbl:'Operator / programming menus', t:'Moves 1 step <b>up / back</b> in a list. Used to select a container in <b>Components</b> ("Select a container by pressing the arrow keys ◁ and ▷").'},
+      {lbl:'Programme selection', t:'Together with ▷, scrolls through the programme list, e.g. selecting <b>Rinsing (short)</b> in the Programs menu.'},
+      {lbl:'Recipe / dosage editing', t:'Changes dosage amounts. Save the new amount with <span class="seq">START</span>.'},
+      {lbl:'Important', t:'Before setting the strength with the arrow keys, the additional product must be re-activated with the selection keys.'}
+    ]
+  },
+  'right': {
+    name:'Arrow ▷ (Right)', tags:['Navigation key'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Increases the product strength — more coffee or more sugar.'},
+      {lbl:'Operator / programming menus', t:'Moves 1 step <b>down / forward</b> in a list. Used to select a container, programme or menu entry.'},
+      {lbl:'Calibration', t:'Used together with ◁ to select the container you want to calibrate before pressing <span class="seq">4</span> (Calibr. [gr/kEMK]).'},
+      {lbl:'Recipe / dosage editing', t:'Increases dosage values. Save with <span class="seq">START</span>.'}
+    ]
+  },
+  'return': {
+    name:'RETURN', tags:['Navigation key','Cancel'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Go back one step in the menu — e.g. if you selected the wrong product. If a card reader or writing device is used, the magnetic or chip card is returned. For coin slots, the inserted coins are returned.'},
+      {lbl:'Operator / programming menus', t:'Back to previous screen. Pressing RETURN repeatedly takes you back to the main menu from any submenu.'},
+      {lbl:'Auto-return', t:'If there is no input within <b>30 seconds</b>, the display returns to the main menu automatically.'},
+      {lbl:'Keyboard test', t:'Display must show that RETURN was recognised.'}
+    ]
+  },
+  'reset': {
+    name:'RESET', tags:['Function key','Menu entry'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Deletes the keyed-in information — e.g. if you selected the wrong product.'},
+      {lbl:'Service entry point', t:'<b>This is the key that opens the Operator Menu.</b> From the main menu, press RESET → you reach the OPERATOR MENU (255) → press <span class="seq">9</span> → key in password.'},
+      {lbl:'Inside menus', t:'Used to leave a value entry without saving, and repeated presses return you to the main menu.'},
+      {lbl:'Calibration', t:'After weighing the dispensed ingredient, press RESET and key in the calculated amount.'},
+      {lbl:'Keyboard test', t:'Display must show that RESET was recognised.'},
+      {lbl:'Typical sequence', t:'<span class="seq">RESET</span> → <span class="seq">9</span> → password → <span class="seq">START</span> → <span class="seq">2</span> Machine'}
+    ]
+  },
+  'start': {
+    name:'START', tags:['Function key','Confirm / Save'],
+    rows:[
+      {lbl:'Main menu (user mode)', t:'Confirms your selection — the machine prepares the drink. The display then shows <b>Product preparation</b>. Remove the cup only when <b>Remove product</b> appears.'},
+      {lbl:'Operator / programming menus', t:'Activates an action / <b>saves the information</b>. Used to confirm a password, save a recipe dosage or save a calibration value.'},
+      {lbl:'Calibration', t:'Press START twice to begin the threefold dispensation; also used to start the test dosage afterwards.'},
+      {lbl:'Purification', t:'After placing the cleaning tab in the brewing unit, press START to begin the purification programme.'},
+      {lbl:'Keyboard test', t:'Display must show that START was recognised.'}
+    ]
+  }
+};
+
+const KEY_LAYOUT = [
+  {id:'1', label:'1'}, {id:'2', label:'2'}, {id:'3', label:'3'},
+  {id:'4', label:'4'}, {id:'5', label:'5'}, {id:'6', label:'6'},
+  {id:'7', label:'7'}, {id:'8', label:'8'}, {id:'9', label:'9'},
+  {id:'left', label:'◁', cls:'wide'}, {id:'0', label:'0'}, {id:'right', label:'▷', cls:'wide'},
+  {id:'return', label:'RETURN', cls:'wide ret'},
+  {id:'reset', label:'RESET', cls:'wide reset'},
+  {id:'start', label:'START', cls:'wide start'}
+];
+
+const kbGrid = document.getElementById('kbGrid');
+const detail = document.getElementById('keyDetail');
+const simDisplay = document.getElementById('simDisplay');
+
+/* ---- build keyboard ---- */
+KEY_LAYOUT.forEach(k => {
+  const b = document.createElement('button');
+  b.className = 'key ' + (k.cls || '');
+  b.textContent = k.label;
+  b.dataset.k = k.id;
+  b.addEventListener('click', () => pressKey(k.id));
+  kbGrid.appendChild(b);
+});
+
+/* ---- render detail panel ---- */
+function showDetail(id){
+  const d = KEY_DATA[id];
+  if(!d) return;
+  let html = '<h3>' + d.name + '</h3>';
+  html += d.tags.map(t => '<span class="tag">' + t + '</span>').join('');
+  d.rows.forEach(r => {
+    html += '<div class="row"><div class="lbl">' + r.lbl + '</div><p>' + r.t + '</p></div>';
+  });
+  detail.innerHTML = html;
+}
+
+/* ============================================================
+   3. SIMULATED DISPLAY + STATE MACHINE
+   ============================================================ */
+const PRODUCTS = {
+  '1':'Espresso', '2':'Double espresso', '3':'Fresh leaf tea', '4':'Cappuccino',
+  '5':'American coffee', '6':'Espresso choc', '7':'Chocolate',
+  '8':'Whipped chocolate', '9':'Hot water', '0':'Flask'
+};
+
+let sim = {
+  stack: ['main'],
+  product: null,
+  strength: 3,
+  pwd: '',
+  timer: null
+};
+
+function cur(){ return sim.stack[sim.stack.length - 1]; }
+function push(m){ sim.stack.push(m); render(); }
+function pop(){ if(sim.stack.length > 1){ sim.stack.pop(); render(); } }
+
+function bar(n, max){
+  max = max || 5;
+  let s = '';
+  for(let i = 1; i <= max; i++) s += (i <= n ? '█' : '░');
+  return s;
+}
+
+function render(){
+  const m = cur();
+  let out = '';
+
+  if(m === 'main'){
+    out = '<span class="hd">spengler</span>                                    Gratis\n';
+    out += '─────────────────────────────────────────────\n';
+    Object.keys(PRODUCTS).forEach(k => {
+      out += k + '. ' + PRODUCTS[k] + '\n';
+    });
+    out += '─────────────────────────────────────────────\n';
+    out += '              Please Select\n';
+    out += '<span style="color:#5a7a95">Machine                       service@maas.nl</span>';
+  }
+
+  else if(m === 'selected'){
+    out = '<span class="hd">spengler</span>\n';
+    out += '─────────────────────────────────────────────\n';
+    out += (PRODUCTS[sim.product] || '').toUpperCase() + '\n\n';
+    out += '1. Strength      ◁ ' + bar(sim.strength) + ' ▷\n';
+    out += '2. Sugar         ◁ ' + bar(3) + ' ▷\n';
+    out += '─────────────────────────────────────────────\n';
+    out += '              Adjust dosage\n';
+    out += '               Press START';
+  }
+
+  else if(m === 'brewing'){
+    out = '<span class="hd">' + (PRODUCTS[sim.product] || '').toUpperCase() + '</span>\n\n';
+    out += '\n           Product preparation\n\n';
+    out += '                    ▓▓▓▓▓▓░░░░';
+  }
+
+  else if(m === 'remove'){
+    out = '<span class="hd">' + (PRODUCTS[sim.product] || '').toUpperCase() + '</span>\n\n';
+    out += '\n              Remove product\n\n';
+    out += '                    ▓▓▓▓▓▓▓▓▓▓';
+  }
+
+  else if(m === 'operator'){
+    out = '<span class="hd">OPERATOR MENU (255)</span>\n\n';
+    out += '  2. Machine\n';
+    out += '  4. Test functions\n';
+    out += '  5. Log\n';
+    out += '  6. Miscellaneous\n';
+    out += '  7. Reset automat\n';
+    out += '  9. Enter password';
+  }
+
+  else if(m === 'password'){
+    out = '<span class="hd">ENTER PASSWORD</span>\n\n';
+    out += '  Password: ' + sim.pwd.replace(/./g, '•') + '_\n\n';
+    out += '  <span style="color:#5a7a95">Key in digits, confirm with START</span>';
+  }
+
+  else if(m === 'op250'){
+    out = '<span class="hd">OPERATOR MENU (250)</span>\n\n';
+    out += '  0. Quick menu\n';
+    out += '  1. Client data\n';
+    out += '  2. Machine\n';
+    out += '  3. Pay functions\n';
+    out += '  4. Test functions\n';
+    out += '  5. Log\n';
+    out += '  6. Miscellaneous\n';
+    out += '  7. Reset automat\n';
+    out += '  8. Test consumption\n';
+    out += '  9. Enter password';
+  }
+
+  else if(m === 'machine'){
+    out = '<span class="hd">Machine</span>\n\n';
+    out += '  1. Components\n';
+    out += '  2. Preparations\n';
+    out += '  3. Recipes\n';
+    out += '  4. Programs\n';
+    out += '  5. Durations\n';
+    out += '  6. Assortment\n';
+    out += '  7. Service mode\n';
+    out += '  8. Miscellaneous\n';
+    out += '  9. Test compl.';
+  }
+
+  else if(m === 'programs'){
+    out = '<span class="hd">Programs</span>\n\n';
+    out += '  1. Air test brewer\n';
+    out += '  2. Esp. brewer declog\n';
+    out += '  3. Fill boiler\n';
+    out += '  4. Airtest valves\n';
+    out += '  5. Valves cleaning';
+  }
+
+  else if(m === 'components'){
+    out = '<span class="hd">Machine · Components</span>\n\n';
+    out += '  Container: 4  ▷\n\n';
+    out += '  1. Default adjustm.\n';
+    out += '  2. Parameters\n';
+    out += '  3. Testfunctions\n';
+    out += '  4. Calibration [gr/kEMK]\n';
+    out += '  5. Actual stored\n';
+    out += '  6. Duration test\n';
+    out += '  7. Statistics\n';
+    out += '  8. Options';
+  }
+
+  else if(m === 'testfunc'){
+    out = '<span class="hd">Test functions (100)</span>\n\n';
+    out += '  1. Keyboard test\n';
+    out += '  2. LCD test\n\n';
+    out += '  <span style="color:#5a7a95">Press each key to verify recognition</span>';
+  }
+
+  else if(m === 'kbout'){
+    out = '<span class="hd">KEYBOARD TEST</span>\n\n';
+    out += '  Last key detected: <span class="bar">' + (sim.lastKey || '—') + '</span>\n';
+    out += '  Key counter: ' + (sim.kbCount || 0) + '\n\n';
+    out += '  <span style="color:#5a7a95">Exit with RETURN / RESET</span>';
+  }
+
+  else if(m === 'quick'){
+    out = '<span class="hd">Quick menu</span>\n\n';
+    out += '  1. View turnover   Prod. per\n';
+    out += '  2. View turnover   Cashbox\n';
+    out += '  3. Log             Show\n';
+    out += '  4. Service mode\n';
+    out += '  5. Esp. brewer declog\n';
+    out += '  6. Rinsing (short)\n';
+    out += '  7. Purification\n';
+    out += '  8. Counter';
+  }
+
+  else if(m === 'running'){
+    out = '<span class="hd">' + (sim.runName || 'PROGRAMME') + '</span>\n\n';
+    out += '\n             Running…\n\n';
+    out += '                    ▓▓▓▓▓▓▓░░░';
+  }
+
+  else if(m === 'denied'){
+    out = '<span class="hd">OPERATOR MENU (255)</span>\n\n';
+    out += '  <span class="err">✖ Wrong password</span>\n\n';
+    out += '  9. Enter password\n';
+    out += '  <span style="color:#5a7a95">Try again with RESET</span>';
+  }
+
+  simDisplay.innerHTML = out;
+}
+
+function clearTimer(){ if(sim.timer){ clearTimeout(sim.timer); sim.timer = null; } }
+
+function pressKey(id){
+  const btn = document.querySelector('.key[data-k="' + id + '"]');
+  if(btn){ btn.classList.add('flash'); setTimeout(() => btn.classList.remove('flash'), 150); }
+  showDetail(id);
+  clearTimer();
+  const m = cur();
+
+  /* ---- keyboard test mode: any key counts ---- */
+  if(m === 'kbout'){
+    sim.lastKey = (KEY_DATA[id] ? KEY_DATA[id].name : id);
+    sim.kbCount = (sim.kbCount || 0) + 1;
+    if(id === 'return' || id === 'reset'){ sim.stack = ['main']; }
+    render();
+    return;
+  }
+
+  /* ---- MAIN MENU ---- */
+  if(m === 'main'){
+    if(/^[0-9]$/.test(id)){
+      sim.product = id;
+      sim.strength = 3;
+      push('selected');
+    } else if(id === 'reset'){
+      push('operator');
+    } else if(id === 'return'){
+      /* nothing to cancel */
+    } else if(id === 'start'){
+      /* nothing selected */
+    } else if(id === 'left' || id === 'right'){
+      /* no product selected */
+    }
+    return;
+  }
+
+  /* ---- PRODUCT SELECTED ---- */
+  if(m === 'selected'){
+    if(id === 'start'){
+      sim.stack.pop(); push('brewing');
+      sim.timer = setTimeout(() => {
+        sim.stack.pop(); push('remove');
+        sim.timer = setTimeout(() => { sim.stack = ['main']; render(); }, 2000);
+        render();
+      }, 2200);
+    } else if(id === 'left'){
+      sim.strength = Math.max(1, sim.strength - 1); render();
+    } else if(id === 'right'){
+      sim.strength = Math.min(5, sim.strength + 1); render();
+    } else if(id === 'reset'){
+      sim.stack = ['main']; render();
+    } else if(id === 'return'){
+      sim.stack = ['main']; render();
+    } else if(/^[0-9]$/.test(id)){
+      sim.product = id; sim.strength = 3; render();
+    }
+    return;
+  }
+
+  /* ---- OPERATOR MENU (255) ---- */
+  if(m === 'operator'){
+    if(id === '9'){ sim.pwd = ''; push('password'); }
+    else if(id === 'return' || id === 'reset'){ sim.stack = ['main']; }
+    return;
+  }
+
+  /* ---- PASSWORD ---- */
+  if(m === 'password'){
+    if(/^[0-9]$/.test(id)){
+      if(sim.pwd.length < 4) sim.pwd += id;
+      render();
+    } else if(id === 'start'){
+      if(sim.pwd === '250' || sim.pwd === '255'){
+        sim.pwd = ''; sim.stack.pop(); push('op250');
+      } else if(sim.pwd === '100'){
+        sim.pwd = ''; sim.stack.pop(); push('op250');
+      } else {
+        sim.pwd = ''; sim.stack.pop(); push('denied');
+      }
+    } else if(id === 'return' || id === 'reset'){
+      sim.pwd = ''; sim.stack.pop();
+    }
+    return;
+  }
+
+  if(m === 'denied'){
+    if(id === '9'){ sim.pwd = ''; sim.stack.pop(); push('password'); }
+    else if(id === 'return' || id === 'reset'){ sim.stack = ['main']; }
+    return;
+  }
+
+  /* ---- OPERATOR MENU (250) ---- */
+  if(m === 'op250'){
+    if(id === '2') push('machine');
+    else if(id === '4') push('testfunc');
+    else if(id === '0') push('quick');
+    else if(id === '9'){ sim.pwd = ''; push('password'); }
+    else if(id === 'return') pop();
+    else if(id === 'reset'){ sim.stack = ['main']; }
+    render();
+    return;
+  }
+
+  /* ---- MACHINE ---- */
+  if(m === 'machine'){
+    if(id === '1') push('components');
+    else if(id === '4') push('programs');
+    else if(id === '3' || id === '5' || id === '6' || id === '8' || id === '9'){
+      sim.runName = 'MENU ' + id; push('running');
+      sim.timer = setTimeout(() => { pop(); }, 1400);
+    }
+    else if(id === '7'){
+      sim.runName = 'SERVICE MODE'; push('running');
+      sim.timer = setTimeout(() => { pop(); }, 1400);
+    }
+    else if(id === 'return') pop();
+    else if(id === 'reset'){ sim.stack = ['main']; }
+    render();
+    return;
+  }
+
+  /* ---- PROGRAMS ---- */
+  if(m === 'programs'){
+    const names = {1:'AIR TEST BREWER', 2:'ESP. BREWER DECLOG', 3:'FILL BOILER', 4:'AIRT TEST VALVES', 5:'VALVES CLEANING'};
+    if(names[id]){
+      sim.runName = names[id]; push('running');
+      sim.timer = setTimeout(() => { pop(); }, 1800);
+    } else if(id === 'return') pop();
+    else if(id === 'reset'){ sim.stack = ['main']; }
+    render();
+    return;
+  }
+
+  /* ---- COMPONENTS ---- */
+  if(m === 'components'){
+    if(id === 'return') pop();
+    else if(id === 'reset'){ sim.stack = ['main']; }
+    else { sim.runName = 'COMPONENT ' + id; push('running'); sim.timer = setTimeout(() => pop(), 1400); }
+    render();
+    return;
+  }
+
+  /* ---- TEST FUNCTIONS ---- */
+  if(m === 'testfunc'){
+    if(id === '1'){ sim.lastKey = '—'; sim.kbCount = 0; push('kbout'); }
+    else if(id === '2'){
+      sim.runName = 'LCD TEST'; push('running');
+      sim.timer = setTimeout(() => { pop(); }, 1800);
+    }
+    else if(id === 'return') pop();
+    else if(id === 'reset'){ sim.stack = ['main']; }
+    render();
+    return;
+  }
+
+  /* ---- QUICK MENU ---- */
+  if(m === 'quick'){
+    const names = {1:'VIEW TURNOVER', 2:'VIEW TURNOVER', 3:'LOG', 4:'SERVICE MODE', 5:'ESP. BREWER DECLOG', 6:'RINSING (SHORT)', 7:'PURIFICATION', 8:'COUNTER'};
+    if(names[id]){
+      sim.runName = names[id]; push('running');
+      sim.timer = setTimeout(() => { pop(); }, 1800);
+    } else if(id === 'return') pop();
+    else if(id === 'reset'){ sim.stack = ['main']; }
+    render();
+    return;
+  }
+
+  /* ---- RUNNING ---- */
+  if(m === 'running'){
+    if(id === 'return' || id === 'reset'){ pop(); }
+    return;
+  }
+}
+
+/* ---- physical keyboard support ---- */
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT') return;
+  if(/^[0-9]$/.test(e.key)){ pressKey(e.key); e.preventDefault(); }
+  else if(e.key === 'ArrowLeft'){ pressKey('left'); e.preventDefault(); }
+  else if(e.key === 'ArrowRight'){ pressKey('right'); e.preventDefault(); }
+  else if(e.key === 'Enter'){ pressKey('start'); e.preventDefault(); }
+  else if(e.key === 'Escape'){ pressKey('reset'); e.preventDefault(); }
+  else if(e.key === 'Backspace'){ pressKey('return'); e.preventDefault(); }
+});
+
+/* ---- initial state ---- */
+showDetail('start');
+render();
+
+/* ============================================================
+   4. CLEANING CHECKLISTS
+   ============================================================ */
+function updateProgress(group){
+  const boxes = document.querySelectorAll('.chk input[data-g="' + group + '"]');
+  const done = document.querySelectorAll('.chk input[data-g="' + group + '"]:checked').length;
+  const pct = boxes.length ? (done / boxes.length) * 100 : 0;
+  const bar = document.getElementById('p-' + group);
+  if(bar) bar.style.width = pct + '%';
+}
+
+document.querySelectorAll('.chk input[type=checkbox]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    cb.closest('.chk').classList.toggle('done', cb.checked);
+    updateProgress(cb.dataset.g);
+  });
+});
+['daily','weekly','monthly','half'].forEach(updateProgress);
+
+/* ============================================================
+   5. ERROR CODE DATABASE
+   ============================================================ */
+const ERRORS = [
+  /* General */
+  {code:'SYS01', cat:'General', sev:'g', short:'SYS ERROR', desc:'General system error. See the protocol/log for further details.'},
+  {code:'FXA01', cat:'General', sev:'y', short:'RTC defect', desc:'Real-time clock defect — time not set. Set date/time in the service menu.'},
+  {code:'KBH01', cat:'General', sev:'g', short:'Keyboard error', desc:'Keyboard does not respond. Check keypad ribbon cable and connector on mainboard 75360 (in the door). Run Test functions → Keyboard test.'},
+  {code:'GWY01', cat:'General', sev:'g', short:'IO PCB error', desc:'Slave I/O address #2 does not respond. Check bus wiring and I/O board 75388.'},
+  {code:'GWY11', cat:'General', sev:'g', short:'IO PCB error', desc:'Slave I/O address #3 does not respond.'},
+  {code:'GWY21', cat:'General', sev:'g', short:'IO PCB error', desc:'Slave I/O address #4 does not respond.'},
+  {code:'GWY31', cat:'General', sev:'g', short:'IO PCB error', desc:'Slave I/O address #5 does not respond.'},
+  {code:'GWY02', cat:'General', sev:'y', short:'Intf. mismatch', desc:'Slave I/O address #2 interface configuration fault.'},
+  {code:'GWY12', cat:'General', sev:'y', short:'Intf. mismatch', desc:'Slave I/O address #3 interface configuration fault.'},
+  {code:'GWY22', cat:'General', sev:'y', short:'Intf. mismatch', desc:'Slave I/O address #4 interface configuration fault.'},
+  {code:'GWY32', cat:'General', sev:'y', short:'Intf. mismatch', desc:'Slave I/O address #5 interface configuration fault.'},
+  {code:'EA101', cat:'General', sev:'g', short:'I/O defect', desc:'IOP7000 Cup-a-Soup does not respond.'},
+  {code:'ERR 49', cat:'General', sev:'y', short:'defect', desc:'Wrong entries in hardware list. Check the machine definition file (MDF).'},
+  {code:'DIO01', cat:'General', sev:'g', short:'Door drive def.', desc:'Door drive not found. Check door motor wiring on mainboard J2 pins 4/5.'},
+
+  /* Payment */
+  {code:'AMR01', cat:'Payment', sev:'y', short:'Escrow failed', desc:'Missing return drive.'},
+  {code:'AMR02', cat:'Payment', sev:'y', short:'Escrow not pre', desc:'Return drive not present.'},
+  {code:'AMC01', cat:'Payment', sev:'g', short:'CoinController', desc:'Installed payment system does not respond.'},
+  {code:'AMC02', cat:'Payment', sev:'y', short:'MDB error', desc:'MDB protocol mistake.'},
+  {code:'AMC03', cat:'Payment', sev:'y', short:'Tube sensor', desc:'Error at coin tube sensor.'},
+  {code:'AMC04', cat:'Payment', sev:'y', short:'Acc unplugged', desc:'Acceptor not present.'},
+  {code:'AMC07', cat:'Payment', sev:'y', short:'Coin jammed', desc:'Coins are stuck. Open the coin acceptor and remove the jammed coins.'},
+  {code:'AMC08', cat:'Payment', sev:'y', short:'Coin route', desc:'Error at coins return.'},
+  {code:'AMC09', cat:'Payment', sev:'y', short:'Unexp dispense', desc:'Unexpected dispense.'},
+  {code:'AMC10', cat:'Payment', sev:'b', short:'Unknown coin', desc:'Unknown coin detected.'},
+  {code:'AMC12', cat:'Payment', sev:'y', short:'MDB level err.', desc:'MDB level error.'},
+  {code:'AMC13', cat:'Payment', sev:'b', short:'Unknown curr.', desc:'Unknown currency.'},
+  {code:'AMC14', cat:'Payment', sev:'y', short:'Wrong currency', desc:'Wrong currency configured.'},
+  {code:'ALC01', cat:'Payment', sev:'g', short:'L/S defect', desc:'Integrated card reader does not respond.'},
+  {code:'ALC02', cat:'Payment', sev:'y', short:'Protocol error', desc:'Protocol error on the card reader.'},
+  {code:'ALC03', cat:'Payment', sev:'g', short:'SAM error', desc:'SAM error in the card reader.'},
+  {code:'ALC04', cat:'Payment', sev:'b', short:'Not activated', desc:'Reader not activated.'},
+  {code:'ALC05', cat:'Payment', sev:'y', short:'Max debt amnt', desc:'Reader has reached maximum amount (sum of all business).'},
+  {code:'ALC06', cat:'Payment', sev:'y', short:'Collect needed', desc:'Reader must be transferred / collected.'},
+  {code:'ALC07', cat:'Payment', sev:'y', short:'Collect to old', desc:'Collections on the reader are too old.'},
+  {code:'ALC08', cat:'Payment', sev:'y', short:'Softw. expired', desc:'Software on the reader is not up-to-date.'},
+  {code:'ALC09', cat:'Payment', sev:'y', short:'Red list expr.', desc:'The safety copy is outdated.'},
+  {code:'ALC10', cat:'Payment', sev:'y', short:'Trans Log err.', desc:'Problem with business protocols.'},
+  {code:'PAY01', cat:'Payment', sev:'g', short:'Payment system', desc:'All integrated payment systems are not functioning correctly.'},
+
+  /* Mixer / Product container */
+  {code:'IK0…01-15', cat:'Mixer', sev:'y', short:'Wrong dose', desc:'Motor running time exceeds the stated limit. Container does not reach the programmed dose (in grams). Recalibrate the container.'},
+  {code:'IK1…01-15', cat:'Mixer', sev:'g', short:'Container 1-15', desc:'Missing motor on container 1–15. Check motor connector and I/O board output.'},
+  {code:'IK2…01-15', cat:'Mixer', sev:'y', short:'Container 1-15', desc:'Required EMK was not reached in the maximum time allowed. Electricity intake of the motor exceeds the limit.'},
+  {code:'MOV01', cat:'Mixer', sev:'g', short:'Extender defect', desc:'Motor extender (sugar column) defect.'},
+  {code:'MOV02', cat:'Mixer', sev:'y', short:'Extender blocked', desc:'Extender (sugar column) blocked. Free the mechanism and check for clumped sugar.'},
+
+  /* Outlets */
+  {code:'VAL…01-06', cat:'Outlets', sev:'g', short:'Outlet defect', desc:'Outlet not found, coil defect. Check valve coil and wiring.'},
+  {code:'VAL10', cat:'Outlets', sev:'y', short:'Purification!', desc:'Descaling programme was not finished. Run the purification programme to completion.'},
+
+  /* Fresh brewing unit */
+  {code:'BRW03', cat:'Fresh brewing unit', sev:'g', short:'Brewer safety', desc:'Brewer motor 1 not present. Check motor connection.'},
+  {code:'BRW08', cat:'Fresh brewing unit', sev:'y', short:'Brewer blocked', desc:'Brewer 1 motion default. Clean the brewing unit, check for obstruction.'},
+  {code:'BRW13', cat:'Fresh brewing unit', sev:'g', short:'Brewer safety', desc:'Brewer motor 2 not present.'},
+  {code:'BRW18', cat:'Fresh brewing unit', sev:'y', short:'Brewer blocked', desc:'Brewer 2 motion default.'},
+
+  /* Espresso brewing unit */
+  {code:'BRW03', cat:'Espresso brewing unit', sev:'g', short:'Brewer safety', desc:'Motor drive piston not found.'},
+  {code:'BRW41', cat:'Espresso brewing unit', sev:'y', short:'Sieve head default', desc:'Error while closing, sieve head blocked. Clean sieve head.'},
+  {code:'BRW42', cat:'Espresso brewing unit', sev:'y', short:'Sieve head default', desc:'Exact closing position not reached. Clean sieve head.'},
+  {code:'BRW43', cat:'Espresso brewing unit', sev:'y', short:'Sieve head default', desc:'Error in motion sequence while closing.'},
+  {code:'BRW44', cat:'Espresso brewing unit', sev:'y', short:'Sieve head default', desc:'Error while opening, sieve head blocked.'},
+  {code:'BRW45', cat:'Espresso brewing unit', sev:'y', short:'Sieve head default', desc:'Error in motion sequence while opening.'},
+  {code:'BRW51', cat:'Espresso brewing unit', sev:'g', short:'Piston defect', desc:'Missing piston or brewer unhinged.'},
+  {code:'BRW60', cat:'Espresso brewing unit', sev:'y', short:'Empty', desc:'Not enough product in cylinder. Check grinder and dosage.'},
+  {code:'BRW61', cat:'Espresso brewing unit', sev:'y', short:'Grounds bucket full', desc:'Empty the grounds bucket.'},
+
+  /* Cup dispenser */
+  {code:'COM21', cat:'Cup dispenser', sev:'g', short:'CupSystem-PCB', desc:'No communication with PCB75395, address 0x10. Check bus wiring.'},
+  {code:'COM22', cat:'Cup dispenser', sev:'g', short:'CupSystem-PCB', desc:'No communication with PCB75395, address 0x11. Check bus wiring.'},
+  {code:'UKB01', cat:'Cup dispenser', sev:'y', short:'Fill cup', desc:'Cup dispenser 1 — no cups in column. Refill the left cup column.'},
+  {code:'UKB03', cat:'Cup dispenser', sev:'y', short:'Cup blocked', desc:'Cup dispenser 1 — error while cup dispensation. Remove jammed cups.'},
+  {code:'UKB04', cat:'Cup dispenser', sev:'g', short:'Motor defect', desc:'Cup dispenser 1 — dispensing motor not found.'},
+  {code:'UKB05', cat:'Cup dispenser', sev:'g', short:'Motor defect', desc:'Cup dispenser 1 — motor in cup column not found.'},
+  {code:'UKB11', cat:'Cup dispenser', sev:'y', short:'Fill cup', desc:'Cup dispenser 2 — no cups in column. Refill the right cup column.'},
+  {code:'UKB13', cat:'Cup dispenser', sev:'y', short:'Cup blocked', desc:'Cup dispenser 2 — error while cup dispensation.'},
+  {code:'UKB14', cat:'Cup dispenser', sev:'g', short:'Motor defect', desc:'Cup dispenser 2 — dispensing motor not found.'},
+  {code:'UKB15', cat:'Cup dispenser', sev:'g', short:'Motor defect', desc:'Cup dispenser 2 — motor in cup column not found.'},
+
+  /* Boiler */
+  {code:'WAT01', cat:'Boiler', sev:'y', short:'Boiler empty', desc:'Boiler not filled. Run Machine → Programs → Fill boiler (password 250).'},
+  {code:'WAT02', cat:'Boiler', sev:'y', short:'Dripping bowl', desc:'Dripping bowl or bucket is full. Empty the dripping bowl / wastewater bucket.'},
+  {code:'WAT55', cat:'Boiler', sev:'g', short:'T.sensor def.', desc:'Temperature sensor defect. Replace the sensor.'},
+  {code:'WAT57', cat:'Boiler', sev:'y', short:'Inlet control', desc:'No water. Check water supply, inlet valve, flow-meter and filter.'},
+  {code:'WAT58', cat:'Boiler', sev:'g', short:'Heating defect', desc:'Heating defect (STB1). Check safety temperature regulator and heater.'},
+  {code:'WAT60', cat:'Boiler', sev:'y', short:'Flow too low', desc:'Too little water. Check filter, inlet valve and limescale build-up.'},
+  {code:'WAT61', cat:'Boiler', sev:'y', short:'Purification', desc:'Purification programme was not finished. Run it to completion.'},
+  {code:'WAT70', cat:'Boiler', sev:'g', short:'Triac defect', desc:'Triac does not switch on. Check I/O board.'},
+  {code:'WAT71', cat:'Boiler', sev:'g', short:'Triac defect', desc:'Triac does not switch off. Check I/O board.'},
+
+  /* Compressor */
+  {code:'WAT51', cat:'Compressor', sev:'g', short:'Compressor defect', desc:'No air pump. Check the air pump and its supply.'},
+
+  /* Dispenser arm */
+  {code:'UKA01', cat:'Dispenser arm', sev:'g', short:'No dispenser arm', desc:'No dispenser arm detected.'},
+  {code:'UKA02', cat:'Dispenser arm', sev:'y', short:'Dispenser arm def.', desc:'Dispenser arm blocked while in motion. Free the arm and check for obstruction.'},
+  {code:'UKA03', cat:'Dispenser arm', sev:'y', short:'Dispenser arm def.', desc:'Time out at switch. Check the arm limit switch.'},
+
+  /* Stick dispenser */
+  {code:'STC01', cat:'Stick dispenser', sev:'g', short:'Motor defect', desc:'Motor not found. Check stick dispenser motor connector (J2 pins 9/10).'},
+  {code:'STC02', cat:'Stick dispenser', sev:'y', short:'Switch defect', desc:'Time out at switch. Check the stick dispenser switch.'},
+  {code:'STC03', cat:'Stick dispenser', sev:'y', short:'Motor blocked', desc:'Motor blocked while in motion. Remove jammed sticks.'}
+];
+
+/* ---- render filters ---- */
+const cats = ['All', ...new Set(ERRORS.map(e => e.cat))];
+const filterBox = document.getElementById('errFilters');
+let activeCat = 'All';
+
+cats.forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'chip' + (c === 'All' ? ' active' : '');
+  b.textContent = c;
+  b.addEventListener('click', () => {
+    activeCat = c;
+    document.querySelectorAll('#errFilters .chip').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    renderErrors();
+  });
+  filterBox.appendChild(b);
+});
+
+function sevLabel(s){
+  if(s === 'g') return '<span class="sev g">CRITICAL</span>';
+  if(s === 'y') return '<span class="sev y">WARNING</span>';
+  return '<span class="sev b">INFO</span>';
+}
+
+function renderErrors(){
+  const q = (document.getElementById('errSearch').value || '').toLowerCase().trim();
+  const body = document.getElementById('errBody');
+  const rows = ERRORS.filter(e => {
+    const catOk = activeCat === 'All' || e.cat === activeCat;
+    const qOk = !q ||
+      e.code.toLowerCase().includes(q) ||
+      e.short.toLowerCase().includes(q) ||
+      e.desc.toLowerCase().includes(q) ||
+      e.cat.toLowerCase().includes(q);
+    return catOk && qOk;
+  });
+  body.innerHTML = rows.map(e =>
+    '<tr><td class="ecode">' + e.code + '</td>' +
+    '<td>' + e.cat + '</td>' +
+    '<td>' + e.short + ' ' + sevLabel(e.sev) + '</td>' +
+    '<td>' + e.desc + '</td></tr>'
+  ).join('') || '<tr><td colspan="4" style="text-align:center;color:#9aa7b4;padding:24px">No matching error code.</td></tr>';
+  document.getElementById('errCount').textContent = rows.length + ' of ' + ERRORS.length + ' entries shown';
+}
+
+document.getElementById('errSearch').addEventListener('input', renderErrors);
+renderErrors();
+</script>
+</body>
+</html>
