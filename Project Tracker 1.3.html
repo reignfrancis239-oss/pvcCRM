@@ -1,0 +1,3277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Tracker — Projects, Milestones &amp; Daily Activities</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   DESIGN SYSTEM
+   ========================================================= */
+:root{
+  /* Colors — warm neutral + indigo primary */
+  --bg:#f7f8fb;
+  --bg-elevated:#ffffff;
+  --surface:#ffffff;
+  --surface-2:#fafbfd;
+  --surface-3:#f3f5f9;
+  --line:#e8ebf2;
+  --line-strong:#d4d9e3;
+
+  --text:#0f172a;
+  --text-2:#334155;
+  --text-3:#64748b;
+  --text-4:#94a3b8;
+
+  --brand:#4f46e5;
+  --brand-dark:#4338ca;
+  --brand-light:#eef2ff;
+  --brand-ring:rgba(79,70,229,.15);
+
+  --ok:#059669;
+  --ok-bg:#ecfdf5;
+  --ok-line:#a7f3d0;
+
+  --warn:#d97706;
+  --warn-bg:#fffbeb;
+  --warn-line:#fde68a;
+
+  --bad:#dc2626;
+  --bad-bg:#fef2f2;
+  --bad-line:#fecaca;
+
+  --info:#0ea5e9;
+  --info-bg:#f0f9ff;
+  --info-line:#bae6fd;
+
+  --purple:#7c3aed;
+  --purple-bg:#f5f3ff;
+  --purple-line:#ddd6fe;
+
+  /* Shadow scale */
+  --sh-1:0 1px 2px rgba(15,23,42,.04);
+  --sh-2:0 1px 2px rgba(15,23,42,.04), 0 2px 6px rgba(15,23,42,.05);
+  --sh-3:0 2px 4px rgba(15,23,42,.04), 0 8px 20px rgba(15,23,42,.08);
+  --sh-4:0 8px 16px rgba(15,23,42,.06), 0 24px 48px rgba(15,23,42,.12);
+
+  /* Radius */
+  --r-xs:6px;
+  --r-sm:8px;
+  --r-md:10px;
+  --r-lg:14px;
+  --r-xl:18px;
+  --r-full:999px;
+
+  /* Spacing scale (8px grid) */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-8:32px; --s-10:40px;
+
+  --sidebar-w:232px;
+  --topbar-h:60px;
+}
+
+/* Dark theme */
+[data-theme="dark"]{
+  --bg:#0b1120;
+  --bg-elevated:#0f172a;
+  --surface:#111a2e;
+  --surface-2:#16203a;
+  --surface-3:#1c2740;
+  --line:#1f2b45;
+  --line-strong:#2b3a5a;
+
+  --text:#f1f5f9;
+  --text-2:#cbd5e1;
+  --text-3:#94a3b8;
+  --text-4:#64748b;
+
+  --brand:#818cf8;
+  --brand-dark:#6366f1;
+  --brand-light:#1e1b4b;
+  --brand-ring:rgba(129,140,248,.2);
+
+  --ok:#34d399;
+  --ok-bg:#052e22;
+  --ok-line:#065f46;
+
+  --warn:#fbbf24;
+  --warn-bg:#2a1f0a;
+  --warn-line:#78350f;
+
+  --bad:#f87171;
+  --bad-bg:#2a0f0f;
+  --bad-line:#7f1d1d;
+
+  --info:#38bdf8;
+  --info-bg:#082f49;
+  --info-line:#075985;
+
+  --purple:#a78bfa;
+  --purple-bg:#2a1f4a;
+  --purple-line:#5b21b6;
+
+  --sh-1:0 1px 2px rgba(0,0,0,.3);
+  --sh-2:0 1px 2px rgba(0,0,0,.3), 0 2px 6px rgba(0,0,0,.25);
+  --sh-3:0 2px 4px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+  --sh-4:0 8px 16px rgba(0,0,0,.4), 0 24px 48px rgba(0,0,0,.5);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  letter-spacing:-.006em;
+  transition:background .2s,color .2s;
+}
+h1,h2,h3,h4{font-weight:700;letter-spacing:-.02em;line-height:1.2}
+h1{font-size:20px}
+h2{font-size:17px}
+h3{font-size:15px}
+h4{font-size:13px}
+p{margin:0}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.muted{color:var(--text-3)}
+.num{text-align:right}
+.ctr{text-align:center}
+.hidden{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* =========================================================
+   LAYOUT — SIDEBAR + TOPBAR + MAIN
+   ========================================================= */
+.app-shell{
+  display:grid;
+  grid-template-columns:var(--sidebar-w) 1fr;
+  grid-template-rows:var(--topbar-h) 1fr;
+  grid-template-areas:"sidebar topbar" "sidebar main";
+  min-height:100vh;
+}
+@media (max-width:960px){
+  .app-shell{grid-template-columns:1fr;grid-template-areas:"topbar" "main"}
+  .sidebar{display:none}
+}
+
+/* ---- SIDEBAR ---- */
+.sidebar{
+  grid-area:sidebar;
+  background:var(--surface);
+  border-right:1px solid var(--line);
+  padding:16px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:4px 8px 12px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.sidebar-brand .mark{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,#6366f1,#4f46e5);
+  display:grid;place-items:center;color:#fff;
+  box-shadow:0 4px 12px rgba(79,70,229,.3);
+  flex:none;
+}
+.sidebar-brand .mark svg{width:18px;height:18px}
+.sidebar-brand .name{font-size:14px;font-weight:700;letter-spacing:-.01em}
+.sidebar-brand .sub{font-size:10.5px;color:var(--text-3);font-weight:500}
+.sidebar-section-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--text-4);font-weight:700;padding:0 8px;margin-bottom:6px;
+}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px}
+.sidebar-nav a{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:8px;
+  color:var(--text-2);font-size:13px;font-weight:600;
+  text-decoration:none;transition:.12s;
+  position:relative;
+}
+.sidebar-nav a:hover{background:var(--surface-3);color:var(--text);text-decoration:none}
+.sidebar-nav a.active{background:var(--brand-light);color:var(--brand)}
+[data-theme="dark"] .sidebar-nav a.active{background:rgba(129,140,248,.12)}
+.sidebar-nav a svg{width:16px;height:16px;flex:none;opacity:.85}
+.sidebar-nav a .badge{
+  margin-left:auto;background:var(--bad);color:#fff;
+  font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--r-full);
+  min-width:18px;text-align:center;
+}
+.sidebar-footer{
+  margin-top:auto;padding-top:12px;border-top:1px solid var(--line);
+  display:flex;flex-direction:column;gap:6px;
+}
+.theme-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 10px;border-radius:8px;font-size:12.5px;font-weight:600;
+  color:var(--text-2);background:transparent;cursor:pointer;transition:.12s;
+}
+.theme-toggle:hover{background:var(--surface-3)}
+.theme-toggle .switch{
+  width:34px;height:20px;border-radius:var(--r-full);
+  background:var(--line-strong);position:relative;transition:.2s;flex:none;
+}
+.theme-toggle .switch::after{
+  content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;
+  border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+[data-theme="dark"] .theme-toggle .switch{background:var(--brand)}
+[data-theme="dark"] .theme-toggle .switch::after{left:16px}
+
+/* ---- TOPBAR ---- */
+.topbar{
+  grid-area:topbar;
+  background:var(--bg-elevated);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;
+  padding:0 20px;
+  gap:12px;
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:saturate(180%) blur(8px);
+  background:color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+}
+.crumbs{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--text-3);
+  min-width:0;flex:1;
+}
+.crumbs a{color:var(--text-3);font-weight:600;cursor:pointer}
+.crumbs a:hover{color:var(--text);text-decoration:none}
+.crumbs .sep{color:var(--text-4);font-size:11px}
+.crumbs .current{color:var(--text);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar-actions{display:flex;align-items:center;gap:6px;flex:none}
+
+/* Command palette trigger */
+.cmd-trigger{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px 7px 12px;
+  background:var(--surface-3);
+  border:1px solid var(--line);
+  border-radius:8px;
+  font-size:12.5px;color:var(--text-3);font-weight:600;
+  transition:.15s;cursor:pointer;
+  min-width:200px;
+}
+.cmd-trigger:hover{background:var(--surface-2);border-color:var(--line-strong);color:var(--text-2)}
+.cmd-trigger .kbd{margin-left:auto;display:flex;gap:2px}
+.kbd{
+  display:inline-block;padding:1px 5px;border-radius:4px;
+  background:var(--surface);border:1px solid var(--line);
+  font-size:10.5px;font-weight:700;color:var(--text-3);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  line-height:1.4;
+}
+@media (max-width:700px){.cmd-trigger{min-width:auto;padding:8px}.cmd-trigger span:not(.kbd),.cmd-trigger .kbd{display:none}}
+
+/* ---- MAIN ---- */
+.main{
+  grid-area:main;
+  padding:24px 28px 80px;
+  max-width:1320px;
+  width:100%;
+}
+@media (max-width:700px){.main{padding:16px 14px 80px}}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 14px;border-radius:8px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text);
+  font-size:13px;font-weight:600;letter-spacing:-.005em;
+  cursor:pointer;transition:.15s;white-space:nowrap;
+  position:relative;overflow:hidden;
+}
+.btn svg{width:14px;height:14px;flex:none}
+.btn:hover{background:var(--surface-2);border-color:var(--line-strong)}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 1px 2px rgba(79,70,229,.2)}
+.btn.primary:hover{background:var(--brand-dark);border-color:var(--brand-dark);box-shadow:0 2px 6px rgba(79,70,229,.3)}
+.btn.danger{color:var(--bad);border-color:var(--bad-line);background:var(--surface)}
+.btn.danger:hover{background:var(--bad-bg);border-color:var(--bad)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--text-3)}
+.btn.ghost:hover{background:var(--surface-3);color:var(--text-2)}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:7px}
+.btn.sm svg{width:12px;height:12px}
+.btn.icon{padding:8px;width:34px;height:34px}
+.btn.icon.sm{padding:6px;width:28px;height:28px}
+.btn.icon.sm svg{width:14px;height:14px}
+.btn.block{width:100%}
+
+.icon-btn{
+  width:32px;height:32px;border-radius:8px;
+  display:grid;place-items:center;
+  color:var(--text-3);cursor:pointer;transition:.15s;
+  border:1px solid transparent;background:transparent;
+}
+.icon-btn:hover{background:var(--surface-3);color:var(--text)}
+.icon-btn svg{width:16px;height:16px}
+.icon-btn.sm{width:26px;height:26px}
+.icon-btn.sm svg{width:14px;height:14px}
+
+.file-btn{position:relative;overflow:hidden}
+.file-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+.page-head{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:16px;margin-bottom:24px;flex-wrap:wrap;
+}
+.page-head h1{font-size:24px;letter-spacing:-.025em}
+.page-head .subtitle{color:var(--text-3);font-size:13.5px;margin-top:4px;font-weight:500}
+.page-head-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-1);
+  transition:.15s;
+}
+.card-pad{padding:18px}
+
+/* =========================================================
+   KPI CARDS
+   ========================================================= */
+.kpi-grid{
+  display:grid;gap:14px;margin-bottom:24px;
+  grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+}
+.kpi{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:16px 18px;
+  box-shadow:var(--sh-1);transition:.15s;
+  position:relative;overflow:hidden;
+}
+.kpi:hover{box-shadow:var(--sh-2);transform:translateY(-1px)}
+.kpi .kpi-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kpi .kpi-icon{
+  width:32px;height:32px;border-radius:8px;
+  display:grid;place-items:center;
+}
+.kpi .kpi-icon svg{width:16px;height:16px}
+.kpi.brand .kpi-icon{background:var(--brand-light);color:var(--brand)}
+.kpi.ok .kpi-icon{background:var(--ok-bg);color:var(--ok)}
+.kpi.warn .kpi-icon{background:var(--warn-bg);color:var(--warn)}
+.kpi.bad .kpi-icon{background:var(--bad-bg);color:var(--bad)}
+.kpi.purple .kpi-icon{background:var(--purple-bg);color:var(--purple)}
+.kpi .kpi-label{font-size:11.5px;font-weight:600;color:var(--text-3);letter-spacing:.01em;text-transform:uppercase}
+.kpi .kpi-value{font-size:28px;font-weight:800;letter-spacing:-.035em;line-height:1}
+.kpi .kpi-trend{font-size:11.5px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:4px}
+.kpi .kpi-trend.bad{color:var(--bad)}
+.kpi .kpi-trend.ok{color:var(--ok)}
+
+/* =========================================================
+   PROJECT CARDS
+   ========================================================= */
+.project-grid{
+  display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+}
+.project-card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:18px;
+  cursor:pointer;transition:.18s;
+  display:flex;flex-direction:column;gap:14px;
+  position:relative;box-shadow:var(--sh-1);
+}
+.project-card:hover{
+  border-color:color-mix(in srgb, var(--brand) 40%, var(--line));
+  box-shadow:0 2px 4px rgba(15,23,42,.04), 0 12px 28px rgba(79,70,229,.12);
+  transform:translateY(-2px);
+}
+.project-card.overdue{
+  border-color:var(--bad-line);
+  animation:cardPulse 2s ease-in-out infinite;
+}
+@keyframes cardPulse{
+  0%,100%{box-shadow:var(--sh-1), 0 0 0 0 rgba(220,38,38,.4)}
+  50%{box-shadow:var(--sh-2), 0 0 0 6px rgba(220,38,38,0)}
+}
+.project-card.overdue:hover{animation-play-state:paused;border-color:var(--bad)}
+@media (prefers-reduced-motion: reduce){
+  .project-card.overdue{animation:none;box-shadow:0 0 0 3px rgba(220,38,38,.15)}
+}
+
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pc-name{font-size:15px;font-weight:700;letter-spacing:-.015em;line-height:1.35;color:var(--text)}
+.pc-mgr{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-3);font-weight:500;margin-top:6px}
+.pc-progress-ring{flex:none}
+.progress-ring{
+  --size:46px;
+  width:var(--size);height:var(--size);
+  position:relative;
+}
+.progress-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.progress-ring .ring-bg{fill:none;stroke:var(--surface-3);stroke-width:4}
+.progress-ring .ring-fg{
+  fill:none;stroke:var(--brand);stroke-width:4;stroke-linecap:round;
+  transition:stroke-dashoffset .6s cubic-bezier(.4,.0,.2,1);
+}
+.progress-ring.green .ring-fg{stroke:var(--ok)}
+.progress-ring.red .ring-fg{stroke:var(--bad)}
+.progress-ring .ring-pct{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-size:11px;font-weight:800;letter-spacing:-.02em;
+}
+
+.pc-metarow{display:flex;gap:12px;font-size:12px;color:var(--text-3);flex-wrap:wrap}
+.pc-metarow .item{display:flex;align-items:center;gap:5px}
+.pc-metarow .item svg{width:12px;height:12px;opacity:.7}
+
+.pc-statgrid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  padding-top:12px;border-top:1px dashed var(--line);
+}
+.pc-statgrid .item{
+  text-align:center;padding:6px 4px;border-radius:7px;
+  background:var(--surface-2);transition:.15s;
+}
+.project-card.overdue .pc-statgrid .item{background:var(--bad-bg)}
+.pc-statgrid .v{font-weight:800;font-size:15px;letter-spacing:-.02em;line-height:1.1}
+.pc-statgrid .l{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);font-weight:700;margin-top:2px}
+
+/* Overdue badge */
+.overdue-badge{
+  position:absolute;top:-8px;right:14px;z-index:2;
+  display:inline-flex;align-items:center;gap:5px;
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:#fff;font-size:11px;font-weight:800;
+  padding:4px 10px;border-radius:var(--r-full);
+  box-shadow:0 4px 12px rgba(220,38,38,.4);
+  letter-spacing:.01em;white-space:nowrap;
+}
+.overdue-badge .dot{
+  width:6px;height:6px;border-radius:50%;background:#fff;
+  animation:dotBlink 1.4s ease-in-out infinite;
+}
+@keyframes dotBlink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Milestone bar on project card */
+.pc-ms-bar{
+  display:flex;flex-direction:column;gap:6px;
+  padding:10px 12px;border-radius:8px;
+  background:var(--surface-2);border:1px solid var(--line);
+}
+.pc-ms-bar .row{
+  display:flex;justify-content:space-between;font-size:10.5px;
+  font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;
+}
+.pc-ms-bar .row .pct{color:var(--purple)}
+
+/* =========================================================
+   PROGRESS BARS
+   ========================================================= */
+.pbar{
+  height:6px;background:var(--surface-3);border-radius:var(--r-full);
+  overflow:hidden;position:relative;width:100%;
+}
+.pbar>span{
+  display:block;height:100%;border-radius:var(--r-full);
+  background:linear-gradient(90deg,#818cf8,#4f46e5);
+  transition:width .6s cubic-bezier(.4,.0,.2,1);
+}
+.pbar.green>span{background:linear-gradient(90deg,#34d399,#059669)}
+.pbar.red>span{background:linear-gradient(90deg,#f87171,#dc2626)}
+.pbar.purple>span{background:linear-gradient(90deg,#a78bfa,#7c3aed)}
+.pbar.amber>span{background:linear-gradient(90deg,#fbbf24,#d97706)}
+
+/* =========================================================
+   PILLS / BADGES
+   ========================================================= */
+.pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:var(--r-full);
+  font-size:11.5px;font-weight:600;letter-spacing:.005em;
+  white-space:nowrap;border:1px solid transparent;
+  line-height:1.4;
+}
+.pill .dot{width:6px;height:6px;border-radius:50%;flex:none;background:currentColor;opacity:.7}
+.pill.grey{background:var(--surface-3);color:var(--text-3);border-color:var(--line)}
+.pill.blue{background:var(--brand-light);color:var(--brand);border-color:transparent}
+.pill.green{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-line)}
+.pill.red{background:var(--bad-bg);color:var(--bad);border-color:var(--bad-line)}
+.pill.purple{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-line)}
+.pill.amber{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-line)}
+.pill.cyan{background:var(--info-bg);color:var(--info);border-color:var(--info-line)}
+
+/* Evidence indicator */
+.ev{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;font-weight:600;
+}
+.ev svg{width:13px;height:13px}
+.ev.yes{color:var(--ok)}
+.ev.no{color:var(--warn)}
+
+/* Avatar */
+.avatar{
+  width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:10.5px;font-weight:800;color:#fff;
+  flex:none;letter-spacing:0;
+  box-shadow:0 1px 2px rgba(0,0,0,.1);
+}
+.avatar.lg{width:32px;height:32px;font-size:12px}
+.avatar.sm{width:20px;height:20px;font-size:9px}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+.tabs{
+  display:inline-flex;gap:2px;background:var(--surface-3);
+  border:1px solid var(--line);border-radius:10px;padding:3px;
+  margin-bottom:20px;overflow-x:auto;max-width:100%;
+}
+.tab{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 16px;border-radius:7px;
+  font-size:13px;font-weight:600;color:var(--text-3);
+  transition:.15s;cursor:pointer;white-space:nowrap;
+  border:1px solid transparent;
+}
+.tab:hover{color:var(--text);background:var(--surface)}
+.tab.active{
+  background:var(--surface);color:var(--text);
+  box-shadow:var(--sh-1);border-color:var(--line);
+}
+.tab svg{width:15px;height:15px}
+.tab .count{
+  background:var(--surface-3);color:var(--text-3);
+  font-size:11px;font-weight:700;padding:1px 7px;border-radius:var(--r-full);
+  min-width:20px;text-align:center;transition:.15s;
+}
+.tab.active .count{background:var(--brand-light);color:var(--brand)}
+.tab .count.warn{background:var(--bad-bg);color:var(--bad)}
+.tab.active .count.warn{background:var(--bad);color:#fff}
+
+/* =========================================================
+   FILTERS & INPUTS
+   ========================================================= */
+.filter-bar{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.search-input{
+  position:relative;flex:1;min-width:200px;max-width:340px;
+}
+.search-input svg{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;color:var(--text-4);pointer-events:none;
+}
+.input,select,textarea{
+  width:100%;font-size:13.5px;color:var(--text);
+  border:1px solid var(--line);border-radius:8px;
+  padding:9px 12px;background:var(--surface);
+  transition:.15s;outline:none;font-weight:500;
+}
+.input:focus,select:focus,textarea:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 3px var(--brand-ring);
+}
+.input::placeholder{color:var(--text-4);font-weight:400}
+.search-input .input{padding-left:36px}
+textarea{resize:vertical;min-height:60px;line-height:1.55}
+select{
+  cursor:pointer;appearance:none;padding-right:32px;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.filter-bar .input,.filter-bar select{width:auto;min-width:150px}
+.filter-bar .search-input .input{width:100%}
+
+.chk{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;color:var(--text-2);
+  background:var(--surface);border:1px solid var(--line);
+  padding:9px 13px;border-radius:8px;cursor:pointer;
+  user-select:none;transition:.15s;white-space:nowrap;
+}
+.chk:hover{border-color:var(--line-strong)}
+.chk input{width:15px;height:15px;accent-color:var(--brand);cursor:pointer;margin:0}
+.chk.on{border-color:var(--warn);background:var(--warn-bg);color:var(--warn)}
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+.tbl-wrap{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-1);
+}
+table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{
+  text-align:left;font-size:11px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text-3);font-weight:700;
+  padding:12px 16px;background:var(--surface-2);
+  border-bottom:1px solid var(--line);white-space:nowrap;
+  position:sticky;top:0;z-index:1;
+}
+.tbl td{
+  padding:13px 16px;border-bottom:1px solid var(--line);
+  vertical-align:middle;color:var(--text-2);
+}
+.tbl tbody tr{cursor:pointer;transition:background .1s}
+.tbl tbody tr:hover{background:var(--surface-2)}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl .row-overdue{background:color-mix(in srgb, var(--bad-bg) 70%, transparent)}
+.tbl .row-overdue:hover{background:var(--bad-bg)}
+.tbl .cell-strong{font-weight:600;color:var(--text)}
+.tbl .cell-sub{font-size:11.5px;color:var(--text-3);margin-top:2px;font-weight:500;
+  max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl .cell-overdue{color:var(--bad);font-weight:700}
+
+/* =========================================================
+   MILESTONE SUMMARY TILES
+   ========================================================= */
+.ms-grid{
+  display:grid;gap:10px;margin-bottom:18px;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+}
+.ms-tile{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:12px 14px;
+  box-shadow:var(--sh-1);transition:.15s;
+}
+.ms-tile:hover{box-shadow:var(--sh-2)}
+.ms-tile .v{font-size:22px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.ms-tile .l{font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-3);font-weight:700;margin-top:3px}
+.ms-tile.ok .v{color:var(--ok)} .ms-tile.brand .v{color:var(--brand)}
+.ms-tile.warn .v{color:var(--warn)} .ms-tile.bad .v{color:var(--bad)}
+.ms-tile.purple .v{color:var(--purple)}
+
+/* =========================================================
+   PROJECT HERO
+   ========================================================= */
+.hero{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-xl);padding:22px 24px;margin-bottom:22px;
+  box-shadow:var(--sh-2);position:relative;overflow:hidden;
+}
+.hero::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899);
+  opacity:.85;
+}
+.hero-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:20px}
+.hero-title{font-size:22px;letter-spacing:-.025em;font-weight:800}
+.hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--text-3);font-weight:500}
+.hero-meta b{color:var(--text);font-weight:700}
+.hero-meta .item{display:flex;align-items:center;gap:6px}
+.hero-meta .item svg{width:14px;height:14px;opacity:.7}
+
+.hero-bars{display:flex;flex-direction:column;gap:16px;margin-bottom:20px}
+.hero-bar-row{display:flex;flex-direction:column;gap:6px}
+.hero-bar-row .top{display:flex;justify-content:space-between;font-size:11.5px;
+  font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em}
+.hero-bar-row .top .val{color:var(--text);font-size:14px}
+
+/* =========================================================
+   ACTION BAR
+   ========================================================= */
+.action-bar{
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  padding:12px 14px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--sh-1);margin-bottom:20px;
+}
+.action-bar .sep{width:1px;height:24px;background:var(--line);margin:0 4px}
+.action-bar .right{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+/* =========================================================
+   MODALS
+   ========================================================= */
+.modal-root{position:fixed;inset:0;z-index:200;display:none}
+.modal-root.open{display:block}
+.modal-overlay{
+  position:absolute;inset:0;
+  background:rgba(15,23,42,.55);
+  backdrop-filter:blur(4px);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:40px 20px;overflow-y:auto;
+  animation:fadeIn .18s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--surface);border-radius:var(--r-xl);
+  width:100%;max-width:640px;
+  box-shadow:0 24px 60px rgba(15,23,42,.35), 0 0 0 1px rgba(255,255,255,.05);
+  display:flex;flex-direction:column;
+  max-height:calc(100vh - 80px);
+  animation:modalIn .22s cubic-bezier(.34,1.4,.64,1);
+  overflow:hidden;
+}
+.modal.wide{max-width:900px}
+@keyframes modalIn{
+  from{opacity:0;transform:translateY(20px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+.modal-head{
+  padding:20px 24px;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:12px;flex:none;background:var(--surface);
+}
+.modal-head h2{font-size:17px;letter-spacing:-.02em}
+.modal-head .sub{font-size:12.5px;color:var(--text-3);margin-top:3px;font-weight:500}
+.modal-body{padding:22px 24px;overflow-y:auto;flex:1}
+.modal-foot{
+  padding:16px 24px;border-top:1px solid var(--line);
+  display:flex;justify-content:flex-end;gap:8px;
+  background:var(--surface-2);flex:none;flex-wrap:wrap;
+}
+.modal-foot .left{margin-right:auto}
+
+/* =========================================================
+   FORMS
+   ========================================================= */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:600px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.span2{grid-column:1/-1}
+.field label{
+  font-size:11.5px;font-weight:700;color:var(--text-3);
+  text-transform:uppercase;letter-spacing:.055em;
+}
+.field label .req{color:var(--bad);margin-left:2px}
+.hint{font-size:11.5px;color:var(--text-3);margin-top:2px;font-weight:500}
+
+.section{border-top:1px solid var(--line);margin-top:24px;padding-top:20px}
+.section h3{
+  font-size:14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;
+  color:var(--text);
+}
+.section h3 svg{width:16px;height:16px;color:var(--text-3)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.section-head h3{margin-bottom:0}
+
+/* =========================================================
+   ATTACHMENTS
+   ========================================================= */
+.attach-list{display:flex;flex-direction:column;gap:8px}
+.attach{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:var(--r-md);
+  transition:.15s;
+}
+.attach:hover{border-color:var(--line-strong);background:var(--surface)}
+.attach .ficon,.attach .thumb{
+  width:38px;height:38px;border-radius:9px;flex:none;
+  display:grid;place-items:center;font-size:17px;
+  background:var(--surface-3);
+}
+.attach .thumb{object-fit:cover;border:1px solid var(--line)}
+.attach .info{flex:1;min-width:0}
+.attach .name{
+  font-size:13px;font-weight:600;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.attach .meta{font-size:11.5px;color:var(--text-3);margin-top:1px;font-weight:500}
+
+.empty-note{
+  padding:20px;border:1.5px dashed var(--line-strong);
+  border-radius:var(--r-md);text-align:center;
+  color:var(--text-3);font-size:12.5px;background:var(--surface-2);
+  font-weight:500;
+}
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+.alert{
+  display:flex;gap:12px;padding:14px 16px;border-radius:var(--r-md);
+  border:1px solid;margin-bottom:18px;font-size:13px;
+}
+.alert .ic{flex:none;width:20px;height:20px;display:grid;place-items:center}
+.alert .ic svg{width:18px;height:18px}
+.alert .content{flex:1;min-width:0}
+.alert .title{font-weight:700;font-size:13.5px;margin-bottom:4px}
+.alert .body{color:var(--text-2);font-size:12.5px;line-height:1.55}
+.alert ul{margin:8px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.alert ul li{padding:10px 12px;border-radius:7px;background:rgba(255,255,255,.6);font-size:12.5px;font-weight:500}
+[data-theme="dark"] .alert ul li{background:rgba(0,0,0,.2)}
+.alert ul li b{display:block;font-weight:700;margin-bottom:2px}
+.alert.err{background:var(--bad-bg);border-color:var(--bad-line);color:var(--bad)}
+.alert.err .title{color:var(--bad)}
+.alert.info{background:var(--info-bg);border-color:var(--info-line);color:var(--info)}
+.alert.info .title{color:var(--info)}
+.alert.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+.alert.warn .title{color:var(--warn)}
+.alert.success{background:var(--ok-bg);border-color:var(--ok-line)}
+.alert.success .title{color:var(--ok)}
+
+/* =========================================================
+   CHECKLIST
+   ========================================================= */
+.checklist{
+  list-style:none;display:flex;flex-direction:column;gap:8px;
+  margin-top:8px;
+}
+.checklist li{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:600;padding:10px 12px;
+  border-radius:8px;background:var(--surface-2);
+  border:1px solid var(--line);
+}
+.checklist li svg{width:16px;height:16px;flex:none}
+.checklist li.ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}
+.checklist li.no{color:var(--bad);background:var(--bad-bg);border-color:var(--bad-line)}
+
+/* =========================================================
+   DAILY UPDATES
+   ========================================================= */
+.update-form{
+  background:var(--surface-2);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:16px;margin-bottom:16px;
+}
+.update-history{display:flex;flex-direction:column;gap:12px}
+.upd{
+  border:1px solid var(--line);border-left:3px solid var(--brand);
+  border-radius:var(--r-md);padding:14px 16px;
+  background:var(--surface);transition:.15s;
+}
+.upd:hover{box-shadow:var(--sh-1)}
+.upd-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.upd-date{font-weight:700;font-size:13.5px;letter-spacing:-.01em}
+.upd-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;
+  font-size:12.5px;
+}
+@media (max-width:600px){.upd-grid{grid-template-columns:1fr}}
+.upd-grid .lbl{
+  font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-4);font-weight:700;margin-bottom:2px;
+}
+.upd-grid .val{color:var(--text-2);font-weight:500;line-height:1.5}
+.upd-attach{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--surface-3);border:1px solid var(--line);
+  border-radius:6px;padding:3px 8px;font-size:11px;
+  font-weight:600;color:var(--text-2);
+}
+.upd-foot{margin-top:10px;font-size:11px;color:var(--text-3);font-weight:500;
+  display:flex;align-items:center;gap:5px}
+
+/* =========================================================
+   TOASTS
+   ========================================================= */
+.toast-stack{
+  position:fixed;right:20px;bottom:20px;z-index:500;
+  display:flex;flex-direction:column;gap:10px;
+  pointer-events:none;max-width:calc(100vw - 40px);
+}
+.toast{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--surface);color:var(--text);
+  padding:12px 16px;border-radius:var(--r-md);
+  box-shadow:var(--sh-4);border:1px solid var(--line);
+  font-size:13.5px;font-weight:600;
+  animation:toastIn .28s cubic-bezier(.34,1.4,.64,1);
+  pointer-events:auto;min-width:260px;max-width:400px;
+  position:relative;overflow:hidden;
+}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+.toast.out{animation:toastOut .2s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+.toast .ic{flex:none;width:20px;height:20px;display:grid;place-items:center}
+.toast .ic svg{width:16px;height:16px}
+.toast .msg{flex:1;line-height:1.4}
+.toast .progress{
+  position:absolute;bottom:0;left:0;height:2px;
+  background:currentColor;opacity:.25;
+  animation:progress linear forwards;
+}
+@keyframes progress{from{width:100%}to{width:0}}
+.toast.ok{border-color:var(--ok-line)}
+.toast.ok .ic{color:var(--ok)}
+.toast.ok .progress{background:var(--ok);color:var(--ok)}
+.toast.bad{border-color:var(--bad-line)}
+.toast.bad .ic{color:var(--bad)}
+.toast.bad .progress{background:var(--bad);color:var(--bad)}
+.toast.warn{border-color:var(--warn-line)}
+.toast.warn .ic{color:var(--warn)}
+.toast.warn .progress{background:var(--warn);color:var(--warn)}
+.toast.info .ic{color:var(--brand)}
+.toast.info .progress{background:var(--brand);color:var(--brand)}
+
+/* =========================================================
+   EMPTY STATES
+   ========================================================= */
+.empty-state{
+  text-align:center;padding:60px 24px;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-xl);box-shadow:var(--sh-1);
+}
+.empty-state .illustration{
+  width:80px;height:80px;margin:0 auto 18px;
+  border-radius:20px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--brand-light),var(--purple-bg));
+  color:var(--brand);
+}
+.empty-state .illustration svg{width:38px;height:38px}
+.empty-state h3{font-size:17px;margin-bottom:6px;letter-spacing:-.02em}
+.empty-state p{color:var(--text-3);font-size:13.5px;max-width:400px;margin:0 auto 20px;font-weight:500;line-height:1.55}
+
+/* =========================================================
+   SAVE / FILE STATUS
+   ========================================================= */
+.status-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 10px;border-radius:7px;
+  font-size:11.5px;font-weight:700;
+  background:var(--surface-3);color:var(--text-3);
+  transition:.2s;white-space:nowrap;cursor:default;
+  border:1px solid transparent;
+}
+.status-chip svg{width:12px;height:12px}
+.status-chip.ok{color:var(--ok);background:var(--ok-bg);border-color:var(--ok-line)}
+.status-chip.saving{color:var(--warn);background:var(--warn-bg);border-color:var(--warn-line)}
+.status-chip.error{color:var(--bad);background:var(--bad-bg);border-color:var(--bad-line)}
+.status-chip.linked{color:var(--brand);background:var(--brand-light);border-color:transparent;cursor:pointer}
+.status-chip.pulse{animation:statusPulse .6s ease}
+@keyframes statusPulse{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+/* =========================================================
+   COMMAND PALETTE
+   ========================================================= */
+.cmd-root{position:fixed;inset:0;z-index:300;display:none}
+.cmd-root.open{display:block}
+.cmd-overlay{
+  position:absolute;inset:0;background:rgba(15,23,42,.5);
+  backdrop-filter:blur(3px);animation:fadeIn .15s ease;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:14vh 20px 20px;
+}
+.cmd-panel{
+  background:var(--surface);border-radius:var(--r-lg);
+  width:100%;max-width:560px;overflow:hidden;
+  box-shadow:var(--sh-4), 0 0 0 1px var(--line);
+  animation:modalIn .2s cubic-bezier(.34,1.4,.64,1);
+}
+.cmd-input-wrap{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 18px;border-bottom:1px solid var(--line);
+}
+.cmd-input-wrap svg{width:18px;height:18px;color:var(--text-3);flex:none}
+.cmd-input{
+  flex:1;border:none;outline:none;background:transparent;
+  font-size:15px;font-weight:500;color:var(--text);
+}
+.cmd-input::placeholder{color:var(--text-4)}
+.cmd-list{max-height:360px;overflow-y:auto;padding:6px}
+.cmd-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;border-radius:8px;cursor:pointer;
+  font-size:13.5px;font-weight:500;color:var(--text-2);
+  transition:.1s;
+}
+.cmd-item:hover,.cmd-item.active{background:var(--brand-light);color:var(--brand)}
+.cmd-item .ic{
+  width:28px;height:28px;border-radius:7px;flex:none;
+  display:grid;place-items:center;
+  background:var(--surface-3);color:var(--text-3);
+}
+.cmd-item:hover .ic,.cmd-item.active .ic{background:var(--brand);color:#fff}
+.cmd-item .ic svg{width:14px;height:14px}
+.cmd-item .label{flex:1}
+.cmd-item .shortcut{font-size:11px;color:var(--text-4);font-weight:600}
+.cmd-empty{padding:40px 20px;text-align:center;color:var(--text-3);font-size:13px}
+.cmd-footer{
+  padding:8px 16px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;color:var(--text-3);font-weight:500;
+  background:var(--surface-2);
+}
+.cmd-footer .key-group{display:flex;gap:14px}
+
+/* =========================================================
+   LOADING SKELETON
+   ========================================================= */
+.skeleton{
+  background:linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:6px;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+#printArea{display:none}
+.rpt{font-family:Arial,Helvetica,sans-serif;color:#111;font-size:10.5px;line-height:1.45}
+.rpt-head{display:flex;justify-content:space-between;align-items:flex-start;
+  border-bottom:3px solid #4f46e5;padding-bottom:9px;margin-bottom:14px;gap:20px}
+.rpt-org{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#4f46e5;font-weight:700}
+.rpt-head h1{font-size:18px;margin:3px 0 2px;color:#0f172a}
+.rpt-sub{font-size:10.5px;color:#555}
+.rpt-meta{text-align:right;font-size:9.5px;color:#444;line-height:1.7;white-space:nowrap}
+.rpt h2{font-size:11.5px;margin:16px 0 7px;padding-bottom:4px;border-bottom:1px solid #cbd5e1;
+  text-transform:uppercase;letter-spacing:.07em;color:#1e3a8a}
+.rpt table{width:100%;border-collapse:collapse;margin-bottom:8px}
+.rpt table th{background:#eef2f9;border:1px solid #cbd5e1;padding:5px 7px;text-align:left;
+  font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:#1e293b}
+.rpt table td{border:1px solid #d7dee8;padding:5px 7px;vertical-align:top}
+.rpt table tr:nth-child(even) td{background:#fbfcfe}
+.rpt .num{text-align:right}
+.rpt .ctr{text-align:center}
+.rpt-info th{width:17%;background:#f6f8fb !important;font-size:9px}
+.rpt-info td{width:33%}
+.rpt-bar{height:14px;background:#e8edf4;border-radius:99px;overflow:hidden;border:1px solid #cbd5e1;margin-top:4px}
+.rpt-bar>span{display:block;height:100%;background:linear-gradient(90deg,#818cf8,#4f46e5)}
+.rpt-bar.purple>span{background:linear-gradient(90deg,#a78bfa,#7c3aed)}
+.rpt-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.rpt-bar-row .rpt-bar{flex:1;margin-top:0}
+.rpt-bar-pct{font-weight:800;font-size:13px;min-width:46px;text-align:right}
+.rpt-sign{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-top:34px}
+.rpt-sign .sig-line{border-bottom:1px solid #444;height:38px}
+.rpt-sign .sig-label{font-size:9px;text-align:center;margin-top:5px;color:#444;
+  text-transform:uppercase;letter-spacing:.06em}
+.rpt-foot{margin-top:22px;padding-top:8px;border-top:1px solid #cbd5e1;
+  font-size:8.5px;color:#666;display:flex;justify-content:space-between}
+.rpt-note{font-size:9px;color:#555;font-style:italic;margin-top:-4px;margin-bottom:8px}
+.rpt-ms-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.rpt-ms-stat{border:1px solid #cbd5e1;border-radius:5px;padding:6px 8px;text-align:center;background:#f8fafc}
+.rpt-ms-stat .v{font-size:16px;font-weight:800;color:#1e3a8a}
+.rpt-ms-stat .l{font-size:8px;text-transform:uppercase;letter-spacing:.05em;color:#555;font-weight:700}
+.rpt-ms-stat.done .v{color:#059669}
+.rpt-ms-stat.delay .v{color:#dc2626}
+
+@media print{
+  body{background:#fff!important}
+  .app-shell,.modal-root,.toast-stack,.cmd-root{display:none!important}
+  #printArea{display:block!important}
+  @page{size:A4;margin:13mm 11mm}
+  .rpt{font-size:10px}
+  .rpt table{page-break-inside:auto}
+  .rpt tr{page-break-inside:avoid;page-break-after:auto}
+  .rpt h2{page-break-after:avoid}
+  .rpt-sign{page-break-inside:avoid}
+}
+
+/* Scrollbar polish */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:var(--text-4)}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+      </div>
+      <div>
+        <div class="name">Project Tracker</div>
+        <div class="sub">Milestones &amp; Activities</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-section-label">Workspace</div>
+      <nav class="sidebar-nav" id="sidebarNav"></nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle" onclick="App.toggleTheme()">
+        <span style="display:flex;align-items:center;gap:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <span id="themeLabel">Dark mode</span>
+        </span>
+        <span class="switch"></span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="crumbs" id="crumbs"></div>
+    <div class="topbar-actions">
+      <button class="cmd-trigger" onclick="App.openCmd()" title="Open command palette">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <span>Search or jump to…</span>
+        <span class="kbd">⌘</span><span class="kbd">K</span>
+      </button>
+      <span id="fileStatus" class="status-chip" title="Local file auto-save">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <span id="fileStatusText">Not linked</span>
+      </span>
+      <span id="saveStatus" class="status-chip" title="Auto-save">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+        </svg>
+        <span id="saveStatusText">Ready</span>
+      </span>
+      <button class="btn sm ghost" onclick="App.downloadJSON()" title="Download a JSON backup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Backup
+      </button>
+      <label class="btn sm ghost file-btn" title="Load from a JSON file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Open
+        <input type="file" accept=".json,application/json" onchange="App.uploadJSON(this.files[0]); this.value='';">
+      </label>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main" id="app"></main>
+</div>
+
+<div class="modal-root" id="modalRoot"></div>
+
+<div class="cmd-root" id="cmdRoot">
+  <div class="cmd-overlay" onclick="if(event.target===this) App.closeCmd()">
+    <div class="cmd-panel">
+      <div class="cmd-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input class="cmd-input" id="cmdInput" placeholder="Type a command or search…" oninput="App.filterCmd(this.value)" onkeydown="App.cmdKey(event)">
+      </div>
+      <div class="cmd-list" id="cmdList"></div>
+      <div class="cmd-footer">
+        <div class="key-group">
+          <span><span class="kbd">↑</span> <span class="kbd">↓</span> Navigate</span>
+          <span><span class="kbd">↵</span> Select</span>
+          <span><span class="kbd">Esc</span> Close</span>
+        </div>
+        <span>Project Tracker</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+<div id="printArea"></div>
+
+<script>
+/* =========================================================
+   UTILS
+   ========================================================= */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const clamp = (n, a = 0, b = 100) => Math.max(a, Math.min(b, Number(n) || 0));
+function esc(s){return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function todayISO(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
+function isoOffset(days){const d=new Date();d.setDate(d.getDate()+days);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
+function fmtDate(iso){if(!iso)return'—';const d=new Date(iso.length>10?iso:iso+'T00:00:00');if(isNaN(d))return iso;return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmtDateLong(iso){if(!iso)return'—';const d=new Date(iso+'T00:00:00');if(isNaN(d))return iso;return d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});}
+function fmtDateTime(iso){if(!iso)return'—';const d=new Date(iso);if(isNaN(d))return iso;return d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});}
+function fmtSize(b){if(!b)return'';if(b>1048576)return(b/1048576).toFixed(1)+' MB';return Math.max(1,Math.round(b/1024))+' KB';}
+function daysBetween(a,b){return Math.round((new Date(a+'T00:00:00')-new Date(b+'T00:00:00'))/86400000);}
+function slug(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,50)||'report';}
+function initials(name){
+  if(!name) return '?';
+  const p = String(name).trim().split(/\s+/);
+  if(p.length === 1) return p[0].slice(0,2).toUpperCase();
+  return (p[0][0] + p[p.length-1][0]).toUpperCase();
+}
+/* Deterministic avatar color from a string */
+const AVATAR_COLORS = ['#4f46e5','#0891b2','#7c3aed','#db2777','#ea580c','#16a34a','#ca8a04','#dc2626','#0ea5e9','#059669'];
+function avatarColor(name){
+  if(!name) return AVATAR_COLORS[0];
+  let h = 0;
+  for(let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+function avatarHTML(name, size = ''){
+  const cls = 'avatar ' + (size ? 'avatar ' + size : '');
+  return `<span class="${size ? 'avatar ' + size : 'avatar'}" style="background:${avatarColor(name)}" title="${esc(name || '')}">${esc(initials(name))}</span>`;
+}
+function fileIcon(type, name){
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  if((type||'').startsWith('image/')||['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) return '🖼️';
+  if(ext==='pdf') return '📕';
+  if(['doc','docx'].includes(ext)) return '📘';
+  if(['xls','xlsx','csv'].includes(ext)) return '📗';
+  if(['ppt','pptx'].includes(ext)) return '📙';
+  if(['zip','rar','7z'].includes(ext)) return '🗜️';
+  return '📄';
+}
+
+/* =========================================================
+   ICONS (inline SVG)
+   ========================================================= */
+const ICON = {
+  home:'<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  folder:'<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  checkCircle:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  xCircle:'<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+  alert:'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+  trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  printer:'<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+  users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  unlink:'<path d="M18.84 12.25l1.72-1.71a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M5.17 11.75l-1.71 1.71a5 5 0 0 0 7.07 7.07l1.71-1.72"/><line x1="2" y1="2" x2="22" y2="22"/>',
+  chevronRight:'<polyline points="9 18 15 12 9 6"/>',
+  chevronDown:'<polyline points="6 9 12 15 18 9"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
+  layers:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  list:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+  grid:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+  activity:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  paperclip:'<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
+  moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>',
+  sparkles:'<path d="m12 3 1.9 5.8 5.8 1.9-5.8 1.9L12 18.4l-1.9-5.8-5.8-1.9 5.8-1.9z"/>'
+};
+function svg(name, w = 16){
+  const path = ICON[name] || '';
+  return `<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+}
+
+/* =========================================================
+   TOASTS
+   ========================================================= */
+function toast(msg, type = 'info', duration = 3400){
+  const stack = $('#toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icon = type === 'ok' ? 'checkCircle' : type === 'bad' ? 'xCircle' : type === 'warn' ? 'alert' : 'info';
+  el.innerHTML = `
+    <span class="ic">${svg(icon)}</span>
+    <span class="msg">${esc(msg)}</span>
+    <span class="progress" style="animation-duration:${duration}ms"></span>`;
+  stack.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 220);
+  }, duration);
+}
+
+/* =========================================================
+   LOCAL FILE SYSTEM (from previous version)
+   ========================================================= */
+const IDB_NAME = 'pmtracker-fs';
+const IDB_STORE = 'handles';
+const IDB_KEY = 'localFile';
+function idbOpen(){
+  return new Promise((res, rej) => {
+    if(!('indexedDB' in window)) return rej(new Error('no-idb'));
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const d = req.result;
+      if(!d.objectStoreNames.contains(IDB_STORE)) d.createObjectStore(IDB_STORE);
+    };
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+async function idbSet(k, v){ try{ const db = await idbOpen(); return new Promise((res, rej) => { const tx = db.transaction(IDB_STORE, 'readwrite'); tx.objectStore(IDB_STORE).put(v, k); tx.oncomplete = () => res(true); tx.onerror = () => rej(tx.error); }); }catch(e){ return false; } }
+async function idbGet(k){ try{ const db = await idbOpen(); return new Promise((res, rej) => { const tx = db.transaction(IDB_STORE, 'readonly'); const r = tx.objectStore(IDB_STORE).get(k); r.onsuccess = () => res(r.result || null); r.onerror = () => rej(r.error); }); }catch(e){ return null; } }
+async function idbDel(k){ try{ const db = await idbOpen(); return new Promise((res, rej) => { const tx = db.transaction(IDB_STORE, 'readwrite'); tx.objectStore(IDB_STORE).delete(k); tx.oncomplete = () => res(true); tx.onerror = () => rej(tx.error); }); }catch(e){ return false; } }
+
+/* =========================================================
+   STORAGE
+   ========================================================= */
+const KEY = 'pmtracker.v2';
+const DRAFT_KEY = 'pmtracker.draft.v2';
+const THEME_KEY = 'pmtracker.theme';
+let db = { projects: [] };
+const FS_SUPPORTED = 'showSaveFilePicker' in window || 'showOpenFilePicker' in window;
+let localFileHandle = null, localFileName = '', localFileReady = false;
+let localFileTimer = null, localFileWriting = false, localFileQueued = false;
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw) db = JSON.parse(raw);
+  }catch(e){ console.warn('Load failed', e); }
+  if(!db || !Array.isArray(db.projects)) db = { projects: [] };
+  db.projects.forEach(p => {
+    if(!Array.isArray(p.activities)) p.activities = [];
+    if(!Array.isArray(p.milestones)) p.milestones = [];
+  });
+}
+function save(){
+  setSaveStatus('saving');
+  try{
+    localStorage.setItem(KEY, JSON.stringify(db));
+    setSaveStatus('saved');
+  }catch(e){
+    db.projects.forEach(p => p.activities.forEach(a => {
+      (a.attachments || []).forEach(f => delete f.data);
+      (a.dailyUpdates || []).forEach(u => (u.attachments || []).forEach(f => delete f.data));
+    }));
+    try{ localStorage.setItem(KEY, JSON.stringify(db)); setSaveStatus('saved');
+      toast('Storage limit reached — image previews removed.', 'warn');
+    }catch(e2){ setSaveStatus('error'); toast('Unable to save.', 'bad'); }
+  }
+  if(localFileReady && localFileHandle) scheduleLocalFileWrite();
+}
+function setSaveStatus(state){
+  const el = $('#saveStatus');
+  const txt = $('#saveStatusText');
+  if(!el || !txt) return;
+  if(state === 'saved'){
+    const t = new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    txt.textContent = `Saved ${t}`;
+    el.className = 'status-chip ok pulse';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('pulse'), 650);
+  } else if(state === 'saving'){
+    txt.textContent = 'Saving…';
+    el.className = 'status-chip saving';
+  } else if(state === 'error'){
+    txt.textContent = 'Save failed';
+    el.className = 'status-chip error';
+  } else {
+    txt.textContent = 'Ready';
+    el.className = 'status-chip';
+  }
+}
+function setFileStatus(state){
+  const el = $('#fileStatus');
+  const txt = $('#fileStatusText');
+  if(!el || !txt) return;
+  if(state === 'linked'){
+    txt.textContent = localFileName || 'Linked';
+    el.className = 'status-chip linked';
+    el.title = 'Linked — changes auto-save to your hard drive. Click to re-grant permission.';
+    el.onclick = async () => {
+      if(localFileReady) return;
+      const ok = await ensurePermission(localFileHandle, 'readwrite');
+      if(ok){ localFileReady = true; setFileStatus('linked'); writeLocalFile(true); toast('Reconnected.', 'ok'); }
+      else toast('Permission denied.', 'bad');
+    };
+  } else if(state === 'saving'){
+    txt.textContent = 'Writing…';
+    el.className = 'status-chip saving';
+  } else if(state === 'saved'){
+    const t = new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    txt.textContent = `File ${t}`;
+    el.className = 'status-chip ok pulse';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('pulse'), 650);
+  } else if(state === 'permission'){
+    txt.textContent = 'Click to reconnect';
+    el.className = 'status-chip error';
+    el.style.cursor = 'pointer';
+  } else {
+    txt.textContent = 'Not linked';
+    el.className = 'status-chip';
+    el.title = 'Use ⌘K → "Link local file" to enable hard-drive auto-save';
+  }
+}
+function getProject(id){ return db.projects.find(p => p.id === id); }
+
+/* ----- Local file pickers ----- */
+async function pickLocalFile(){
+  if('showSaveFilePicker' in window){
+    return await window.showSaveFilePicker({
+      suggestedName: `project-tracker-${todayISO()}.json`,
+      types: [{ description: 'Project Tracker JSON', accept: { 'application/json': ['.json'] } }]
+    });
+  }
+  if('showOpenFilePicker' in window){
+    const [h] = await window.showOpenFilePicker({ types: [{ description: 'Project Tracker JSON', accept: { 'application/json': ['.json'] } }], multiple: false });
+    return h;
+  }
+  throw new Error('unsupported');
+}
+async function ensurePermission(handle, mode = 'readwrite'){
+  if(!handle) return false;
+  const o = { mode };
+  if((await handle.queryPermission(o)) === 'granted') return true;
+  if((await handle.requestPermission(o)) === 'granted') return true;
+  return false;
+}
+function scheduleLocalFileWrite(){
+  clearTimeout(localFileTimer);
+  localFileTimer = setTimeout(() => writeLocalFile(false), 800);
+}
+async function writeLocalFile(){
+  if(!localFileHandle) return;
+  if(localFileWriting){ localFileQueued = true; return; }
+  localFileWriting = true;
+  try{
+    const ok = await ensurePermission(localFileHandle, 'readwrite');
+    if(!ok){ localFileReady = false; setFileStatus('permission'); localFileWriting = false; return; }
+    setFileStatus('saving');
+    const payload = {
+      app: 'Project Tracker', schema: 'pmtracker.v2', version: 2,
+      exportedAt: new Date().toISOString(),
+      projectCount: db.projects.length,
+      projects: db.projects
+    };
+    const w = await localFileHandle.createWritable();
+    await w.write(JSON.stringify(payload, null, 2));
+    await w.close();
+    setFileStatus('saved');
+    localFileWriting = false;
+    if(localFileQueued){ localFileQueued = false; writeLocalFile(); }
+  }catch(e){
+    console.error(e);
+    localFileWriting = false;
+    localFileReady = false;
+    setFileStatus('error');
+  }
+}
+async function tryReconnectLocalFile(){
+  if(!FS_SUPPORTED) return;
+  const h = await idbGet(IDB_KEY);
+  if(!h) return;
+  localFileHandle = h;
+  localFileName = h.name || 'project-tracker.json';
+  try{
+    const p = await h.queryPermission({ mode: 'readwrite' });
+    if(p === 'granted'){ localFileReady = true; setFileStatus('linked'); }
+    else setFileStatus('permission');
+  }catch(e){ setFileStatus('permission'); }
+}
+
+/* =========================================================
+   SEED DATA
+   ========================================================= */
+function seed(){
+  if(db.projects.length) return;
+  const p = {
+    id: uid(), name: 'Warehouse Electrical Upgrade', manager: 'Eng. Sarah Cruz',
+    startDate: isoOffset(-20), targetDate: isoOffset(30), createdAt: new Date().toISOString(),
+    milestones: [
+      { id: uid(), name: 'Design & Permits Approved', description: 'Electrical design signed off and building permits issued.',
+        dueDate: isoOffset(-15), status: 'Completed', owner: 'Eng. Sarah Cruz', progress: 100,
+        remarks: 'Permits approved without conditions.', completedDate: isoOffset(-16), createdAt: new Date().toISOString() },
+      { id: uid(), name: 'Equipment Delivered On-Site', description: 'All panels, cabling and fixtures delivered to the warehouse.',
+        dueDate: isoOffset(-5), status: 'Completed', owner: 'Mary Santos', progress: 100,
+        remarks: '', completedDate: isoOffset(-6), createdAt: new Date().toISOString() },
+      { id: uid(), name: 'Installation Complete', description: 'All equipment installed and termination finished.',
+        dueDate: isoOffset(4), status: 'In Progress', owner: 'Mary Santos', progress: 70,
+        remarks: 'Cable lug shortage may cause a small slip.', completedDate: '', createdAt: new Date().toISOString() },
+      { id: uid(), name: 'Third-Party Inspection Passed', description: 'Independent inspection certificate issued.',
+        dueDate: isoOffset(12), status: 'Not Started', owner: 'David Lim', progress: 0,
+        remarks: '', completedDate: '', createdAt: new Date().toISOString() },
+      { id: uid(), name: 'Project Handover', description: 'Formal handover to the facilities team with as-built documents.',
+        dueDate: isoOffset(28), status: 'Not Started', owner: 'Eng. Sarah Cruz', progress: 0,
+        remarks: '', completedDate: '', createdAt: new Date().toISOString() }
+    ],
+    activities: [
+      { id: uid(), name: 'Site preparation', description: 'Clear work area, set up safety barriers and temporary power.',
+        assignedTo: 'John Rivera', startDate: isoOffset(-20), dueDate: isoOffset(-10),
+        priority: 'High', status: 'Completed', progress: 100, remarks: 'Completed ahead of schedule.',
+        attachments: [
+          { id: uid(), name: 'site-preparation-photo.jpg', size: 482300, type: 'image/jpeg', addedAt: new Date().toISOString() },
+          { id: uid(), name: 'safety-checklist.pdf', size: 128400, type: 'application/pdf', addedAt: new Date().toISOString() }
+        ],
+        dailyUpdates: [{ id: uid(), date: isoOffset(-11), progress: 100,
+          completed: 'Finished clearing the work area and installed safety barriers.',
+          working: 'Final walkthrough of the site.', blockers: '', next: 'Hand over to installation team.',
+          person: 'John Rivera', attachments: [], createdAt: new Date().toISOString() }],
+        completedDate: isoOffset(-10), completedBy: 'John Rivera', createdAt: new Date().toISOString() },
+      { id: uid(), name: 'Equipment installation', description: 'Install main distribution panel, conduits and cabling.',
+        assignedTo: 'Mary Santos', startDate: isoOffset(-9), dueDate: isoOffset(3),
+        priority: 'Critical', status: 'In Progress', progress: 75, remarks: 'On track. Awaiting inspection schedule.',
+        attachments: [{ id: uid(), name: 'installation-photo-01.jpg', size: 610200, type: 'image/jpeg', addedAt: new Date().toISOString() }],
+        dailyUpdates: [{ id: uid(), date: isoOffset(-1), progress: 75,
+          completed: 'Completed equipment installation and torque testing.', working: 'Labelling of circuits.',
+          blockers: 'Waiting for third-party inspection slot.', next: 'Schedule inspection with QA.',
+          person: 'Mary Santos',
+          attachments: [{ id: uid(), name: 'installation-photo.jpg', size: 320400, type: 'image/jpeg', addedAt: new Date().toISOString() }],
+          createdAt: new Date().toISOString() }],
+        completedDate: '', completedBy: '', createdAt: new Date().toISOString() },
+      { id: uid(), name: 'Panel wiring & termination', description: 'Wire all breakers and terminate to the busbar.',
+        assignedTo: 'Mary Santos', startDate: isoOffset(-6), dueDate: isoOffset(-2),
+        priority: 'High', status: 'Blocked', progress: 40,
+        remarks: 'Blocked — correct cable lugs not delivered yet.', attachments: [],
+        dailyUpdates: [{ id: uid(), date: isoOffset(-2), progress: 40,
+          completed: 'Partial wiring of breaker rows 1–2.', working: 'Row 3 termination.',
+          blockers: 'Incorrect cable lugs delivered; replacement requested.',
+          next: 'Follow up with supplier for correct lugs.', person: 'Mary Santos',
+          attachments: [], createdAt: new Date().toISOString() }],
+        completedDate: '', completedBy: '', createdAt: new Date().toISOString() },
+      { id: uid(), name: 'Final inspection', description: 'Third-party inspection and commissioning sign-off.',
+        assignedTo: 'David Lim', startDate: isoOffset(4), dueDate: isoOffset(9),
+        priority: 'Medium', status: 'Not Started', progress: 0, remarks: '', attachments: [],
+        dailyUpdates: [], completedDate: '', completedBy: '', createdAt: new Date().toISOString() }
+    ]
+  };
+  db.projects.push(p);
+  save();
+}
+
+/* =========================================================
+   COMPUTATIONS
+   ========================================================= */
+const STATUSES = ['Not Started', 'In Progress', 'For Review', 'Completed', 'Blocked'];
+const PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
+const MS_STATUSES = ['Not Started', 'In Progress', 'Completed', 'Delayed'];
+
+function evidenceCount(a){
+  return (a.attachments || []).length +
+    (a.dailyUpdates || []).reduce((s, u) => s + ((u.attachments || []).length), 0);
+}
+function isOverdue(a){ return a.status !== 'Completed' && !!a.dueDate && a.dueDate < todayISO(); }
+function overdueActivities(p){ return (p.activities || []).filter(isOverdue); }
+function isMilestoneOverdue(m){ return m.status !== 'Completed' && !!m.dueDate && m.dueDate < todayISO(); }
+function overdueMilestones(p){ return (p.milestones || []).filter(isMilestoneOverdue); }
+function nextMilestone(p){
+  const o = (p.milestones || []).filter(m => m.status !== 'Completed' && m.dueDate);
+  if(!o.length) return null;
+  o.sort((a, b) => String(a.dueDate).localeCompare(String(b.dueDate)));
+  return o[0];
+}
+function milestoneStats(p){
+  const ms = p.milestones || [];
+  return {
+    total: ms.length,
+    completed: ms.filter(m => m.status === 'Completed').length,
+    inProgress: ms.filter(m => m.status === 'In Progress').length,
+    pending: ms.filter(m => m.status === 'Not Started').length,
+    delayed: ms.filter(m => m.status === 'Delayed').length,
+    overdue: ms.filter(isMilestoneOverdue).length,
+    progress: ms.length ? Math.round(ms.reduce((s, m) => s + (Number(m.progress) || 0), 0) / ms.length) : 0
+  };
+}
+function computeStats(p){
+  const acts = p.activities || [];
+  const total = acts.length;
+  const count = s => acts.filter(a => a.status === s).length;
+  return {
+    total, completed: count('Completed'),
+    inProgress: count('In Progress') + count('For Review'),
+    pending: count('Not Started'), blocked: count('Blocked'),
+    overdue: overdueActivities(p).length,
+    progress: total ? Math.round(acts.reduce((s, a) => s + (Number(a.progress) || 0), 0) / total) : 0,
+    missingEvidence: acts.filter(a => evidenceCount(a) === 0).length
+  };
+}
+function projectsWithOverdue(){
+  return db.projects.filter(p => overdueActivities(p).length > 0 || overdueMilestones(p).length > 0);
+}
+function completionIssues(a){
+  const i = [];
+  if(Number(a.progress) !== 100) i.push({ title: 'Progress is not 100%', msg: `Current progress is ${Number(a.progress) || 0}%.` });
+  if(evidenceCount(a) === 0) i.push({ title: 'Attachment Required', msg: 'Upload at least one supporting file.' });
+  if(!(a.dailyUpdates || []).some(u => (u.completed || '').trim())) i.push({ title: 'Completion update required', msg: 'Record what was completed today.' });
+  return i;
+}
+function completionChecklist(a){
+  const items = [
+    { ok: Number(a.progress) === 100, label: 'Progress is 100%' },
+    { ok: evidenceCount(a) > 0, label: 'At least one attachment uploaded' },
+    { ok: (a.dailyUpdates || []).some(u => (u.completed || '').trim()), label: 'Completion update recorded' }
+  ];
+  return `<ul class="checklist">${items.map(i =>
+    `<li class="${i.ok ? 'ok' : 'no'}">${svg(i.ok ? 'checkCircle' : 'xCircle', 16)} ${esc(i.label)}</li>`).join('')}</ul>`;
+}
+
+/* =========================================================
+   UI STATE
+   ========================================================= */
+let ui = {
+  view: 'dashboard', projectId: null, tab: 'activities',
+  search: '', statusFilter: 'all', missingOnly: false,
+  msStatusFilter: 'all', msOverdueOnly: false
+};
+let draft = null, draftProjectId = null, draftIsNew = false, draftPrevStatus = null, modalAlert = null;
+let msDraft = null, msDraftProjectId = null, msDraftIsNew = false;
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+function openModal(html, opts = {}){
+  const root = $('#modalRoot');
+  root.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+    <div class="modal ${opts.wide ? 'wide' : ''}">${html}</div></div>`;
+  root.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => { const i = root.querySelector('input,textarea,select'); if(i) i.focus(); }, 60);
+}
+function closeModal(){
+  if(draftSaveTimer){ clearTimeout(draftSaveTimer); draftSaveTimer = null; }
+  if(draft){ try{ syncDraftFromForm(); saveDraftNow(); }catch(e){} }
+  const root = $('#modalRoot');
+  root.classList.remove('open');
+  root.innerHTML = '';
+  document.body.style.overflow = '';
+  draft = null; draftProjectId = null; draftIsNew = false;
+  draftPrevStatus = null; modalAlert = null; draftRestoredAt = null;
+  msDraft = null; msDraftProjectId = null; msDraftIsNew = false;
+}
+
+/* =========================================================
+   DRAFT
+   ========================================================= */
+let draftSaveTimer = null, draftRestoredAt = null;
+function saveDraftNow(){
+  if(!draft) return;
+  try{ localStorage.setItem(DRAFT_KEY, JSON.stringify({
+    projectId: draftProjectId, isNew: draftIsNew, prevStatus: draftPrevStatus,
+    draft, savedAt: new Date().toISOString()
+  })); }catch(e){}
+}
+function scheduleDraftSave(){
+  if(!draft) return;
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(() => { syncDraftFromForm(); saveDraftNow(); }, 600);
+}
+function clearDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} draftRestoredAt = null; }
+function getSavedDraft(){ try{ const r = localStorage.getItem(DRAFT_KEY); return r ? JSON.parse(r) : null; }catch(e){ return null; } }
+
+/* =========================================================
+   APP
+   ========================================================= */
+const App = {};
+
+/* ----- Theme ----- */
+App.toggleTheme = function(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem(THEME_KEY, next);
+  $('#themeLabel').textContent = next === 'dark' ? 'Light mode' : 'Dark mode';
+};
+function initTheme(){
+  const saved = localStorage.getItem(THEME_KEY) || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  $('#themeLabel').textContent = saved === 'dark' ? 'Light mode' : 'Dark mode';
+}
+
+/* ----- Navigation ----- */
+App.goDashboard = function(){ ui.view = 'dashboard'; ui.projectId = null; render(); };
+App.openProject = function(id){
+  ui.view = 'project'; ui.projectId = id; ui.tab = 'activities';
+  ui.search = ''; ui.statusFilter = 'all'; ui.missingOnly = false;
+  ui.msStatusFilter = 'all'; ui.msOverdueOnly = false;
+  render();
+};
+App.setTab = function(t){ ui.tab = t; render(); };
+
+/* ----- Command palette ----- */
+let cmdItems = [], cmdActive = 0;
+App.openCmd = function(){
+  const root = $('#cmdRoot');
+  root.classList.add('open');
+  setTimeout(() => $('#cmdInput').focus(), 50);
+  buildCmdItems();
+  App.filterCmd('');
+};
+App.closeCmd = function(){
+  $('#cmdRoot').classList.remove('open');
+  $('#cmdInput').value = '';
+};
+function buildCmdItems(){
+  cmdItems = [];
+  cmdItems.push({ icon:'home', label:'Go to Dashboard', action: () => App.goDashboard() });
+  cmdItems.push({ icon:'plus', label:'New Project', action: () => App.newProject() });
+  if(ui.view === 'project' && ui.projectId){
+    const p = getProject(ui.projectId);
+    if(p){
+      cmdItems.push({ icon:'activity', label:'New Activity', action: () => App.newActivity() });
+      cmdItems.push({ icon:'target', label:'New Milestone', action: () => App.newMilestone() });
+      cmdItems.push({ icon:'printer', label:'Print Progress Report', action: () => App.printProgressReport() });
+      cmdItems.push({ icon:'target', label:'Print Milestone Report', action: () => App.printMilestoneReport() });
+      cmdItems.push({ icon:'printer', label:'Print Activity List', action: () => App.printActivityList() });
+      cmdItems.push({ icon:'download', label:'Export to Excel', action: () => App.exportExcel() });
+    }
+  }
+  cmdItems.push({ icon:'link', label:'Link local file for auto-save', action: () => App.linkLocalFile() });
+  cmdItems.push({ icon:'upload', label:'Download JSON backup', action: () => App.downloadJSON() });
+  cmdItems.push({ icon:'refresh', label:'Toggle dark mode', action: () => App.toggleTheme() });
+  // Projects
+  db.projects.forEach(p => {
+    cmdItems.push({ icon:'folder', label:`Open: ${p.name}`, action: () => App.openProject(p.id) });
+  });
+}
+App.filterCmd = function(q){
+  const query = (q || '').toLowerCase().trim();
+  const filtered = query ? cmdItems.filter(i => i.label.toLowerCase().includes(query)) : cmdItems;
+  cmdActive = 0;
+  const list = $('#cmdList');
+  if(!filtered.length){ list.innerHTML = `<div class="cmd-empty">No results for "${esc(q)}"</div>`; return; }
+  list.innerHTML = filtered.map((i, idx) =>
+    `<div class="cmd-item ${idx === 0 ? 'active' : ''}" data-idx="${idx}" onclick="App.cmdRun(${idx})">
+      <span class="ic">${svg(i.icon, 14)}</span>
+      <span class="label">${esc(i.label)}</span>
+    </div>`).join('');
+  list._items = filtered;
+};
+App.cmdKey = function(e){
+  const list = $('#cmdList');
+  const items = list._items || [];
+  if(e.key === 'ArrowDown'){ e.preventDefault(); cmdActive = Math.min(cmdActive + 1, items.length - 1); updateCmdActive(); }
+  else if(e.key === 'ArrowUp'){ e.preventDefault(); cmdActive = Math.max(cmdActive - 1, 0); updateCmdActive(); }
+  else if(e.key === 'Enter'){ e.preventDefault(); App.cmdRun(cmdActive); }
+  else if(e.key === 'Escape'){ App.closeCmd(); }
+};
+function updateCmdActive(){
+  const list = $('#cmdList');
+  $$('.cmd-item', list).forEach((el, i) => el.classList.toggle('active', i === cmdActive));
+  const el = $$('.cmd-item', list)[cmdActive];
+  if(el) el.scrollIntoView({ block:'nearest' });
+}
+App.cmdRun = function(idx){
+  const list = $('#cmdList');
+  const items = list._items || [];
+  const item = items[idx];
+  App.closeCmd();
+  if(item && item.action) setTimeout(() => item.action(), 80);
+};
+
+/* ----- Sidebar ----- */
+function renderSidebar(){
+  const nav = $('#sidebarNav');
+  const totalOverdue = db.projects.reduce((s, p) => s + overdueActivities(p).length + overdueMilestones(p).length, 0);
+  nav.innerHTML = `
+    <a href="#" onclick="event.preventDefault(); App.goDashboard();" class="${ui.view === 'dashboard' ? 'active' : ''}">
+      ${svg('home', 16)} Dashboard
+    </a>
+    <a href="#" onclick="event.preventDefault();" style="cursor:default">
+      ${svg('folder', 16)} Projects
+      <span class="badge">${db.projects.length}</span>
+    </a>
+    <a href="#" onclick="event.preventDefault();" style="cursor:default">
+      ${svg('alert', 16)} Overdue
+      ${totalOverdue ? `<span class="badge">${totalOverdue}</span>` : ''}
+    </a>`;
+}
+
+/* ----- Crumbs ----- */
+function renderCrumbs(){
+  const el = $('#crumbs');
+  if(ui.view === 'project'){
+    const p = getProject(ui.projectId);
+    el.innerHTML = `
+      <a onclick="App.goDashboard()">Projects</a>
+      <span class="sep">${svg('chevronRight', 12)}</span>
+      <span class="current">${esc(p ? p.name : 'Project')}</span>`;
+  } else {
+    el.innerHTML = `<span class="current">Dashboard</span>`;
+  }
+}
+
+/* =========================================================
+   PROJECT CRUD
+   ========================================================= */
+App.newProject = function(){
+  openModal(`
+    <div class="modal-head">
+      <div><h2>New Project</h2><div class="sub">Create a project to start tracking milestones and activities.</div></div>
+      <button class="icon-btn" onclick="closeModal()">${svg('x')}</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field span2"><label>Project name <span class="req">*</span></label>
+          <input class="input" id="p_name" placeholder="e.g. Warehouse Electrical Upgrade"></div>
+        <div class="field span2"><label>Project manager</label>
+          <input class="input" id="p_mgr" placeholder="e.g. Eng. Sarah Cruz"></div>
+        <div class="field"><label>Start date</label>
+          <input class="input" type="date" id="p_start" value="${todayISO()}"></div>
+        <div class="field"><label>Target completion</label>
+          <input class="input" type="date" id="p_target" value="${isoOffset(30)}"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="App.createProject()">Create project</button>
+    </div>`);
+};
+App.createProject = function(){
+  const name = $('#p_name').value.trim();
+  if(!name){ toast('Please enter a project name.', 'bad'); $('#p_name').focus(); return; }
+  const project = { id: uid(), name, manager: $('#p_mgr').value.trim(),
+    startDate: $('#p_start').value, targetDate: $('#p_target').value,
+    createdAt: new Date().toISOString(), milestones: [], activities: [] };
+  db.projects.push(project);
+  save(); closeModal(); App.openProject(project.id);
+  toast('Project created.', 'ok');
+};
+App.editProject = function(){
+  const p = getProject(ui.projectId); if(!p) return;
+  openModal(`
+    <div class="modal-head"><div><h2>Edit Project</h2><div class="sub">${esc(p.name)}</div></div>
+      <button class="icon-btn" onclick="closeModal()">${svg('x')}</button></div>
+    <div class="modal-body"><div class="form-grid">
+      <div class="field span2"><label>Project name <span class="req">*</span></label>
+        <input class="input" id="p_name" value="${esc(p.name)}"></div>
+      <div class="field span2"><label>Project manager</label>
+        <input class="input" id="p_mgr" value="${esc(p.manager || '')}"></div>
+      <div class="field"><label>Start date</label>
+        <input class="input" type="date" id="p_start" value="${esc(p.startDate || '')}"></div>
+      <div class="field"><label>Target completion</label>
+        <input class="input" type="date" id="p_target" value="${esc(p.targetDate || '')}"></div>
+    </div></div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="App.updateProject()">Save changes</button>
+    </div>`);
+};
+App.updateProject = function(){
+  const p = getProject(ui.projectId);
+  const name = $('#p_name').value.trim();
+  if(!name){ toast('Please enter a project name.', 'bad'); return; }
+  p.name = name; p.manager = $('#p_mgr').value.trim();
+  p.startDate = $('#p_start').value; p.targetDate = $('#p_target').value;
+  save(); closeModal(); render(); toast('Project updated.', 'ok');
+};
+App.deleteProject = function(){
+  const p = getProject(ui.projectId); if(!p) return;
+  if(!confirm(`Delete "${p.name}"?\n\nThis cannot be undone.`)) return;
+  db.projects = db.projects.filter(x => x.id !== p.id);
+  save(); App.goDashboard(); toast('Project deleted.', 'ok');
+};
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
+App.onSearch = function(v){ ui.search = v; $('#activityTableWrap').innerHTML = activityTableHTML(); };
+App.onStatusFilter = function(v){ ui.statusFilter = v; $('#activityTableWrap').innerHTML = activityTableHTML(); };
+App.toggleMissingOnly = function(el){ ui.missingOnly = el.checked; el.closest('.chk').classList.toggle('on', el.checked); $('#activityTableWrap').innerHTML = activityTableHTML(); };
+App.onMsStatusFilter = function(v){ ui.msStatusFilter = v; $('#milestoneTableWrap').innerHTML = milestoneTableHTML(); };
+App.toggleMsOverdueOnly = function(el){ ui.msOverdueOnly = el.checked; el.closest('.chk').classList.toggle('on', el.checked); $('#milestoneTableWrap').innerHTML = milestoneTableHTML(); };
+
+/* =========================================================
+   MILESTONE EDITOR
+   ========================================================= */
+function blankMilestone(){
+  return { id: uid(), name: '', description: '', dueDate: isoOffset(14),
+    status: 'Not Started', owner: '', progress: 0, remarks: '',
+    completedDate: '', createdAt: new Date().toISOString() };
+}
+App.newMilestone = function(){
+  msDraftProjectId = ui.projectId; msDraft = blankMilestone(); msDraftIsNew = true;
+  renderMilestoneModal();
+};
+App.openMilestone = function(mid){
+  const p = getProject(ui.projectId);
+  const m = (p.milestones || []).find(x => x.id === mid); if(!m) return;
+  msDraftProjectId = p.id; msDraft = JSON.parse(JSON.stringify(m)); msDraftIsNew = false;
+  renderMilestoneModal();
+};
+function renderMilestoneModal(){
+  const m = msDraft; const proj = getProject(msDraftProjectId); const isNew = msDraftIsNew;
+  const overdueBanner = (!isNew && isMilestoneOverdue(m)) ? `
+    <div class="alert err">
+      <span class="ic">${svg('alert')}</span>
+      <div class="content"><div class="title">Milestone is overdue</div>
+        <div class="body">Target was ${fmtDate(m.dueDate)} — ${Math.abs(daysBetween(todayISO(), m.dueDate))} day(s) ago.</div>
+      </div></div>` : '';
+  const completedBlock = m.status === 'Completed' ? `
+    <div class="field"><label>Date completed</label>
+      <input class="input" type="date" id="m_compDate" value="${esc(m.completedDate || todayISO())}"></div>` : '';
+  openModal(`
+    <div class="modal-head"><div><h2>${isNew ? 'New Milestone' : 'Edit Milestone'}</h2>
+      <div class="sub">${esc(proj.name)}</div></div>
+      <button class="icon-btn" onclick="closeModal()">${svg('x')}</button></div>
+    <div class="modal-body">
+      ${overdueBanner}
+      <div class="form-grid">
+        <div class="field span2"><label>Milestone name <span class="req">*</span></label>
+          <input class="input" id="m_name" value="${esc(m.name)}" placeholder="e.g. Design &amp; Permits Approved"></div>
+        <div class="field span2"><label>Description</label>
+          <textarea id="m_desc" rows="2" placeholder="What does reaching this milestone mean?">${esc(m.description)}</textarea></div>
+        <div class="field"><label>Target date</label>
+          <input class="input" type="date" id="m_due" value="${esc(m.dueDate || '')}"></div>
+        <div class="field"><label>Status</label>
+          <select id="m_status" onchange="App.onMsStatusChange(this.value)">
+            ${MS_STATUSES.map(s => `<option ${m.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select></div>
+        <div class="field"><label>Owner</label>
+          <input class="input" id="m_owner" value="${esc(m.owner || '')}" placeholder="Person accountable"></div>
+        <div class="field"><label>Progress %</label>
+          <input class="input" type="number" id="m_progress" min="0" max="100" value="${Number(m.progress) || 0}"></div>
+        ${completedBlock}
+        <div class="field span2"><label>Remarks</label>
+          <textarea id="m_remarks" rows="2" placeholder="Notes, risks or dependencies">${esc(m.remarks)}</textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${!isNew ? `<button class="btn danger left" onclick="App.deleteMilestone()">${svg('trash')} Delete</button>` : ''}
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="App.saveMilestone()">${isNew ? 'Create milestone' : 'Save changes'}</button>
+    </div>`, { wide: false });
+}
+App.onMsStatusChange = function(v){
+  if(!msDraft) return;
+  msDraft.status = v;
+  if(v === 'Completed'){ msDraft.progress = 100; if(!msDraft.completedDate) msDraft.completedDate = todayISO(); }
+  else { msDraft.completedDate = ''; if(msDraft.progress === 100) msDraft.progress = 90; }
+  renderMilestoneModal();
+};
+App.saveMilestone = function(){
+  if(!msDraft) return;
+  msDraft.name = ($('#m_name')?.value || '').trim();
+  msDraft.description = ($('#m_desc')?.value || '').trim();
+  msDraft.dueDate = $('#m_due')?.value || '';
+  msDraft.status = $('#m_status')?.value || 'Not Started';
+  msDraft.owner = ($('#m_owner')?.value || '').trim();
+  msDraft.progress = clamp($('#m_progress')?.value);
+  msDraft.remarks = ($('#m_remarks')?.value || '').trim();
+  if($('#m_compDate')) msDraft.completedDate = $('#m_compDate').value;
+  if(!msDraft.name){ toast('Please enter a milestone name.', 'bad'); $('#m_name')?.focus(); return; }
+  if(msDraft.status === 'Completed'){ msDraft.progress = 100; if(!msDraft.completedDate) msDraft.completedDate = todayISO(); }
+  else msDraft.completedDate = '';
+  const p = getProject(msDraftProjectId);
+  if(!Array.isArray(p.milestones)) p.milestones = [];
+  if(msDraftIsNew) p.milestones.push(msDraft);
+  else { const i = p.milestones.findIndex(x => x.id === msDraft.id); if(i > -1) p.milestones[i] = msDraft; }
+  save();
+  const wasNew = msDraftIsNew; const saved = msDraft;
+  closeModal(); ui.tab = 'milestones'; render();
+  toast(isMilestoneOverdue(saved) ? 'Milestone saved — still overdue.' : (wasNew ? 'Milestone created.' : 'Milestone saved.'), isMilestoneOverdue(saved) ? 'warn' : 'ok');
+};
+App.deleteMilestone = function(){
+  if(!confirm('Delete this milestone?')) return;
+  const p = getProject(msDraftProjectId);
+  p.milestones = (p.milestones || []).filter(m => m.id !== msDraft.id);
+  save(); closeModal(); render(); toast('Milestone deleted.', 'ok');
+};
+
+/* =========================================================
+   ACTIVITY EDITOR
+   ========================================================= */
+function blankActivity(){
+  return { id: uid(), name: '', description: '', assignedTo: '',
+    startDate: todayISO(), dueDate: '', priority: 'Medium', status: 'Not Started',
+    progress: 0, remarks: '', attachments: [], dailyUpdates: [],
+    completedDate: '', completedBy: '', createdAt: new Date().toISOString() };
+}
+App.newActivity = function(){
+  draftProjectId = ui.projectId;
+  const saved = getSavedDraft();
+  const hasDraft = saved && saved.projectId === ui.projectId && saved.isNew && saved.draft;
+  if(hasDraft){ draft = saved.draft; draftIsNew = true; draftPrevStatus = saved.prevStatus || 'Not Started'; draftRestoredAt = saved.savedAt; }
+  else { draft = blankActivity(); draftIsNew = true; draftPrevStatus = 'Not Started'; draftRestoredAt = null; }
+  modalAlert = null; renderActivityModal();
+};
+App.openActivity = function(aid){
+  const p = getProject(ui.projectId);
+  const a = p.activities.find(x => x.id === aid); if(!a) return;
+  draftProjectId = p.id;
+  const saved = getSavedDraft();
+  const hasDraft = saved && saved.projectId === p.id && !saved.isNew && saved.draft && saved.draft.id === aid;
+  if(hasDraft){ draft = saved.draft; draftIsNew = false; draftPrevStatus = saved.prevStatus || a.status; draftRestoredAt = saved.savedAt; }
+  else { draft = JSON.parse(JSON.stringify(a)); draftIsNew = false; draftPrevStatus = a.status; draftRestoredAt = null; }
+  modalAlert = null; renderActivityModal();
+};
+App.discardDraft = function(){
+  clearDraft();
+  const p = getProject(draftProjectId);
+  if(draftIsNew){ draft = blankActivity(); draftPrevStatus = 'Not Started'; }
+  else { const a = p.activities.find(x => x.id === draft.id); if(!a) return;
+    draft = JSON.parse(JSON.stringify(a)); draftPrevStatus = a.status; }
+  draftRestoredAt = null; modalAlert = null; renderActivityModal();
+  toast('Restored last saved version.', 'ok');
+};
+function renderActivityModal(){
+  const a = draft; const proj = getProject(draftProjectId); const isNew = draftIsNew;
+  const restoredBanner = draftRestoredAt ? `
+    <div class="alert info"><span class="ic">${svg('refresh')}</span>
+      <div class="content"><div class="title">Unsaved draft restored</div>
+        <div class="body">Edits from ${fmtDateTime(draftRestoredAt)} were recovered.
+          <button class="btn sm" style="margin-left:8px" onclick="App.discardDraft()">Discard</button>
+        </div></div></div>` : '';
+  const overdueBanner = (!isNew && isOverdue(a)) ? `
+    <div class="alert err"><span class="ic">${svg('alert')}</span>
+      <div class="content"><div class="title">Activity is overdue</div>
+        <div class="body">Due date was ${fmtDate(a.dueDate)} — ${Math.abs(daysBetween(todayISO(), a.dueDate))} day(s) ago.</div>
+      </div></div>` : '';
+  const alertHTML = modalAlert ? `
+    <div class="alert err"><span class="ic">${svg('alert')}</span>
+      <div class="content"><div class="title">${esc(modalAlert.title)}</div>
+        <ul>${modalAlert.issues.map(i => `<li><b>${esc(i.title)}</b>${esc(i.msg)}</li>`).join('')}</ul>
+        <div class="body" style="margin-top:8px">Status kept as <b>${esc(draftPrevStatus)}</b>.</div>
+      </div></div>` : '';
+  const completionBlock = a.status === 'Completed' ? `
+    <div class="section"><h3>${svg('checkCircle')} Completion details</h3>
+      <div class="form-grid">
+        <div class="field"><label>Date completed</label>
+          <input class="input" type="date" id="f_compDate" value="${esc(a.completedDate || todayISO())}"></div>
+        <div class="field"><label>Completed by</label>
+          <input class="input" id="f_compBy" value="${esc(a.completedBy || a.assignedTo || '')}" placeholder="Person who completed it"></div>
+      </div></div>` : '';
+  const attachList = (a.attachments || []).length
+    ? `<div class="attach-list">${a.attachments.map(f => attachItem(f, `App.removeAttachment('${f.id}')`)).join('')}</div>`
+    : `<div class="empty-note">No attachments yet — upload photos, PDFs, Word or Excel files as evidence.</div>`;
+  const updatesHTML = (a.dailyUpdates || []).length
+    ? `<div class="update-history">${a.dailyUpdates.map(u => updateItem(u)).join('')}</div>`
+    : `<div class="empty-note">No daily updates recorded yet.</div>`;
+  openModal(`
+    <div class="modal-head"><div><h2>${isNew ? 'New Activity' : 'Edit Activity'}</h2>
+      <div class="sub">${esc(proj.name)}</div></div>
+      <button class="icon-btn" onclick="closeModal()">${svg('x')}</button></div>
+    <div class="modal-body">
+      ${restoredBanner}${overdueBanner}${alertHTML}
+      <div class="form-grid">
+        <div class="field span2"><label>Activity name <span class="req">*</span></label>
+          <input class="input" id="f_name" value="${esc(a.name)}" placeholder="e.g. Install electrical equipment"></div>
+        <div class="field span2"><label>Description</label>
+          <textarea id="f_desc" rows="2" placeholder="What does this activity involve?">${esc(a.description)}</textarea></div>
+        <div class="field"><label>Assigned to</label>
+          <input class="input" id="f_assign" value="${esc(a.assignedTo)}" placeholder="Person responsible"></div>
+        <div class="field"><label>Priority</label>
+          <select id="f_priority">${PRIORITIES.map(p => `<option ${a.priority === p ? 'selected' : ''}>${p}</option>`).join('')}</select></div>
+        <div class="field"><label>Start date</label>
+          <input class="input" type="date" id="f_start" value="${esc(a.startDate || '')}"></div>
+        <div class="field"><label>Due date</label>
+          <input class="input" type="date" id="f_due" value="${esc(a.dueDate || '')}"></div>
+        <div class="field"><label>Status</label>
+          <select id="f_status" onchange="App.onStatusChange(this.value)">
+            ${STATUSES.map(s => `<option ${a.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+          <span class="hint">Completion requires 100% progress, an attachment and a completion update.</span></div>
+        <div class="field"><label>Progress %</label>
+          <input class="input" type="number" id="f_progress" min="0" max="100"
+                 value="${Number(a.progress) || 0}" oninput="App.onProgressInput(this.value)"></div>
+        <div class="field span2"><label>Remarks</label>
+          <textarea id="f_remarks" rows="2" placeholder="Any notes for the project manager">${esc(a.remarks)}</textarea></div>
+      </div>
+      <div id="liveChecklistWrap">${a.status === 'Completed'
+        ? `<div class="section" style="margin-top:16px;padding-top:14px"><h3>${svg('checkCircle')} Completion requirements</h3>
+           <div id="liveChecklist">${completionChecklist(a)}</div></div>` : ''}</div>
+      ${completionBlock}
+      <div class="section">
+        <div class="section-head"><h3>${svg('paperclip')} Attachments <span class="muted" style="font-weight:600">(${(a.attachments || []).length})</span></h3>
+          <label class="btn sm file-btn">${svg('upload')} Upload files
+            <input type="file" multiple onchange="App.onAttachFiles(this.files)"></label></div>
+        ${attachList}
+        <p class="hint" style="margin-top:10px">Accepted: photos, PDF, Word, Excel and other documents.
+        <b>At least one attachment is required before an activity can be marked Completed.</b></p>
+      </div>
+      <div class="section">
+        <h3>${svg('calendar')} Daily activity update</h3>
+        <div class="update-form">
+          <div class="form-grid">
+            <div class="field"><label>Date</label>
+              <input class="input" type="date" id="u_date" value="${todayISO()}"></div>
+            <div class="field"><label>Progress %</label>
+              <input class="input" type="number" id="u_progress" min="0" max="100" value="${Number(a.progress) || 0}"></div>
+            <div class="field span2"><label>What was completed today</label>
+              <textarea id="u_completed" rows="2" placeholder="e.g. Completed equipment installation."></textarea></div>
+            <div class="field span2"><label>Currently being worked on</label>
+              <textarea id="u_working" rows="2" placeholder="e.g. Labelling of circuits."></textarea></div>
+            <div class="field span2"><label>Problems / blockers</label>
+              <textarea id="u_blockers" rows="2" placeholder="e.g. Waiting for inspection."></textarea></div>
+            <div class="field span2"><label>Next action</label>
+              <textarea id="u_next" rows="2" placeholder="e.g. Schedule inspection."></textarea></div>
+            <div class="field"><label>Updated by</label>
+              <input class="input" id="u_person" value="${esc(a.assignedTo || '')}" placeholder="Your name"></div>
+            <div class="field"><label>Attach files</label>
+              <input class="input" type="file" id="u_files" multiple style="padding:6px"></div>
+          </div>
+          <div style="margin-top:14px;text-align:right">
+            <button class="btn primary sm" onclick="App.addUpdate()">${svg('plus')} Add daily update</button></div>
+        </div>
+        ${updatesHTML}
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${!isNew ? `<button class="btn danger left" onclick="App.deleteActivity()">${svg('trash')} Delete</button>` : ''}
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="App.saveActivity()">${isNew ? 'Create activity' : 'Save changes'}</button>
+    </div>`, { wide: true });
+  attachDraftListeners();
+}
+function attachDraftListeners(){
+  setTimeout(() => {
+    $$('#modalRoot .modal-body input, #modalRoot .modal-body textarea, #modalRoot .modal-body select')
+      .forEach(el => {
+        if(el.dataset.bound) return;
+        el.dataset.bound = '1';
+        el.addEventListener('input', scheduleDraftSave);
+        el.addEventListener('change', scheduleDraftSave);
+      });
+  }, 0);
+}
+function attachItem(f, onRemove){
+  const isImg = f.data && String(f.data).startsWith('data:image');
+  return `<div class="attach">
+    ${isImg ? `<img class="thumb" src="${f.data}" alt="">` : `<span class="ficon">${fileIcon(f.type, f.name)}</span>`}
+    <div class="info">
+      <div class="name">${esc(f.name)}</div>
+      <div class="meta">${fmtSize(f.size)}${f.addedAt ? ' · ' + fmtDate(String(f.addedAt).slice(0, 10)) : ''}</div>
+    </div>
+    <button class="icon-btn sm" title="Remove" onclick="${onRemove}">${svg('x', 14)}</button>
+  </div>`;
+}
+function updateItem(u){
+  const attach = (u.attachments || []).length
+    ? `<div class="upd-attach">${u.attachments.map(f => `<span class="chip">${svg('paperclip', 11)} ${esc(f.name)}</span>`).join('')}</div>` : '';
+  const row = (label, val) => val && String(val).trim()
+    ? `<div><div class="lbl">${label}</div><div class="val">${esc(val)}</div></div>` : '';
+  return `<div class="upd">
+    <div class="upd-top">
+      <span class="upd-date">${fmtDateLong(u.date)}</span>
+      <span class="pill blue">${Number(u.progress) || 0}%</span>
+    </div>
+    <div class="upd-grid">
+      ${row('Work completed', u.completed)}
+      ${row('Currently working on', u.working)}
+      ${row('Issues / blockers', u.blockers)}
+      ${row('Next action', u.next)}
+    </div>
+    ${attach}
+    <div class="upd-foot">${svg('user', 11)} Updated by <b>${esc(u.person || '—')}</b>${u.createdAt ? ' · ' + fmtDateTime(u.createdAt) : ''}</div>
+  </div>`;
+}
+function syncDraftFromForm(){
+  if(!draft) return;
+  if(!document.getElementById('f_name')) return;
+  const val = id => { const el = document.getElementById(id); return el ? el.value : null; };
+  if(val('f_name')      !== null) draft.name        = val('f_name').trim();
+  if(val('f_desc')      !== null) draft.description = val('f_desc').trim();
+  if(val('f_assign')    !== null) draft.assignedTo  = val('f_assign').trim();
+  if(val('f_priority')  !== null) draft.priority    = val('f_priority');
+  if(val('f_start')     !== null) draft.startDate   = val('f_start');
+  if(val('f_due')       !== null) draft.dueDate     = val('f_due');
+  if(val('f_status')    !== null) draft.status      = val('f_status');
+  if(val('f_progress')  !== null) draft.progress    = clamp(val('f_progress'));
+  if(val('f_remarks')   !== null) draft.remarks     = val('f_remarks').trim();
+  if(val('f_compDate')  !== null) draft.completedDate = val('f_compDate');
+  if(val('f_compBy')    !== null) draft.completedBy  = val('f_compBy').trim();
+}
+App.onStatusChange = function(v){ syncDraftFromForm(); draft.status = v; modalAlert = null; renderActivityModal(); scheduleDraftSave(); };
+App.onProgressInput = function(v){
+  draft.progress = clamp(v);
+  const el = document.getElementById('liveChecklist');
+  if(el) el.innerHTML = completionChecklist(draft);
+  scheduleDraftSave();
+};
+function readFiles(list, cb){
+  const files = Array.from(list || []); if(!files.length){ cb([]); return; }
+  const out = new Array(files.length); let pending = files.length;
+  const done = () => { if(--pending === 0) cb(out.filter(Boolean)); };
+  files.forEach((f, i) => {
+    const m = { id: uid(), name: f.name, size: f.size, type: f.type || '', addedAt: new Date().toISOString() };
+    out[i] = m;
+    if((f.type || '').startsWith('image/') && f.size < 250 * 1024){
+      const r = new FileReader();
+      r.onload = () => { m.data = r.result; done(); };
+      r.onerror = done;
+      r.readAsDataURL(f);
+    } else done();
+  });
+}
+App.onAttachFiles = function(files){
+  syncDraftFromForm();
+  readFiles(files, metas => {
+    if(!metas.length) return;
+    draft.attachments = (draft.attachments || []).concat(metas);
+    modalAlert = null; renderActivityModal(); scheduleDraftSave();
+    toast(metas.length + ' file' + (metas.length > 1 ? 's' : '') + ' attached.', 'ok');
+  });
+};
+App.removeAttachment = function(fid){
+  if(!confirm('Remove this attachment?')) return;
+  syncDraftFromForm();
+  draft.attachments = (draft.attachments || []).filter(f => f.id !== fid);
+  renderActivityModal(); scheduleDraftSave();
+};
+App.addUpdate = function(){
+  syncDraftFromForm();
+  const val = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const date = val('u_date') || todayISO();
+  const progress = clamp(val('u_progress'));
+  const completed = val('u_completed').trim();
+  const working = val('u_working').trim();
+  const blockers = val('u_blockers').trim();
+  const next = val('u_next').trim();
+  const person = val('u_person').trim();
+  if(!completed && !working && !blockers && !next){ toast('Please describe the work done today.', 'bad'); return; }
+  const input = document.getElementById('u_files');
+  readFiles(input ? input.files : [], metas => {
+    const update = { id: uid(), date, progress, completed, working, blockers, next, person,
+      attachments: metas, createdAt: new Date().toISOString() };
+    draft.dailyUpdates = draft.dailyUpdates || [];
+    draft.dailyUpdates.unshift(update);
+    draft.progress = progress;
+    if(progress > 0 && draft.status === 'Not Started') draft.status = 'In Progress';
+    modalAlert = null; renderActivityModal(); scheduleDraftSave();
+    toast('Daily update added.', 'ok');
+  });
+};
+App.saveActivity = function(){
+  syncDraftFromForm();
+  if(!draft.name){ toast('Please enter an activity name.', 'bad'); document.getElementById('f_name')?.focus(); return; }
+  if(draft.status === 'Completed'){
+    const issues = completionIssues(draft);
+    if(issues.length){
+      draft.status = draftPrevStatus;
+      modalAlert = { title: 'Cannot Complete Activity', issues };
+      renderActivityModal(); scheduleDraftSave();
+      toast('Completion blocked — see checklist.', 'bad');
+      return;
+    }
+    if(!draft.completedDate) draft.completedDate = todayISO();
+    if(!draft.completedBy)   draft.completedBy   = draft.assignedTo || '—';
+  } else { draft.completedDate = ''; draft.completedBy = ''; }
+  const p = getProject(draftProjectId);
+  if(draftIsNew) p.activities.push(draft);
+  else { const i = p.activities.findIndex(x => x.id === draft.id); if(i > -1) p.activities[i] = draft; }
+  save();
+  const wasNew = draftIsNew; const saved = draft;
+  closeModal(); clearDraft(); render();
+  toast(isOverdue(saved) ? 'Saved — still overdue.' : (wasNew ? 'Activity created.' : 'Activity saved.'),
+        isOverdue(saved) ? 'warn' : 'ok');
+};
+App.deleteActivity = function(){
+  if(!confirm('Delete this activity?')) return;
+  const p = getProject(draftProjectId);
+  p.activities = p.activities.filter(a => a.id !== draft.id);
+  save(); closeModal(); clearDraft(); render(); toast('Activity deleted.', 'ok');
+};
+
+/* =========================================================
+   LOCAL FILE APP METHODS
+   ========================================================= */
+App.linkLocalFile = async function(){
+  if(!FS_SUPPORTED){ toast('Local file saving requires Chrome or Edge.', 'bad'); return; }
+  try{
+    const h = await pickLocalFile();
+    if(!h) return;
+    const ok = await ensurePermission(h, 'readwrite');
+    if(!ok){ toast('Permission denied.', 'bad'); return; }
+    localFileHandle = h; localFileName = h.name || 'project-tracker.json'; localFileReady = true;
+    await idbSet(IDB_KEY, h);
+    let existing = null;
+    try{
+      const f = await h.getFile();
+      if(f && f.size > 0){ const t = await f.text(); if(t.trim()) existing = JSON.parse(t); }
+    }catch(e){ existing = null; }
+    if(existing && Array.isArray(existing.projects) && existing.projects.length){
+      showLinkFileDialog(existing);
+    } else {
+      await writeLocalFile(true);
+      setFileStatus('linked');
+      toast(`Linked to "${localFileName}". Auto-save is on.`, 'ok');
+    }
+  }catch(e){
+    if(e && e.name === 'AbortError') return;
+    console.error(e); toast('Could not link local file.', 'bad');
+  }
+};
+App.unlinkLocalFile = async function(){
+  if(!localFileHandle) return;
+  if(!confirm('Stop auto-saving to the local file?')) return;
+  localFileHandle = null; localFileName = ''; localFileReady = false;
+  await idbDel(IDB_KEY);
+  setFileStatus('unlinked');
+  toast('Local file unlinked.', 'ok');
+};
+function showLinkFileDialog(existing){
+  const projects = existing.projects || [];
+  const incActs = projects.reduce((s, p) => s + ((p.activities || []).length), 0);
+  const incMs = projects.reduce((s, p) => s + ((p.milestones || []).length), 0);
+  openModal(`
+    <div class="modal-head"><div><h2>File already has data</h2>
+      <div class="sub">${esc(localFileName)}</div></div>
+      <button class="icon-btn" onclick="closeModal()">${svg('x')}</button></div>
+    <div class="modal-body">
+      <div class="alert info"><span class="ic">${svg('info')}</span>
+        <div class="content"><div class="title">The selected file contains project data</div>
+          <div class="body">${projects.length} project(s) · ${incActs} activities · ${incMs} milestones</div>
+        </div></div>
+      <p style="font-size:13.5px;font-weight:600;margin-bottom:12px">How would you like to proceed?</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <label class="chk" style="padding:14px;display:flex;gap:12px;align-items:flex-start;text-align:left">
+          <input type="radio" name="linkMode" value="load" checked style="margin-top:3px">
+          <div><div style="font-weight:700">Load data from the file</div>
+            <div style="font-size:12px;color:var(--text-3);font-weight:500;margin-top:2px">
+              Replaces the current browser data with the file's contents, then keeps auto-saving.</div></div>
+        </label>
+        <label class="chk" style="padding:14px;display:flex;gap:12px;align-items:flex-start;text-align:left">
+          <input type="radio" name="linkMode" value="keep" style="margin-top:3px">
+          <div><div style="font-weight:700">Keep current &amp; overwrite the file</div>
+            <div style="font-size:12px;color:var(--text-3);font-weight:500;margin-top:2px">
+              Writes your current browser data over the file's contents.</div></div>
+        </label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="App._cancelLink()">Cancel</button>
+      <button class="btn primary" onclick="App._confirmLink()">Continue</button>
+    </div>`);
+  App._pendingLinkData = existing;
+}
+App._cancelLink = async function(){
+  localFileHandle = null; localFileName = ''; localFileReady = false;
+  await idbDel(IDB_KEY);
+  setFileStatus('unlinked');
+  App._pendingLinkData = null;
+  closeModal();
+};
+App._confirmLink = async function(){
+  const mode = (document.querySelector('input[name="linkMode"]:checked') || {}).value || 'keep';
+  const existing = App._pendingLinkData;
+  App._pendingLinkData = null;
+  closeModal();
+  if(mode === 'load' && existing && Array.isArray(existing.projects)){
+    db.projects = existing.projects.map(p => ({
+      ...p,
+      activities: Array.isArray(p.activities) ? p.activities : [],
+      milestones: Array.isArray(p.milestones) ? p.milestones : []
+    }));
+    try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){}
+    render();
+    await writeLocalFile(true);
+    setFileStatus('linked');
+    toast(`Loaded ${db.projects.length} project(s).`, 'ok');
+  } else {
+    await writeLocalFile(true);
+    setFileStatus('linked');
+    toast(`Linked to "${localFileName}".`, 'ok');
+  }
+};
+
+/* =========================================================
+   JSON BACKUP / RESTORE
+   ========================================================= */
+App.downloadJSON = function(){
+  const payload = {
+    app: 'Project Tracker', schema: 'pmtracker.v2', version: 2,
+    exportedAt: new Date().toISOString(),
+    projectCount: db.projects.length, projects: db.projects
+  };
+  downloadFile(`project-tracker-backup-${todayISO()}.json`, JSON.stringify(payload, null, 2), 'application/json', false);
+  toast('Backup downloaded.', 'ok');
+};
+App.uploadJSON = function(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      let projects = null;
+      if(data && Array.isArray(data.projects)) projects = data.projects;
+      else if(Array.isArray(data)) projects = data;
+      if(!projects){ toast('Invalid JSON.', 'bad'); return; }
+      const valid = projects.filter(p => p && p.id && p.name);
+      valid.forEach(p => {
+        if(!Array.isArray(p.activities)) p.activities = [];
+        if(!Array.isArray(p.milestones)) p.milestones = [];
+        p.activities.forEach(a => {
+          if(!Array.isArray(a.attachments)) a.attachments = [];
+          if(!Array.isArray(a.dailyUpdates)) a.dailyUpdates = [];
+        });
+      });
+      if(!valid.length){ toast('No valid projects found.', 'bad'); return; }
+      App._showImportDialog(valid, data.exportedAt || null);
+    }catch(err){ console.error(err); toast('Could not parse JSON file.', 'bad'); }
+  };
+  reader.readAsText(file);
+};
+App._showImportDialog = function(projects, exportedAt){
+  const totalActs = projects.reduce((s, p) => s + ((p.activities || []).length), 0);
+  const totalMs = projects.reduce((s, p) => s + ((p.milestones || []).length), 0);
+  openModal(`
+    <div class="modal-head"><div><h2>Restore from backup</h2>
+      <div class="sub">Review the file contents before importing</div></div>
+      <button class="icon-btn" onclick="closeModal()">${svg('x')}</button></div>
+    <div class="modal-body">
+      <div class="alert info"><span class="ic">${svg('folder')}</span>
+        <div class="content"><div class="title">${projects.length} project(s) found</div>
+          <div class="body">${totalActs} activities · ${totalMs} milestones${exportedAt ? ' · Exported ' + fmtDateTime(exportedAt) : ''}</div>
+        </div></div>
+      <p style="font-size:13.5px;font-weight:600;margin-bottom:12px">Import mode</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <label class="chk" style="padding:14px;display:flex;gap:12px;align-items:flex-start;text-align:left">
+          <input type="radio" name="importMode" value="merge" checked style="margin-top:3px">
+          <div><div style="font-weight:700">Merge with current data</div>
+            <div style="font-size:12px;color:var(--text-3);font-weight:500;margin-top:2px">
+              Keeps current projects. Matches by ID — updates existing, adds new.</div></div>
+        </label>
+        <label class="chk" style="padding:14px;display:flex;gap:12px;align-items:flex-start;text-align:left">
+          <input type="radio" name="importMode" value="replace" style="margin-top:3px">
+          <div><div style="font-weight:700">Replace all</div>
+            <div style="font-size:12px;color:var(--text-3);font-weight:500;margin-top:2px">
+              Deletes everything in the browser and replaces with the backup.</div></div>
+        </label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="App.confirmImport()">Import</button>
+    </div>`);
+  App._pendingImport = projects;
+};
+App.confirmImport = function(){
+  const mode = (document.querySelector('input[name="importMode"]:checked') || {}).value || 'merge';
+  const projects = App._pendingImport || [];
+  if(!projects.length) return;
+  if(mode === 'replace'){
+    db.projects = projects;
+    toast(`Replaced with ${projects.length} project(s).`, 'ok');
+  } else {
+    let a = 0, u = 0;
+    projects.forEach(im => {
+      const ex = db.projects.find(p => p.id === im.id);
+      if(ex){ Object.assign(ex, im); u++; } else { db.projects.push(im); a++; }
+    });
+    toast(`Merged — ${a} added, ${u} updated.`, 'ok');
+  }
+  App._pendingImport = null;
+  save(); closeModal(); render();
+};
+
+function downloadFile(name, content, mime, bom){
+  const blob = new Blob([bom ? '\ufeff' + content : content], { type: mime + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  renderSidebar();
+  renderCrumbs();
+  $('#app').innerHTML = ui.view === 'dashboard' ? dashboardHTML() : projectHTML();
+}
+
+function dashboardHTML(){
+  const projects = db.projects;
+  const allActs = projects.flatMap(p => p.activities || []);
+  const allMs = projects.flatMap(p => p.milestones || []);
+  const totalProjects = projects.length;
+  const totalActs = allActs.length;
+  const completedActs = allActs.filter(a => a.status === 'Completed').length;
+  const overdueActs = allActs.filter(isOverdue).length;
+  const missingEvidence = allActs.filter(a => evidenceCount(a) === 0).length;
+  const totalMs = allMs.length;
+  const overdueMs = allMs.filter(isMilestoneOverdue).length;
+  const flagged = projectsWithOverdue();
+  const overdueTotal = overdueActs + overdueMs;
+
+  const alertBanner = flagged.length ? `
+    <div class="alert err">
+      <span class="ic">${svg('alert')}</span>
+      <div class="content">
+        <div class="title">${flagged.length} project${flagged.length > 1 ? 's' : ''} need attention</div>
+        <div class="body">${overdueActs} overdue activit${overdueActs === 1 ? 'y' : 'ies'} and ${overdueMs} overdue milestone${overdueMs === 1 ? '' : 's'} across your workspace.</div>
+      </div>
+    </div>` : '';
+
+  const cards = projects.map(p => projectCardHTML(p)).join('');
+
+  return `
+    <div class="page-head">
+      <div>
+        <h1>Dashboard</h1>
+        <div class="subtitle">Overview of all projects, milestones, and activities</div>
+      </div>
+      <div class="page-head-actions">
+        <button class="btn" onclick="App.downloadJSON()">${svg('download')} Backup</button>
+        <button class="btn primary" onclick="App.newProject()">${svg('plus')} New project</button>
+      </div>
+    </div>
+
+    ${alertBanner}
+
+    <div class="kpi-grid">
+      <div class="kpi brand">
+        <div class="kpi-head">
+          <div class="kpi-icon">${svg('folder')}</div>
+        </div>
+        <div class="kpi-label">Projects</div>
+        <div class="kpi-value">${totalProjects}</div>
+        <div class="kpi-trend">${totalActs} total activities</div>
+      </div>
+      <div class="kpi ok">
+        <div class="kpi-head"><div class="kpi-icon">${svg('checkCircle')}</div></div>
+        <div class="kpi-label">Completed</div>
+        <div class="kpi-value">${completedActs}</div>
+        <div class="kpi-trend ok">${totalActs ? Math.round((completedActs / totalActs) * 100) : 0}% of all activities</div>
+      </div>
+      <div class="kpi purple">
+        <div class="kpi-head"><div class="kpi-icon">${svg('target')}</div></div>
+        <div class="kpi-label">Milestones</div>
+        <div class="kpi-value">${totalMs}</div>
+        <div class="kpi-trend">${allMs.filter(m => m.status === 'Completed').length} completed</div>
+      </div>
+      <div class="kpi bad">
+        <div class="kpi-head"><div class="kpi-icon">${svg('alert')}</div></div>
+        <div class="kpi-label">Overdue</div>
+        <div class="kpi-value">${overdueTotal}</div>
+        <div class="kpi-trend bad">${flagged.length} project${flagged.length === 1 ? '' : 's'} affected</div>
+      </div>
+      <div class="kpi warn">
+        <div class="kpi-head"><div class="kpi-icon">${svg('paperclip')}</div></div>
+        <div class="kpi-label">Missing evidence</div>
+        <div class="kpi-value">${missingEvidence}</div>
+        <div class="kpi-trend">Activities without attachments</div>
+      </div>
+    </div>
+
+    ${projects.length
+      ? `<div class="project-grid">${cards}</div>`
+      : `<div class="empty-state">
+           <div class="illustration">${svg('folder', 38)}</div>
+           <h3>No projects yet</h3>
+           <p>Get started by creating your first project to track milestones, activities, and daily progress.</p>
+           <button class="btn primary" onclick="App.newProject()">${svg('plus')} Create your first project</button>
+         </div>`}
+  `;
+}
+
+function projectCardHTML(p){
+  const s = computeStats(p);
+  const mstats = milestoneStats(p);
+  const overdueActs = overdueActivities(p);
+  const overdueMs = overdueMilestones(p);
+  const hasOverdue = overdueActs.length > 0 || overdueMs.length > 0;
+  const overdueCount = overdueActs.length + overdueMs.length;
+  const next = nextMilestone(p);
+  const barClass = s.progress >= 100 ? 'green' : (hasOverdue ? 'red' : '');
+
+  // Ring
+  const size = 46, stroke = 4, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const ringColor = s.progress >= 100 ? 'green' : (hasOverdue ? 'red' : '');
+  const dashOffset = c * (1 - s.progress / 100);
+
+  return `
+    <div class="project-card ${hasOverdue ? 'overdue' : ''}" onclick="App.openProject('${p.id}')">
+      ${hasOverdue ? `<span class="overdue-badge"><span class="dot"></span>${overdueCount} overdue</span>` : ''}
+
+      <div class="pc-top">
+        <div style="flex:1;min-width:0">
+          <div class="pc-name">${esc(p.name)}</div>
+          <div class="pc-mgr">
+            ${avatarHTML(p.manager || '?', 'sm')}
+            <span>${esc(p.manager || 'Unassigned')}</span>
+          </div>
+        </div>
+        <div class="progress-ring ${ringColor}">
+          <svg viewBox="0 0 ${size} ${size}">
+            <circle class="ring-bg" cx="${size/2}" cy="${size/2}" r="${r}"/>
+            <circle class="ring-fg" cx="${size/2}" cy="${size/2}" r="${r}"
+                    stroke-dasharray="${c}" stroke-dashoffset="${dashOffset}"/>
+          </svg>
+          <div class="ring-pct">${s.progress}%</div>
+        </div>
+      </div>
+
+      <div class="pc-metarow">
+        <div class="item">${svg('calendar', 12)} ${fmtDate(p.startDate)} → ${fmtDate(p.targetDate)}</div>
+      </div>
+
+      ${mstats.total ? `
+        <div class="pc-ms-bar">
+          <div class="row"><span>${svg('target', 10)} Milestones</span><span class="pct">${mstats.completed}/${mstats.total} · ${mstats.progress}%</span></div>
+          <div class="pbar purple"><span style="width:${mstats.progress}%"></span></div>
+        </div>` : ''}
+
+      <div class="pc-statgrid">
+        <div class="item"><div class="v">${s.total}</div><div class="l">Tasks</div></div>
+        <div class="item"><div class="v" style="color:var(--ok)">${s.completed}</div><div class="l">Done</div></div>
+        <div class="item"><div class="v" style="color:var(--brand)">${s.inProgress}</div><div class="l">Active</div></div>
+        <div class="item"><div class="v" style="color:${hasOverdue ? 'var(--bad)' : 'var(--text-3)'}">${overdueCount}</div><div class="l">Late</div></div>
+      </div>
+
+      ${next ? `
+        <div style="font-size:11.5px;color:var(--text-3);font-weight:500;border-top:1px dashed var(--line);padding-top:10px">
+          <b style="color:var(--text-2)">Next:</b> ${esc(next.name)}
+          <span style="color:${isMilestoneOverdue(next) ? 'var(--bad)' : 'var(--text-3)'}"> · ${fmtDate(next.dueDate)}${isMilestoneOverdue(next) ? ' · overdue' : ''}</span>
+        </div>` : ''}
+    </div>`;
+}
+
+function projectHTML(){
+  const p = getProject(ui.projectId);
+  if(!p) return `<div class="empty-state"><div class="illustration">${svg('search', 38)}</div>
+    <h3>Project not found</h3>
+    <p>It may have been deleted.</p>
+    <button class="btn primary" onclick="App.goDashboard()">Back to dashboard</button></div>`;
+
+  const s = computeStats(p);
+  const mstats = milestoneStats(p);
+  const overdueActs = overdueActivities(p);
+  const overdueMs = overdueMilestones(p);
+  const totalOverdue = overdueActs.length + overdueMs.length;
+  const barClass = s.progress >= 100 ? 'green' : (s.overdue > 0 ? 'red' : '');
+  const actCount = (p.activities || []).length;
+  const msCount = (p.milestones || []).length;
+  const activeTab = ui.tab || 'activities';
+
+  const overdueBlock = totalOverdue > 0 ? `
+    <div class="alert err" style="margin-bottom:20px">
+      <span class="ic">${svg('alert')}</span>
+      <div class="content">
+        <div class="title">${totalOverdue} overdue item${totalOverdue > 1 ? 's' : ''}</div>
+        <ul>
+          ${overdueMs.map(m => `<li><b>🎯 ${esc(m.name)} — milestone</b>
+            Target ${fmtDate(m.dueDate)} · ${Math.abs(daysBetween(todayISO(), m.dueDate))}d overdue · Owner ${esc(m.owner || '—')} · ${m.progress}%</li>`).join('')}
+          ${overdueActs.map(a => `<li><b>⏰ ${esc(a.name)} — activity</b>
+            Due ${fmtDate(a.dueDate)} · ${Math.abs(daysBetween(todayISO(), a.dueDate))}d overdue · ${esc(a.assignedTo || '—')} · ${a.progress}%</li>`).join('')}
+        </ul>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="page-head">
+      <div>
+        <h1>${esc(p.name)}</h1>
+        <div class="subtitle">Managed by <b style="color:var(--text-2)">${esc(p.manager || 'Unassigned')}</b></div>
+      </div>
+      <div class="page-head-actions">
+        <button class="btn" onclick="App.editProject()">${svg('edit')} Edit</button>
+        <button class="btn danger" onclick="App.deleteProject()">${svg('trash')} Delete</button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="hero-title">${esc(p.name)}</div>
+          <div class="hero-meta">
+            <span class="item">${svg('user', 14)} <b>${esc(p.manager || 'Unassigned')}</b></span>
+            <span class="item">${svg('calendar', 14)} ${fmtDate(p.startDate)} → ${fmtDate(p.targetDate)}</span>
+            <span class="item">${svg('activity', 14)} ${actCount} activities</span>
+            <span class="item">${svg('target', 14)} ${msCount} milestones</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-bars">
+        <div class="hero-bar-row">
+          <div class="top"><span>Overall progress</span><span class="val">${s.progress}%</span></div>
+          <div class="pbar ${barClass}"><span style="width:${s.progress}%"></span></div>
+        </div>
+        ${mstats.total ? `
+          <div class="hero-bar-row">
+            <div class="top"><span>Milestone progress</span><span class="val" style="color:var(--purple)">${mstats.progress}%</span></div>
+            <div class="pbar purple"><span style="width:${mstats.progress}%"></span></div>
+          </div>` : ''}
+      </div>
+
+      <div class="pc-statgrid" style="border-top:1px solid var(--line);padding-top:16px;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px">
+        <div class="item"><div class="v">${s.total}</div><div class="l">Activities</div></div>
+        <div class="item"><div class="v" style="color:var(--ok)">${s.completed}</div><div class="l">Completed</div></div>
+        <div class="item"><div class="v" style="color:var(--brand)">${s.inProgress}</div><div class="l">In progress</div></div>
+        <div class="item"><div class="v" style="color:var(--purple)">${mstats.completed}</div><div class="l">MS done</div></div>
+        <div class="item"><div class="v" style="color:var(--warn)">${s.blocked}</div><div class="l">Blocked</div></div>
+        <div class="item"><div class="v" style="color:${totalOverdue ? 'var(--bad)' : 'var(--text-3)'}">${totalOverdue}</div><div class="l">Overdue</div></div>
+        <div class="item"><div class="v" style="color:var(--warn)">${s.missingEvidence}</div><div class="l">No evidence</div></div>
+      </div>
+    </div>
+
+    ${overdueBlock}
+
+    <div class="action-bar">
+      <button class="btn primary" onclick="App.new${activeTab === 'milestones' ? 'Milestone' : 'Activity'}()">
+        ${svg('plus')} New ${activeTab === 'milestones' ? 'milestone' : 'activity'}
+      </button>
+      <span class="sep"></span>
+      <button class="btn sm" onclick="App.printProgressReport()">${svg('printer', 13)} Progress report</button>
+      <button class="btn sm" onclick="App.printMilestoneReport()">${svg('target', 13)} Milestone report</button>
+      <button class="btn sm" onclick="App.dailyReportDialog()">${svg('printer', 13)} Daily report</button>
+      <button class="btn sm" onclick="App.printActivityList()">${svg('printer', 13)} Activity list</button>
+      <div class="right">
+        <button class="btn sm" onclick="App.exportPDF()">${svg('file', 13)} PDF</button>
+        <button class="btn sm" onclick="App.exportExcel()">${svg('download', 13)} Excel</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab ${activeTab === 'activities' ? 'active' : ''}" onclick="App.setTab('activities')">
+        ${svg('activity', 15)} Activities
+        <span class="count ${s.overdue ? 'warn' : ''}">${actCount}</span>
+      </button>
+      <button class="tab ${activeTab === 'milestones' ? 'active' : ''}" onclick="App.setTab('milestones')">
+        ${svg('target', 15)} Milestones
+        <span class="count ${mstats.overdue ? 'warn' : ''}">${msCount}</span>
+      </button>
+    </div>
+
+    ${activeTab === 'activities' ? activitiesPanelHTML(p) : milestonesPanelHTML(p)}`;
+}
+
+function activitiesPanelHTML(p){
+  return `
+    <div class="filter-bar">
+      <div class="search-input">
+        ${svg('search')}
+        <input class="input" id="fSearch" placeholder="Search activities, people…"
+               value="${esc(ui.search)}" oninput="App.onSearch(this.value)">
+      </div>
+      <select id="fStatusFilter" onchange="App.onStatusFilter(this.value)">
+        <option value="all"${ui.statusFilter === 'all' ? ' selected' : ''}>All statuses</option>
+        ${STATUSES.map(st => `<option value="${st}"${ui.statusFilter === st ? ' selected' : ''}>${st}</option>`).join('')}
+      </select>
+      <label class="chk ${ui.missingOnly ? 'on' : ''}">
+        <input type="checkbox" ${ui.missingOnly ? 'checked' : ''} onchange="App.toggleMissingOnly(this)">
+        ${svg('paperclip', 13)} Missing attachments
+      </label>
+    </div>
+    <div id="activityTableWrap">${activityTableHTML()}</div>`;
+}
+
+function milestonesPanelHTML(p){
+  const ms = milestoneStats(p);
+  return `
+    <div class="ms-grid">
+      <div class="ms-tile brand"><div class="v">${ms.total}</div><div class="l">Total</div></div>
+      <div class="ms-tile ok"><div class="v">${ms.completed}</div><div class="l">Completed</div></div>
+      <div class="ms-tile brand"><div class="v">${ms.inProgress}</div><div class="l">In progress</div></div>
+      <div class="ms-tile"><div class="v">${ms.pending}</div><div class="l">Not started</div></div>
+      <div class="ms-tile bad"><div class="v">${ms.delayed + ms.overdue}</div><div class="l">Delayed / late</div></div>
+      <div class="ms-tile purple"><div class="v">${ms.progress}%</div><div class="l">Progress</div></div>
+    </div>
+    <div class="filter-bar">
+      <select onchange="App.onMsStatusFilter(this.value)">
+        <option value="all"${ui.msStatusFilter === 'all' ? ' selected' : ''}>All statuses</option>
+        ${MS_STATUSES.map(st => `<option value="${st}"${ui.msStatusFilter === st ? ' selected' : ''}>${st}</option>`).join('')}
+      </select>
+      <label class="chk ${ui.msOverdueOnly ? 'on' : ''}">
+        <input type="checkbox" ${ui.msOverdueOnly ? 'checked' : ''} onchange="App.toggleMsOverdueOnly(this)">
+        ${svg('alert', 13)} Overdue only
+      </label>
+    </div>
+    <div id="milestoneTableWrap">${milestoneTableHTML()}</div>`;
+}
+
+function milestoneTableHTML(){
+  const p = getProject(ui.projectId); if(!p) return '';
+  let ms = (p.milestones || []).slice();
+  if(ui.msStatusFilter !== 'all') ms = ms.filter(m => m.status === ui.msStatusFilter);
+  if(ui.msOverdueOnly) ms = ms.filter(isMilestoneOverdue);
+  ms.sort((a, b) => {
+    const oa = isMilestoneOverdue(a) ? 0 : 1, ob = isMilestoneOverdue(b) ? 0 : 1;
+    if(oa !== ob) return oa - ob;
+    return String(a.dueDate || '9999').localeCompare(String(b.dueDate || '9999'));
+  });
+  if(!ms.length){
+    return `<div class="empty-state" style="padding:50px 24px">
+      <div class="illustration" style="background:var(--purple-bg);color:var(--purple)">${svg('target', 36)}</div>
+      <h3>No milestones ${ui.msOverdueOnly ? 'overdue' : 'yet'}</h3>
+      <p>${ui.msOverdueOnly ? 'All milestones are on schedule — nice work!' : 'Add a milestone to track key project checkpoints.'}</p>
+      <button class="btn primary" onclick="App.newMilestone()">${svg('plus')} Add milestone</button>
+    </div>`;
+  }
+  const rows = ms.map(m => {
+    const late = isMilestoneOverdue(m);
+    const statusMap = { 'Not Started':'grey', 'In Progress':'blue', 'Completed':'green', 'Delayed':'red' };
+    return `<tr class="${late ? 'row-overdue' : ''}" onclick="App.openMilestone('${m.id}')">
+      <td>
+        <div class="cell-strong">${m.status === 'Completed' ? '✓ ' : (late ? '⏰ ' : '🎯 ')}${esc(m.name)}</div>
+        ${m.description ? `<div class="cell-sub">${esc(m.description)}</div>` : ''}
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${avatarHTML(m.owner || '?', 'sm')}
+          <span>${esc(m.owner || '—')}</span>
+        </div>
+      </td>
+      <td>
+        <div class="${late ? 'cell-overdue' : ''}">${fmtDate(m.dueDate)}</div>
+        ${late ? `<div style="font-size:11px;color:var(--bad);font-weight:600;margin-top:2px">${Math.abs(daysBetween(todayISO(), m.dueDate))}d overdue</div>` : ''}
+        ${m.status === 'Completed' && m.completedDate ? `<div class="cell-sub">Done ${fmtDate(m.completedDate)}</div>` : ''}
+      </td>
+      <td><span class="pill ${statusMap[m.status] || 'grey'}"><span class="dot"></span>${esc(m.status)}</span></td>
+      <td style="min-width:140px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1"><div class="pbar ${m.progress >= 100 ? 'green' : (late ? 'red' : 'purple')}">
+            <span style="width:${m.progress}%"></span></div></div>
+          <span style="font-size:12px;font-weight:700;min-width:34px;text-align:right">${m.progress}%</span>
+        </div>
+      </td>
+      <td style="max-width:200px"><div class="cell-sub" style="max-width:200px">${esc(m.remarks || '—')}</div></td>
+      <td style="width:60px;text-align:right" onclick="event.stopPropagation()">
+        <button class="btn sm" onclick="App.openMilestone('${m.id}')">Open</button>
+      </td>
+    </tr>`;
+  }).join('');
+  const overdueCount = overdueMilestones(p).length;
+  const notice = overdueCount ? `
+    <div class="alert err" style="margin-bottom:14px"><span class="ic">${svg('alert')}</span>
+      <div class="content"><div class="title">${overdueCount} overdue milestone${overdueCount > 1 ? 's' : ''}</div>
+        <div class="body">Overdue milestones are listed first and highlighted.</div></div></div>` : '';
+  return `${notice}
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Milestone</th><th>Owner</th><th>Target date</th><th>Status</th>
+          <th>Progress</th><th>Remarks</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function activityTableHTML(){
+  const p = getProject(ui.projectId); if(!p) return '';
+  let acts = (p.activities || []).slice();
+  if(ui.search){
+    const q = ui.search.toLowerCase();
+    acts = acts.filter(a =>
+      (a.name || '').toLowerCase().includes(q) || (a.description || '').toLowerCase().includes(q) ||
+      (a.assignedTo || '').toLowerCase().includes(q) || (a.remarks || '').toLowerCase().includes(q));
+  }
+  if(ui.statusFilter !== 'all') acts = acts.filter(a => a.status === ui.statusFilter);
+  if(ui.missingOnly) acts = acts.filter(a => evidenceCount(a) === 0);
+  acts.sort((a, b) => {
+    const oa = isOverdue(a) ? 0 : 1, ob = isOverdue(b) ? 0 : 1;
+    if(oa !== ob) return oa - ob;
+    return String(a.dueDate || '9999').localeCompare(String(b.dueDate || '9999'));
+  });
+  if(!acts.length){
+    return `<div class="empty-state" style="padding:50px 24px">
+      <div class="illustration">${svg('activity', 36)}</div>
+      <h3>No activities ${ui.missingOnly || ui.search ? 'match' : 'yet'}</h3>
+      <p>Adjust the filters or add a new activity to start tracking.</p>
+      <button class="btn primary" onclick="App.newActivity()">${svg('plus')} Add activity</button>
+    </div>`;
+  }
+  const statusMap = { 'Not Started':'grey', 'In Progress':'blue', 'For Review':'purple', 'Completed':'green', 'Blocked':'red' };
+  const prioMap = { Low:'grey', Medium:'cyan', High:'amber', Critical:'red' };
+  const rows = acts.map(a => {
+    const overdue = isOverdue(a);
+    const ev = evidenceCount(a) > 0;
+    return `<tr class="${overdue ? 'row-overdue' : ''}" onclick="App.openActivity('${a.id}')">
+      <td>
+        <div class="cell-strong">${overdue ? '⏰ ' : ''}${esc(a.name)}</div>
+        ${a.description ? `<div class="cell-sub">${esc(a.description)}</div>` : ''}
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${avatarHTML(a.assignedTo || '?', 'sm')}
+          <span>${esc(a.assignedTo || '—')}</span>
+        </div>
+      </td>
+      <td>
+        <div class="${overdue ? 'cell-overdue' : ''}">${fmtDate(a.dueDate)}</div>
+        ${overdue ? `<div style="font-size:11px;color:var(--bad);font-weight:600;margin-top:2px">${Math.abs(daysBetween(todayISO(), a.dueDate))}d overdue</div>` : ''}
+      </td>
+      <td><span class="pill ${prioMap[a.priority] || 'grey'}">${esc(a.priority || '—')}</span></td>
+      <td><span class="pill ${statusMap[a.status] || 'grey'}"><span class="dot"></span>${esc(a.status)}</span></td>
+      <td style="min-width:140px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="flex:1"><div class="pbar ${a.progress >= 100 ? 'green' : (overdue ? 'red' : '')}">
+            <span style="width:${a.progress}%"></span></div></div>
+          <span style="font-size:12px;font-weight:700;min-width:34px;text-align:right">${a.progress}%</span>
+        </div>
+      </td>
+      <td>
+        <span class="ev ${ev ? 'yes' : 'no'}">
+          ${ev ? svg('checkCircle', 13) + 'Attached' : svg('alert', 13) + 'Required'}
+        </span>
+      </td>
+      <td style="width:60px;text-align:right" onclick="event.stopPropagation()">
+        <button class="btn sm" onclick="App.openActivity('${a.id}')">Open</button>
+      </td>
+    </tr>`;
+  }).join('');
+  const overdueCount = (p.activities || []).filter(isOverdue).length;
+  const notice = overdueCount ? `
+    <div class="alert err" style="margin-bottom:14px"><span class="ic">${svg('alert')}</span>
+      <div class="content"><div class="title">${overdueCount} overdue activit${overdueCount > 1 ? 'ies' : 'y'}</div>
+        <div class="body">Listed first and highlighted for quick review.</div></div></div>` : '';
+  return `${notice}
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Activity</th><th>Assigned to</th><th>Due date</th><th>Priority</th>
+          <th>Status</th><th>Progress</th><th>Evidence</th><th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+/* =========================================================
+   REPORTS
+   ========================================================= */
+function printHTML(html){
+  $('#printArea').innerHTML = html;
+  setTimeout(() => window.print(), 100);
+}
+window.onafterprint = () => { $('#printArea').innerHTML = ''; };
+function reportHead(title, subtitle){
+  return `<div class="rpt-head"><div><div class="rpt-org">Project Tracker</div>
+    <h1>${esc(title)}</h1><div class="rpt-sub">${esc(subtitle)}</div></div>
+    <div class="rpt-meta"><div><b>Report Date:</b> ${fmtDate(todayISO())}</div>
+    <div><b>Generated:</b> ${fmtDateTime(new Date().toISOString())}</div></div></div>`;
+}
+function infoGrid(pairs){
+  let rows = '';
+  for(let i = 0; i < pairs.length; i += 2){
+    const a = pairs[i], b = pairs[i + 1];
+    rows += `<tr><th>${esc(a[0])}</th><td>${esc(a[1])}</td>
+      ${b ? `<th>${esc(b[0])}</th><td>${esc(b[1])}</td>` : '<th></th><td></td>'}</tr>`;
+  }
+  return `<table class="rpt-info">${rows}</table>`;
+}
+function signatureBlock(){
+  return `<div class="rpt-sign">
+    <div><div class="sig-line"></div><div class="sig-label">Prepared by / Date</div></div>
+    <div><div class="sig-line"></div><div class="sig-label">Reviewed by / Date</div></div>
+    <div><div class="sig-line"></div><div class="sig-label">Approved by / Date</div></div></div>`;
+}
+
+App.printMilestoneReport = function(){
+  const p = getProject(ui.projectId); if(!p) return;
+  const ms = p.milestones || [];
+  const stats = milestoneStats(p);
+  const rows = ms.slice().sort((a, b) => {
+    const oa = isMilestoneOverdue(a) ? 0 : 1, ob = isMilestoneOverdue(b) ? 0 : 1;
+    if(oa !== ob) return oa - ob;
+    return String(a.dueDate || '9999').localeCompare(String(b.dueDate || '9999'));
+  }).map(m => {
+    const late = isMilestoneOverdue(m);
+    return `<tr${late ? ' style="background:#fef2f2"' : ''}>
+      <td>${late ? '⏰ ' : (m.status === 'Completed' ? '✅ ' : '')}${esc(m.name)}</td>
+      <td>${esc(m.owner || '—')}</td>
+      <td>${fmtDate(m.dueDate)}${late ? ' <b style="color:#b91c1c">(late ' + Math.abs(daysBetween(todayISO(), m.dueDate)) + 'd)</b>' : ''}</td>
+      <td>${esc(m.status)}</td>
+      <td class="num">${m.progress}%</td>
+      <td>${fmtDate(m.completedDate)}</td>
+      <td>${esc(m.remarks || '—')}</td></tr>`;
+  }).join('');
+  printHTML(`<div class="rpt">
+    ${reportHead('Milestone Report', p.name)}
+    <h2>Project Information</h2>
+    ${infoGrid([['Project Name', p.name], ['Project Manager', p.manager || '—'],
+      ['Start Date', fmtDate(p.startDate)], ['Target Completion', fmtDate(p.targetDate)],
+      ['Total Milestones', String(stats.total)], ['Milestone Progress', stats.progress + '%']])}
+    <h2>Milestone Progress</h2>
+    <div class="rpt-bar-row"><div class="rpt-bar purple"><span style="width:${stats.progress}%"></span></div>
+      <div class="rpt-bar-pct">${stats.progress}%</div></div>
+    <h2>Milestone Summary</h2>
+    <div class="rpt-ms-summary">
+      <div class="rpt-ms-stat"><div class="v">${stats.total}</div><div class="l">Total</div></div>
+      <div class="rpt-ms-stat done"><div class="v">${stats.completed}</div><div class="l">Completed</div></div>
+      <div class="rpt-ms-stat"><div class="v">${stats.inProgress}</div><div class="l">In Progress</div></div>
+      <div class="rpt-ms-stat delay"><div class="v">${stats.delayed + stats.overdue}</div><div class="l">Delayed / Late</div></div>
+    </div>
+    <h2>Milestone Detail</h2>
+    <table><thead><tr>
+      <th>Milestone</th><th>Owner</th><th>Target Date</th><th>Status</th>
+      <th class="num">Progress</th><th>Completed</th><th>Remarks</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="7" class="ctr">No milestones recorded.</td></tr>'}</tbody></table>
+    <h2>Signatures</h2>${signatureBlock()}
+    <div class="rpt-foot"><span>${esc(p.name)} — Milestone Report</span>
+      <span>Generated ${fmtDateTime(new Date().toISOString())}</span></div></div>`);
+};
+
+App.printProgressReport = function(){
+  const p = getProject(ui.projectId); if(!p) return;
+  const s = computeStats(p);
+  const ms = milestoneStats(p);
+  const pct = n => s.total ? Math.round((n / s.total) * 100) : 0;
+  const summaryRows = `
+    <tr><td>Completed</td><td class="num">${s.completed}</td><td class="num">${pct(s.completed)}%</td></tr>
+    <tr><td>In Progress</td><td class="num">${s.inProgress}</td><td class="num">${pct(s.inProgress)}%</td></tr>
+    <tr><td>Pending</td><td class="num">${s.pending}</td><td class="num">${pct(s.pending)}%</td></tr>
+    <tr><td>Blocked</td><td class="num">${s.blocked}</td><td class="num">${pct(s.blocked)}%</td></tr>
+    <tr style="font-weight:700;background:#f1f5f9"><td>Total</td><td class="num">${s.total}</td><td class="num">100%</td></tr>`;
+  const milestoneRows = (p.milestones || []).slice().sort((a, b) => {
+    const oa = isMilestoneOverdue(a) ? 0 : 1, ob = isMilestoneOverdue(b) ? 0 : 1;
+    if(oa !== ob) return oa - ob;
+    return String(a.dueDate || '9999').localeCompare(String(b.dueDate || '9999'));
+  }).map(m => {
+    const late = isMilestoneOverdue(m);
+    return `<tr${late ? ' style="background:#fef2f2"' : ''}>
+      <td>${late ? '⏰ ' : (m.status === 'Completed' ? '✅ ' : '🎯 ')}${esc(m.name)}</td>
+      <td>${esc(m.owner || '—')}</td>
+      <td>${fmtDate(m.dueDate)}${late ? ' <b style="color:#b91c1c">(late)</b>' : ''}</td>
+      <td>${esc(m.status)}</td>
+      <td class="num">${m.progress}%</td>
+      <td>${fmtDate(m.completedDate)}</td></tr>`;
+  }).join('');
+  const milestoneBlock = ms.total ? `
+    <h2>Milestone Tracker</h2>
+    <div class="rpt-bar-row"><div class="rpt-bar purple"><span style="width:${ms.progress}%"></span></div>
+      <div class="rpt-bar-pct">${ms.progress}%</div></div>
+    <div class="rpt-ms-summary">
+      <div class="rpt-ms-stat"><div class="v">${ms.total}</div><div class="l">Total</div></div>
+      <div class="rpt-ms-stat done"><div class="v">${ms.completed}</div><div class="l">Completed</div></div>
+      <div class="rpt-ms-stat"><div class="v">${ms.inProgress}</div><div class="l">In Progress</div></div>
+      <div class="rpt-ms-stat delay"><div class="v">${ms.delayed + ms.overdue}</div><div class="l">Delayed / Late</div></div></div>
+    <table><thead><tr>
+      <th>Milestone</th><th>Owner</th><th>Target Date</th><th>Status</th>
+      <th class="num">Progress</th><th>Completed</th></tr></thead>
+      <tbody>${milestoneRows}</tbody></table>
+    ${ms.overdue ? `<div class="rpt-note">⏰ ${ms.overdue} overdue milestone(s) highlighted above.</div>` : ''}` : '';
+  const activityRows = (p.activities || []).slice().sort((a, b) => {
+    const oa = isOverdue(a) ? 0 : 1, ob = isOverdue(b) ? 0 : 1;
+    if(oa !== ob) return oa - ob;
+    return String(a.dueDate || '9999').localeCompare(String(b.dueDate || '9999'));
+  }).map(a => `<tr${isOverdue(a) ? ' style="background:#fef2f2"' : ''}>
+      <td>${isOverdue(a) ? '⏰ ' : ''}${esc(a.name)}</td>
+      <td>${esc(a.assignedTo || '—')}</td>
+      <td>${fmtDate(a.dueDate)}${isOverdue(a) ? ' <b style="color:#b91c1c">(overdue)</b>' : ''}</td>
+      <td>${esc(a.status)}</td>
+      <td class="num">${a.progress}%</td>
+      <td class="ctr">${evidenceCount(a) > 0 ? '✓' : '—'}</td></tr>`).join('');
+  const blocked = (p.activities || []).filter(a => a.status === 'Blocked');
+  const blockedBlock = blocked.length ? `
+    <h2>Blocked Activities</h2><table><thead><tr><th>Activity</th><th>Assigned To</th><th>Reason / Remarks</th></tr></thead>
+      <tbody>${blocked.map(a => `<tr><td>${esc(a.name)}</td><td>${esc(a.assignedTo || '—')}</td>
+        <td>${esc(a.remarks || '—')}</td></tr>`).join('')}</tbody></table>` : '';
+  const overdueActs = overdueActivities(p);
+  const overdueBlock = overdueActs.length ? `
+    <h2>Overdue Activities</h2><table><thead><tr>
+      <th>Activity</th><th>Assigned To</th><th>Due Date</th><th class="num">Days Overdue</th><th class="num">Progress</th></tr></thead>
+      <tbody>${overdueActs.map(a => `<tr><td>${esc(a.name)}</td><td>${esc(a.assignedTo || '—')}</td>
+        <td>${fmtDate(a.dueDate)}</td><td class="num">${Math.abs(daysBetween(todayISO(), a.dueDate))}</td>
+        <td class="num">${a.progress}%</td></tr>`).join('')}</tbody></table>` : '';
+  printHTML(`<div class="rpt">
+    ${reportHead('Project Progress Report', p.name)}
+    <h2>Project Information</h2>
+    ${infoGrid([['Project Name', p.name], ['Project Manager', p.manager || '—'],
+      ['Reporting Period', `${fmtDate(p.startDate)} — ${fmtDate(todayISO())}`], ['Report Date', fmtDate(todayISO())],
+      ['Start Date', fmtDate(p.startDate)], ['Target Completion Date', fmtDate(p.targetDate)],
+      ['Overall Progress', s.progress + '%'], ['Total Activities', String(s.total)],
+      ['Total Milestones', String(ms.total)], ['Milestone Progress', ms.progress + '%']])}
+    <h2>Overall Progress</h2>
+    <div class="rpt-bar-row"><div class="rpt-bar"><span style="width:${s.progress}%"></span></div>
+      <div class="rpt-bar-pct">${s.progress}%</div></div>
+    ${ms.total ? `<div class="rpt-bar-row"><div class="rpt-bar purple"><span style="width:${ms.progress}%"></span></div>
+      <div class="rpt-bar-pct">${ms.progress}%</div></div>
+      <div class="rpt-note">Blue = activity progress · Purple = milestone progress.</div>` : ''}
+    <h2>Progress Summary</h2>
+    <table><thead><tr><th>Status</th><th class="num">Number</th><th class="num">Percentage</th></tr></thead>
+      <tbody>${summaryRows}</tbody></table>
+    <div class="rpt-note">"In Progress" includes "For Review". "Pending" = not yet started. Overdue activities: ${s.overdue}.</div>
+    ${milestoneBlock}${overdueBlock}
+    <h2>Activity Report</h2>
+    <table><thead><tr><th>Activity</th><th>Assigned To</th><th>Due Date</th><th>Status</th>
+      <th class="num">Progress</th><th class="ctr">Attachment</th></tr></thead>
+      <tbody>${activityRows || '<tr><td colspan="6" class="ctr">No activities recorded.</td></tr>'}</tbody></table>
+    ${blockedBlock}
+    <h2>Evidence Status</h2>
+    <table><thead><tr><th>Item</th><th class="num">Count</th></tr></thead>
+      <tbody><tr><td>Activities with evidence attached</td><td class="num">${s.total - s.missingEvidence}</td></tr>
+      <tr><td>Activities still requiring attachments</td><td class="num">${s.missingEvidence}</td></tr></tbody></table>
+    <h2>Signatures</h2>${signatureBlock()}
+    <div class="rpt-foot"><span>${esc(p.name)} — Project Progress Report</span>
+      <span>Generated ${fmtDateTime(new Date().toISOString())}</span></div></div>`);
+};
+
+App.dailyReportDialog = function(){
+  const p = getProject(ui.projectId);
+  openModal(`
+    <div class="modal-head"><div><h2>Daily Activity Report</h2>
+      <div class="sub">Select a date range and scope</div></div>
+      <button class="icon-btn" onclick="closeModal()">${svg('x')}</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>From date</label>
+          <input class="input" type="date" id="d_from" value="${isoOffset(-7)}"></div>
+        <div class="field"><label>To date</label>
+          <input class="input" type="date" id="d_to" value="${todayISO()}"></div>
+        <div class="field span2"><label>Scope</label>
+          <select id="d_scope">
+            <option value="${p.id}">${esc(p.name)} (this project)</option>
+            <option value="all">All projects</option>
+          </select></div>
+      </div>
+      <p class="hint" style="margin-top:12px">Lists every daily update recorded within the selected period.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="App.printDailyReport()">${svg('printer')} Generate</button>
+    </div>`);
+};
+App.printDailyReport = function(){
+  const from = $('#d_from').value, to = $('#d_to').value, scope = $('#d_scope').value;
+  closeModal();
+  const items = collectUpdates(from, to, scope === 'all' ? null : scope);
+  const rows = items.map(({ project, activity, update }) => `
+    <tr><td>${fmtDate(update.date)}</td>
+      <td>${esc(project.name)}<br><span style="color:#555">${esc(activity.name)}</span></td>
+      <td>${esc(activity.assignedTo || '—')}</td>
+      <td>${esc(update.completed || '—')}</td>
+      <td class="num">${Number(update.progress) || 0}%</td>
+      <td>${esc(update.blockers || '—')}</td>
+      <td>${esc(update.next || '—')}</td>
+      <td class="ctr">${(update.attachments || []).length
+        ? (update.attachments || []).map(f => esc(f.name)).join('<br>') : '—'}</td>
+      <td>${esc(update.person || '—')}<br><span style="color:#666;font-size:8px">${fmtDateTime(update.createdAt)}</span></td>
+    </tr>`).join('');
+  const period = `${fmtDateLong(from)} — ${fmtDateLong(to)}`;
+  const subtitle = scope === 'all' ? `All Projects · ${period}` : `${getProject(scope).name} · ${period}`;
+  printHTML(`<div class="rpt">
+    ${reportHead('Daily Activity Report', subtitle)}
+    <h2>Report Summary</h2>
+    ${infoGrid([['Reporting Period', period], ['Scope', scope === 'all' ? 'All Projects' : getProject(scope).name],
+      ['Total Daily Updates', String(items.length)],
+      ['Updates With Attachments', String(items.filter(i => (i.update.attachments || []).length).length)]])}
+    <h2>Daily Activity Log</h2>
+    <table style="font-size:8.5px"><thead><tr>
+      <th style="width:7%">Date</th><th style="width:14%">Project / Activity</th><th style="width:8%">Assigned</th>
+      <th style="width:17%">Work Completed</th><th style="width:6%" class="num">Prog.</th>
+      <th style="width:13%">Issues / Blockers</th><th style="width:12%">Next Action</th>
+      <th style="width:12%">Attachments</th><th style="width:11%">Updated By</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="9" class="ctr">No daily updates found.</td></tr>'}</tbody></table>
+    <h2>Signatures</h2>${signatureBlock()}
+    <div class="rpt-foot"><span>Daily Activity Report — ${esc(subtitle)}</span>
+      <span>Generated ${fmtDateTime(new Date().toISOString())}</span></div></div>`);
+};
+function collectUpdates(from, to, projectId){
+  const out = [];
+  db.projects.filter(p => !projectId || p.id === projectId).forEach(p => (p.activities || []).forEach(a => {
+    (a.dailyUpdates || []).forEach(u => {
+      if((!from || u.date >= from) && (!to || u.date <= to)) out.push({ project: p, activity: a, update: u });
+    });
+  }));
+  return out.sort((x, y) =>
+    (y.update.date + (y.update.createdAt || '')).localeCompare(x.update.date + (x.update.createdAt || '')));
+}
+
+App.printActivityList = function(){
+  const p = getProject(ui.projectId); if(!p) return;
+  const s = computeStats(p);
+  const rows = (p.activities || []).slice().sort((a, b) => {
+    const oa = isOverdue(a) ? 0 : 1, ob = isOverdue(b) ? 0 : 1;
+    if(oa !== ob) return oa - ob;
+    return String(a.dueDate || '9999').localeCompare(String(b.dueDate || '9999'));
+  }).map(a => `<tr${isOverdue(a) ? ' style="background:#fef2f2"' : ''}>
+      <td>${isOverdue(a) ? '⏰ ' : ''}${esc(a.name)}</td>
+      <td>${esc(a.assignedTo || '—')}</td>
+      <td>${fmtDate(a.startDate)}</td>
+      <td>${fmtDate(a.dueDate)}</td>
+      <td>${esc(a.priority || '—')}</td>
+      <td>${esc(a.status)}</td>
+      <td class="num">${a.progress}%</td>
+      <td class="ctr">${evidenceCount(a) > 0 ? '✓' : '—'}</td>
+      <td>${esc(a.remarks || '—')}</td></tr>`).join('');
+  printHTML(`<div class="rpt">
+    ${reportHead('Activity List', p.name)}
+    ${infoGrid([['Project', p.name], ['Project Manager', p.manager || '—'],
+      ['Start Date', fmtDate(p.startDate)], ['Target Completion', fmtDate(p.targetDate)],
+      ['Overall Progress', s.progress + '%'], ['Total Activities', String(s.total)]])}
+    ${s.overdue ? `<div class="rpt-note">⏰ ${s.overdue} overdue activit${s.overdue > 1 ? 'ies' : 'y'} — highlighted below.</div>` : ''}
+    <h2>Activities</h2>
+    <table style="font-size:9px"><thead><tr>
+      <th>Activity</th><th>Assigned To</th><th>Start</th><th>Due</th><th>Priority</th>
+      <th>Status</th><th class="num">Progress</th><th class="ctr">Evidence</th><th>Remarks</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="9" class="ctr">No activities.</td></tr>'}</tbody></table>
+    <h2>Signatures</h2>${signatureBlock()}
+    <div class="rpt-foot"><span>${esc(p.name)} — Activity List</span>
+      <span>Generated ${fmtDateTime(new Date().toISOString())}</span></div></div>`);
+};
+
+App.exportPDF = function(){
+  toast('Choose "Save as PDF" in the print dialog.', 'info');
+  setTimeout(() => App.printProgressReport(), 400);
+};
+App.exportExcel = function(){
+  const p = getProject(ui.projectId); if(!p) return;
+  const actRows = (p.activities || []).map(a => `<tr><td>${esc(a.name)}</td><td>${esc(a.description || '')}</td>
+      <td>${esc(a.assignedTo || '')}</td><td>${esc(a.startDate || '')}</td>
+      <td>${esc(a.dueDate || '')}</td><td>${isOverdue(a) ? 'YES' : ''}</td>
+      <td>${esc(a.priority || '')}</td><td>${esc(a.status)}</td><td>${a.progress}</td>
+      <td>${esc(a.remarks || '')}</td></tr>`).join('');
+  const msRows = (p.milestones || []).map(m => `<tr><td>${esc(m.name)}</td><td>${esc(m.description || '')}</td>
+      <td>${esc(m.owner || '')}</td><td>${esc(m.dueDate || '')}</td>
+      <td>${isMilestoneOverdue(m) ? 'YES' : ''}</td><td>${esc(m.status)}</td>
+      <td>${m.progress}</td><td>${esc(m.remarks || '')}</td></tr>`).join('');
+  const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body>
+    <table border="1">
+      <tr><td colspan="8"><b>${esc(p.name)} — Milestones</b></td></tr>
+      <tr><th>Milestone</th><th>Description</th><th>Owner</th><th>Target Date</th><th>Overdue</th>
+        <th>Status</th><th>Progress %</th><th>Remarks</th></tr>
+      ${msRows || '<tr><td colspan="8">No milestones</td></tr>'}
+    </table><br>
+    <table border="1">
+      <tr><td colspan="10"><b>${esc(p.name)} — Activities</b></td></tr>
+      <tr><th>Activity</th><th>Description</th><th>Assigned To</th><th>Start Date</th>
+        <th>Due Date</th><th>Overdue</th><th>Priority</th><th>Status</th><th>Progress %</th><th>Remarks</th></tr>
+      ${actRows}
+    </table></body></html>`;
+  downloadFile(slug(p.name) + '-export.xls', html, 'application/vnd.ms-excel', true);
+  toast('Excel exported.', 'ok');
+};
+
+/* =========================================================
+   INIT
+   ========================================================= */
+window.App = App;
+window.closeModal = closeModal;
+
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+    e.preventDefault();
+    $('#cmdRoot').classList.contains('open') ? App.closeCmd() : App.openCmd();
+  } else if(e.key === 'Escape'){
+    if($('#cmdRoot').classList.contains('open')) App.closeCmd();
+    else if($('#modalRoot').classList.contains('open')) closeModal();
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  if(draftSaveTimer){ clearTimeout(draftSaveTimer); if(draft){ syncDraftFromForm(); saveDraftNow(); } }
+  if(localFileReady && localFileHandle){ clearTimeout(localFileTimer); try{ writeLocalFile(); }catch(e){} }
+});
+
+/* Boot */
+initTheme();
+load();
+seed();
+render();
+setSaveStatus('idle');
+setFileStatus('unlinked');
+tryReconnectLocalFile();
+
+if(!FS_SUPPORTED){
+  setTimeout(() => toast('Tip: use Chrome or Edge for hard-drive auto-save.', 'info', 5000), 1500);
+}
+(function startupOverdue(){
+  const flagged = projectsWithOverdue();
+  if(!flagged.length) return;
+  const total = flagged.reduce((s, p) => s + overdueActivities(p).length + overdueMilestones(p).length, 0);
+  setTimeout(() => toast(`${total} overdue item${total > 1 ? 's' : ''} across ${flagged.length} project${flagged.length > 1 ? 's' : ''}.`, 'warn'), 1000);
+})();
+</script>
+</body>
+</html>

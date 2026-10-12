@@ -1,0 +1,3079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX QV Series — Interactive Training Simulator</title>
+<style>
+  :root{
+    --bg:#0a0e13;
+    --bg-grad:radial-gradient(ellipse at top left, #131a24 0%, #0a0e13 60%);
+    --panel:#151c26;
+    --panel2:#1c2531;
+    --panel3:#242f3d;
+    --line:#2a3542;
+    --line2:#35414f;
+    --txt:#e8eef4;
+    --txt-soft:#b8c4d0;
+    --muted:#7a8896;
+    --accent:#38b6ff;
+    --accent2:#1e8fd6;
+    --accent-glow:rgba(56,182,255,.35);
+    --ok:#3ddc84;
+    --warn:#ffb547;
+    --err:#ff5c6c;
+    --purple:#a06bf2;
+    --gold:#ffd166;
+    --lcd-bg:#03140a;
+    --lcd-border:#1a4a2c;
+    --lcd-text:#5effa0;
+    --lcd-dim:#3fc76e;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+    --shadow-md:0 4px 12px rgba(0,0,0,.35);
+    --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+    --shadow-glow:0 0 24px var(--accent-glow);
+    --radius-sm:6px;
+    --radius-md:10px;
+    --radius-lg:16px;
+    --radius-xl:22px;
+  }
+  body.light{
+    --bg:#f4f7fb;
+    --bg-grad:radial-gradient(ellipse at top left, #eaf1f9 0%, #f4f7fb 60%);
+    --panel:#ffffff;
+    --panel2:#f5f8fc;
+    --panel3:#eaeff6;
+    --line:#dbe3ec;
+    --line2:#c8d3e0;
+    --txt:#0f1922;
+    --txt-soft:#3a4a5a;
+    --muted:#6a7a8a;
+    --accent:#1189d6;
+    --accent2:#0d6eae;
+    --accent-glow:rgba(17,137,214,.22);
+    --ok:#1aa85a;
+    --warn:#c77f15;
+    --err:#cf3546;
+    --purple:#7043c4;
+    --lcd-bg:#f2fff7;
+    --lcd-border:#9ed8b0;
+    --lcd-text:#0a7a2c;
+    --lcd-dim:#3a8a55;
+    --shadow-sm:0 1px 2px rgba(30,50,80,.06);
+    --shadow-md:0 4px 12px rgba(30,50,80,.08);
+    --shadow-lg:0 12px 40px rgba(30,50,80,.12);
+    --shadow-glow:0 0 24px var(--accent-glow);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
+    background:var(--bg);
+    background-image:var(--bg-grad);
+    background-attachment:fixed;
+    color:var(--txt);
+    line-height:1.6;
+    display:flex;
+    min-height:100vh;
+    transition:background .4s, color .3s;
+    -webkit-font-smoothing:antialiased;
+    font-size:14.5px;
+  }
+
+  /* ========== TOP ACTIONS ========== */
+  .top-actions{
+    position:fixed; top:16px; right:16px; z-index:100;
+    display:flex; gap:10px;
+  }
+  .top-btn{
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--txt);
+    width:44px; height:44px; border-radius:12px;
+    cursor:pointer; font-size:1.15rem;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow-md);
+    transition:all .2s ease;
+  }
+  .top-btn:hover{
+    background:var(--panel3);
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-lg);
+    border-color:var(--accent);
+  }
+  .top-btn:active{transform:translateY(0);}
+
+  /* ========== SIDEBAR ========== */
+  #sidebar{
+    width:280px;
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    position:fixed; top:0; left:0; bottom:0;
+    overflow-y:auto; z-index:50;
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+    display:flex; flex-direction:column;
+  }
+  #sidebar::-webkit-scrollbar{width:6px;}
+  #sidebar::-webkit-scrollbar-track{background:transparent;}
+  #sidebar::-webkit-scrollbar-thumb{background:var(--line2); border-radius:3px;}
+
+  .brand{
+    padding:22px 20px 16px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .brand::before{
+    content:'';
+    position:absolute; top:22px; left:20px;
+    width:36px; height:36px;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--purple));
+    box-shadow:var(--shadow-glow);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .brand::after{
+    content:'QV';
+    position:absolute; top:22px; left:20px;
+    width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:.72rem; color:#fff;
+    letter-spacing:.5px;
+  }
+  .brand h1{
+    font-size:1.02rem;
+    color:var(--txt);
+    letter-spacing:.2px;
+    padding-left:50px;
+    line-height:1.25;
+    font-weight:700;
+  }
+  .brand small{
+    display:block;
+    color:var(--muted);
+    font-size:.7rem;
+    font-weight:500;
+    margin-top:4px;
+    padding-left:50px;
+    letter-spacing:.3px;
+    text-transform:uppercase;
+  }
+
+  #progressBox{
+    padding:14px 20px;
+    border-bottom:1px solid var(--line);
+    font-size:.72rem;
+    color:var(--muted);
+    letter-spacing:.3px;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  #progressBox .bar{
+    height:8px;
+    background:var(--panel3);
+    border-radius:4px;
+    overflow:hidden;
+    margin-top:10px;
+    position:relative;
+  }
+  #progressBox .fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--ok),var(--accent));
+    width:0%;
+    transition:width .6s cubic-bezier(.4,0,.2,1);
+    border-radius:4px;
+    box-shadow:0 0 12px rgba(56,182,255,.5);
+  }
+  #progressText{
+    margin-top:8px;
+    color:var(--txt-soft);
+    font-size:.72rem;
+    letter-spacing:.2px;
+    text-transform:none;
+    font-weight:500;
+  }
+
+  #sidebar nav{flex:1; padding:12px 0;}
+  #sidebar nav .group{
+    padding:16px 22px 6px;
+    font-size:.66rem;
+    text-transform:uppercase;
+    letter-spacing:1.4px;
+    color:var(--muted);
+    font-weight:700;
+  }
+  #sidebar nav a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:9px 20px;
+    color:var(--txt-soft);
+    text-decoration:none;
+    font-size:.85rem;
+    font-weight:500;
+    border-left:3px solid transparent;
+    transition:all .2s ease;
+    position:relative;
+  }
+  #sidebar nav a span:first-child{
+    font-size:1.02rem;
+    width:22px;
+    text-align:center;
+    filter:grayscale(.3);
+    transition:.2s;
+  }
+  #sidebar nav a:hover{
+    background:var(--panel2);
+    color:var(--txt);
+  }
+  #sidebar nav a:hover span:first-child{filter:grayscale(0);}
+  #sidebar nav a.active{
+    border-left-color:var(--accent);
+    color:var(--accent);
+    background:linear-gradient(90deg, var(--accent-glow), transparent);
+    font-weight:600;
+  }
+  #sidebar nav a.active::before{
+    content:'';
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:3px;
+    background:var(--accent);
+    box-shadow:0 0 12px var(--accent);
+  }
+  #sidebar nav a .chk{
+    margin-left:auto;
+    font-size:.7rem;
+    width:18px; height:18px;
+    border-radius:50%;
+    border:1.5px solid var(--line2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    transition:all .2s;
+    color:transparent;
+  }
+  #sidebar nav a.done .chk{
+    background:var(--ok);
+    border-color:var(--ok);
+    color:#fff;
+    font-weight:700;
+    box-shadow:0 0 8px rgba(61,220,132,.4);
+  }
+
+  /* ========== MAIN ========== */
+  #main{
+    margin-left:280px;
+    flex:1;
+    min-width:0;
+    padding-bottom:60px;
+  }
+  .section{
+    display:none;
+    padding:0 40px 80px;
+    max-width:1180px;
+    animation:fadeIn .4s ease;
+  }
+  @keyframes fadeIn{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .section.active{display:block;}
+
+  /* HERO */
+  .hero{
+    padding:48px 0 28px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:28px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:'';
+    position:absolute;
+    top:-50px; right:-80px;
+    width:300px; height:300px;
+    background:radial-gradient(circle, var(--accent-glow), transparent 70%);
+    pointer-events:none;
+  }
+  .hero .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:4px 12px;
+    border-radius:20px;
+    background:var(--panel2);
+    border:1px solid var(--line);
+    font-size:.7rem;
+    font-weight:700;
+    color:var(--accent);
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    margin-bottom:16px;
+  }
+  .hero .eyebrow::before{
+    content:'';
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 8px var(--accent);
+  }
+  .hero h2{
+    font-size:2rem;
+    font-weight:800;
+    color:var(--txt);
+    letter-spacing:-.5px;
+    line-height:1.15;
+    margin-bottom:10px;
+  }
+  .hero h2 .accent{
+    background:linear-gradient(135deg,var(--accent),var(--purple));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+  }
+  .hero p{
+    color:var(--txt-soft);
+    font-size:.95rem;
+    max-width:680px;
+    line-height:1.65;
+  }
+
+  /* SECTIONS INSIDE */
+  .section h3{
+    font-size:1.15rem;
+    margin:32px 0 12px;
+    color:var(--txt);
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section h3::before{
+    content:'';
+    width:4px; height:20px;
+    border-radius:2px;
+    background:linear-gradient(180deg,var(--accent),var(--purple));
+  }
+  .section h4{
+    font-size:.98rem;
+    margin:20px 0 10px;
+    color:var(--txt);
+    font-weight:600;
+  }
+  .section p{
+    margin:10px 0;
+    color:var(--txt-soft);
+    font-size:.9rem;
+    line-height:1.7;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    padding:3px 10px;
+    border-radius:8px;
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.3px;
+  }
+  .b-red{background:rgba(255,92,108,.15); color:#ff8b96;}
+  .b-org{background:rgba(255,181,71,.15); color:#ffc86b;}
+  .b-grn{background:rgba(61,220,132,.15); color:#6fe39c;}
+  .b-blu{background:rgba(56,182,255,.15); color:#7cc8ff;}
+
+  /* ========== CARDS ========== */
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:20px 22px;
+    margin:16px 0;
+    box-shadow:var(--shadow-sm);
+    transition:all .2s ease;
+    position:relative;
+  }
+  .card:hover{box-shadow:var(--shadow-md);}
+  .card.warn{border-left:4px solid var(--warn);}
+  .card.warn::before{background:var(--warn);}
+  .card.err{border-left:4px solid var(--err);}
+  .card.ok{border-left:4px solid var(--ok);}
+  .card.info{border-left:4px solid var(--accent);}
+  .card.quiz{
+    border-left:4px solid var(--purple);
+    background:linear-gradient(135deg,var(--panel),var(--panel2));
+  }
+  .card h4{font-size:.95rem; margin:0 0 8px; color:var(--txt);}
+
+  /* ========== TABLES ========== */
+  .table-wrap{
+    overflow-x:auto;
+    border-radius:var(--radius-md);
+    border:1px solid var(--line);
+    margin:14px 0;
+    background:var(--panel);
+    box-shadow:var(--shadow-sm);
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.83rem;
+  }
+  th,td{
+    padding:10px 14px;
+    text-align:left;
+    vertical-align:top;
+    border-bottom:1px solid var(--line);
+  }
+  th{
+    background:var(--panel2);
+    color:var(--accent);
+    font-weight:700;
+    font-size:.74rem;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    position:sticky; top:0;
+    white-space:nowrap;
+  }
+  tr:last-child td{border-bottom:none;}
+  tbody tr{transition:background .15s;}
+  tbody tr:hover{background:rgba(56,182,255,.05);}
+  td strong{color:var(--txt);}
+  td code, td .mono{font-family:'JetBrains Mono',monospace; font-size:.78rem; color:var(--accent); font-weight:600;}
+
+  /* ========== KBD ========== */
+  .kbd{
+    display:inline-block;
+    padding:2px 9px;
+    background:var(--panel3);
+    border:1px solid var(--line2);
+    border-bottom:2px solid var(--line);
+    border-radius:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.75rem;
+    color:var(--accent);
+    font-weight:600;
+    margin:0 2px;
+    transition:all .15s;
+  }
+  .kbd:hover{
+    transform:translateY(-1px);
+    border-color:var(--accent);
+    box-shadow:0 0 8px var(--accent-glow);
+  }
+
+  /* ========== STEP ========== */
+  .step{
+    display:flex;
+    gap:14px;
+    margin:10px 0;
+    padding:14px 18px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    transition:all .2s;
+  }
+  .step:hover{
+    border-color:var(--line2);
+    transform:translateX(3px);
+    box-shadow:var(--shadow-sm);
+  }
+  .step .num{
+    flex-shrink:0;
+    width:30px; height:30px;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+    font-weight:800;
+    font-size:.82rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 2px 8px rgba(56,182,255,.3);
+  }
+  .step .body{flex:1; font-size:.88rem; color:var(--txt-soft); line-height:1.6;}
+  .step .body strong{color:var(--txt); font-weight:600; display:block; margin-bottom:2px;}
+
+  ul.clean{list-style:none; margin:10px 0;}
+  ul.clean li{
+    padding:6px 0 6px 28px;
+    position:relative;
+    font-size:.87rem;
+    color:var(--txt-soft);
+    line-height:1.6;
+  }
+  ul.clean li::before{
+    content:'✓';
+    position:absolute;
+    left:4px; top:6px;
+    color:var(--ok);
+    font-weight:800;
+    font-size:.82rem;
+  }
+
+  /* ========== CHECKLIST ========== */
+  .chk-list{list-style:none; margin:10px 0;}
+  .chk-list li{
+    padding:12px 16px 12px 46px;
+    position:relative;
+    font-size:.88rem;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    margin:7px 0;
+    cursor:pointer;
+    transition:all .2s;
+    user-select:none;
+    color:var(--txt-soft);
+  }
+  .chk-list li:hover{
+    border-color:var(--line2);
+    transform:translateX(3px);
+  }
+  .chk-list li::before{
+    content:'';
+    position:absolute;
+    left:14px; top:50%;
+    transform:translateY(-50%);
+    width:20px; height:20px;
+    border-radius:6px;
+    border:2px solid var(--line2);
+    transition:all .2s;
+    background:var(--panel2);
+  }
+  .chk-list li.checked{
+    background:linear-gradient(90deg, rgba(61,220,132,.08), var(--panel));
+    border-color:var(--ok);
+  }
+  .chk-list li.checked::before{
+    background:var(--ok);
+    border-color:var(--ok);
+    content:'✓';
+    color:#fff;
+    font-weight:800;
+    font-size:.82rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 0 12px rgba(61,220,132,.4);
+  }
+  .chk-list li.checked{
+    color:var(--muted);
+    text-decoration:line-through;
+    text-decoration-color:var(--muted);
+  }
+
+  /* ========== QUIZ ========== */
+  .quiz-opt{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 16px;
+    margin:7px 0;
+    border-radius:var(--radius-md);
+    background:var(--panel2);
+    border:1.5px solid var(--line);
+    cursor:pointer;
+    font-size:.88rem;
+    transition:all .2s;
+    user-select:none;
+    color:var(--txt-soft);
+    position:relative;
+  }
+  .quiz-opt::before{
+    content:'';
+    width:18px; height:18px;
+    border-radius:50%;
+    border:2px solid var(--line2);
+    flex-shrink:0;
+    transition:.2s;
+    background:var(--panel);
+  }
+  .quiz-opt:hover{
+    background:var(--panel3);
+    border-color:var(--accent);
+    color:var(--txt);
+  }
+  .quiz-opt.selected{border-color:var(--accent); background:rgba(56,182,255,.1);}
+  .quiz-opt.selected::before{border-color:var(--accent); background:var(--accent); box-shadow:0 0 0 3px rgba(56,182,255,.2) inset;}
+  .quiz-opt.correct{
+    border-color:var(--ok);
+    background:rgba(61,220,132,.12);
+    color:var(--txt);
+  }
+  .quiz-opt.correct::before{
+    background:var(--ok);
+    border-color:var(--ok);
+    content:'✓';
+    color:#fff;
+    font-weight:700;
+    font-size:.72rem;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 12px rgba(61,220,132,.5);
+  }
+  .quiz-opt.wrong{
+    border-color:var(--err);
+    background:rgba(255,92,108,.12);
+    color:var(--txt);
+  }
+  .quiz-opt.wrong::before{
+    background:var(--err);
+    border-color:var(--err);
+    content:'✕';
+    color:#fff;
+    font-weight:700;
+    font-size:.72rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .quiz-opt.disabled{pointer-events:none; opacity:.9;}
+  .quiz-feedback{
+    margin-top:12px;
+    padding:12px 16px;
+    border-radius:var(--radius-md);
+    font-size:.85rem;
+    display:none;
+    font-weight:600;
+  }
+  .quiz-feedback.show{display:block; animation:fadeIn .25s ease;}
+  .quiz-feedback.ok{
+    background:rgba(61,220,132,.12);
+    color:var(--ok);
+    border-left:3px solid var(--ok);
+  }
+  .quiz-feedback.bad{
+    background:rgba(255,92,108,.12);
+    color:var(--err);
+    border-left:3px solid var(--err);
+  }
+
+  /* ========== BUTTONS ========== */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 20px;
+    border-radius:var(--radius-md);
+    border:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+    font-weight:600;
+    font-size:.85rem;
+    cursor:pointer;
+    transition:all .2s;
+    margin:6px 6px 6px 0;
+    box-shadow:0 2px 8px rgba(56,182,255,.25);
+    font-family:inherit;
+  }
+  .btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 18px rgba(56,182,255,.4);
+  }
+  .btn:active{transform:translateY(0);}
+  .btn.ghost{
+    background:var(--panel2);
+    border:1px solid var(--line);
+    color:var(--txt-soft);
+    box-shadow:none;
+  }
+  .btn.ghost:hover{
+    background:var(--panel3);
+    border-color:var(--accent);
+    color:var(--accent);
+    box-shadow:none;
+  }
+  .btn.grn{
+    background:linear-gradient(135deg,var(--ok),#1fa85c);
+    box-shadow:0 2px 8px rgba(61,220,132,.25);
+  }
+  .btn.grn:hover{box-shadow:0 6px 18px rgba(61,220,132,.4);}
+  .btn.red{
+    background:linear-gradient(135deg,var(--err),#cf3546);
+    box-shadow:0 2px 8px rgba(255,92,108,.25);
+  }
+  .btn.red:hover{box-shadow:0 6px 18px rgba(255,92,108,.4);}
+
+  /* ========== SCORE PANEL ========== */
+  .score-panel{
+    background:linear-gradient(135deg,var(--panel),var(--panel3));
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:24px;
+    margin:16px 0;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .score-panel::before{
+    content:'';
+    position:absolute;
+    top:-100px; left:50%;
+    transform:translateX(-50%);
+    width:400px; height:200px;
+    background:radial-gradient(ellipse, var(--accent-glow), transparent 70%);
+    pointer-events:none;
+  }
+  .score-panel .big{
+    font-size:3rem;
+    font-weight:800;
+    background:linear-gradient(135deg,var(--ok),var(--accent));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+    letter-spacing:-1px;
+    line-height:1;
+    margin:4px 0;
+  }
+  .score-panel .lbl{
+    font-size:.72rem;
+    color:var(--muted);
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+
+  /* ========== KEYPAD ========== */
+  .keypad-wrap{
+    display:grid;
+    grid-template-columns:1fr 400px;
+    gap:26px;
+    align-items:start;
+  }
+  @media(max-width:1180px){.keypad-wrap{grid-template-columns:1fr;}}
+  .keypad{
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--line);
+    border-radius:var(--radius-xl);
+    padding:22px;
+    box-shadow:var(--shadow-lg);
+    position:relative;
+  }
+  .keypad::before{
+    content:'';
+    position:absolute; inset:0;
+    border-radius:var(--radius-xl);
+    background:radial-gradient(circle at top, rgba(56,182,255,.08), transparent 60%);
+    pointer-events:none;
+  }
+  .kp-top{display:flex; gap:10px; margin-bottom:14px;}
+  .kp-prom,.kp-dip{
+    background:var(--panel3);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px 14px;
+    font-size:.7rem;
+    color:var(--muted);
+    letter-spacing:1.5px;
+    font-weight:700;
+  }
+  .kp-prom{flex:1;}
+  .kp-lcd{
+    background:var(--lcd-bg);
+    border:2px solid var(--lcd-border);
+    border-radius:10px;
+    padding:16px 18px;
+    font-family:'JetBrains Mono','Courier New',monospace;
+    color:var(--lcd-text);
+    margin-bottom:16px;
+    min-height:80px;
+    box-shadow:
+      inset 0 0 30px rgba(94,255,160,.08),
+      0 0 20px rgba(94,255,160,.06);
+    position:relative;
+    overflow:hidden;
+  }
+  .kp-lcd::after{
+    content:'';
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 2px,
+      rgba(94,255,160,.03) 2px,
+      rgba(94,255,160,.03) 3px
+    );
+    pointer-events:none;
+  }
+  .kp-lcd .lcd-line{
+    color:var(--lcd-dim);
+    font-size:.7rem;
+    letter-spacing:2px;
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  .kp-lcd .lcd-main{
+    font-size:1.02rem;
+    font-weight:700;
+    letter-spacing:.5px;
+    line-height:1.4;
+  }
+  .kp-lcd .lcd-cursor{
+    display:inline-block;
+    animation:blink 1s infinite;
+    color:var(--lcd-text);
+  }
+  @keyframes blink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+  .kp-monitor{display:flex; gap:6px; margin-bottom:12px;}
+  .kp-led{
+    flex:1;
+    height:8px;
+    border-radius:4px;
+    background:var(--panel3);
+    border:1px solid var(--line);
+    transition:all .3s;
+  }
+  .kp-led.on{background:#ff4d5e; box-shadow:0 0 10px #ff4d5e;}
+  .kp-led.ok{background:var(--ok); box-shadow:0 0 10px var(--ok);}
+  .kp-led.amber{background:var(--warn); box-shadow:0 0 10px var(--warn);}
+  .kp-select-row{display:flex; gap:4px; margin-bottom:12px;}
+  .kp-select{
+    flex:1;
+    text-align:center;
+    font-size:.85rem;
+    color:var(--muted);
+    border-bottom:1px solid var(--line);
+    padding-bottom:2px;
+  }
+  .kp-rows{display:flex; gap:14px;}
+  .kp-col{display:flex; flex-direction:column; gap:8px;}
+  .kp-col.left{width:120px;}
+  .kp-col.center{flex:1;}
+  .kp-col.right{width:112px;}
+  .kp-grid{display:grid; gap:8px;}
+  .kp-grid.g3{grid-template-columns:repeat(3,1fr);}
+  .kp-btn{
+    background:linear-gradient(180deg,var(--panel3),var(--panel2));
+    border:1px solid var(--line2);
+    border-bottom:3px solid var(--line);
+    border-radius:10px;
+    padding:10px 6px;
+    cursor:pointer;
+    color:var(--txt-soft);
+    font-size:.72rem;
+    font-weight:600;
+    text-align:center;
+    transition:all .12s ease;
+    user-select:none;
+    position:relative;
+    font-family:inherit;
+    letter-spacing:.2px;
+  }
+  .kp-btn:hover{
+    background:linear-gradient(180deg,var(--panel3),var(--panel3));
+    color:var(--txt);
+    transform:translateY(-1px);
+    border-color:var(--accent);
+  }
+  .kp-btn:active{
+    transform:translateY(1px);
+    border-bottom-width:1px;
+  }
+  .kp-btn.active{
+    background:linear-gradient(180deg,var(--accent),var(--accent2));
+    color:#fff;
+    border-color:var(--accent);
+    box-shadow:0 0 16px var(--accent-glow), inset 0 0 20px rgba(255,255,255,.15);
+  }
+  .kp-btn.red{
+    background:linear-gradient(180deg,rgba(255,92,108,.15),rgba(255,92,108,.08));
+    border-color:rgba(255,92,108,.35);
+    color:#ffb0b8;
+  }
+  .kp-btn.red:hover{border-color:var(--err);}
+  .kp-btn.green{
+    background:linear-gradient(180deg,rgba(61,220,132,.15),rgba(61,220,132,.08));
+    border-color:rgba(61,220,132,.35);
+    color:#a8f0c4;
+  }
+  .kp-btn.green:hover{border-color:var(--ok);}
+  .kp-btn.purple{
+    background:linear-gradient(180deg,rgba(160,107,242,.15),rgba(160,107,242,.08));
+    border-color:rgba(160,107,242,.35);
+    color:#d4b8ff;
+  }
+  .kp-btn.purple:hover{border-color:var(--purple);}
+  .kp-btn.amber{
+    background:linear-gradient(180deg,rgba(255,181,71,.15),rgba(255,181,71,.08));
+    border-color:rgba(255,181,71,.35);
+    color:#ffd98a;
+  }
+  .kp-btn.amber:hover{border-color:var(--warn);}
+  body.light .kp-btn.red{color:#cf3546;}
+  body.light .kp-btn.green{color:#1a6b34;}
+  body.light .kp-btn.purple{color:#5a35a0;}
+  body.light .kp-btn.amber{color:#8a5510;}
+
+  #kpDetail{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:22px;
+    min-height:520px;
+    position:sticky;
+    top:20px;
+    box-shadow:var(--shadow-md);
+    transition:background .3s;
+  }
+  #kpDetail h4{
+    color:var(--accent);
+    font-size:1.05rem;
+    margin-bottom:6px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  #kpDetail h4::before{
+    content:'';
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 8px var(--accent);
+  }
+  #kpDetail .sub{
+    color:var(--muted);
+    font-size:.75rem;
+    margin-bottom:14px;
+    letter-spacing:.4px;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  #kpDetail .detail-body{
+    font-size:.86rem;
+    color:var(--txt-soft);
+    line-height:1.7;
+  }
+  #kpDetail .detail-body h5{
+    color:var(--txt);
+    margin:16px 0 8px;
+    font-size:.83rem;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+    font-weight:700;
+  }
+  #kpDetail .detail-body ul{margin:8px 0 8px 20px;}
+  #kpDetail .detail-body li{margin:4px 0;}
+  .seq{
+    background:var(--panel3);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    margin:10px 0;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.78rem;
+    color:var(--gold);
+    font-weight:500;
+    letter-spacing:.3px;
+  }
+  .placeholder{
+    color:var(--muted);
+    font-size:.85rem;
+    text-align:center;
+    padding:70px 20px;
+  }
+  .placeholder .big{
+    font-size:3rem;
+    margin-bottom:14px;
+    display:block;
+    filter:grayscale(.4);
+    opacity:.6;
+  }
+
+  /* menu tree */
+  .menu-tree{margin:12px 0;}
+  .menu-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 14px;
+    border-radius:8px;
+    margin:5px 0;
+    font-size:.83rem;
+    background:var(--panel2);
+    border:1px solid transparent;
+    transition:all .2s;
+    color:var(--txt-soft);
+  }
+  .menu-item.active{
+    border-color:var(--accent);
+    background:linear-gradient(90deg, var(--accent-glow), var(--panel2));
+    font-weight:600;
+    color:var(--txt);
+  }
+  .menu-item .code{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--accent);
+    font-weight:700;
+    min-width:34px;
+    font-size:.78rem;
+  }
+
+  /* ========== SEARCH & FILTERS ========== */
+  .search-bar{
+    width:100%;
+    padding:13px 18px;
+    background:var(--panel);
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    color:var(--txt);
+    font-size:.9rem;
+    margin-bottom:14px;
+    transition:all .2s;
+    font-family:inherit;
+  }
+  .search-bar::placeholder{color:var(--muted);}
+  .search-bar:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 4px var(--accent-glow);
+  }
+  .filter-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .chip{
+    padding:7px 14px;
+    border-radius:20px;
+    font-size:.75rem;
+    cursor:pointer;
+    background:var(--panel);
+    border:1.5px solid var(--line);
+    color:var(--muted);
+    transition:all .2s;
+    font-weight:600;
+    letter-spacing:.2px;
+  }
+  .chip:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:translateY(-1px);
+  }
+  .chip.active{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+    border-color:var(--accent);
+    box-shadow:0 2px 8px var(--accent-glow);
+  }
+
+  /* ========== ACCORDION ========== */
+  .acc{
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    margin:10px 0;
+    overflow:hidden;
+    background:var(--panel);
+    transition:box-shadow .2s;
+  }
+  .acc:hover{box-shadow:var(--shadow-sm);}
+  .acc-head{
+    padding:14px 20px;
+    background:var(--panel2);
+    cursor:pointer;
+    font-weight:600;
+    font-size:.88rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    transition:all .2s;
+    color:var(--txt);
+    user-select:none;
+  }
+  .acc-head:hover{background:var(--panel3);}
+  .acc-head .arrow{
+    color:var(--accent);
+    transition:transform .3s;
+    font-size:.72rem;
+  }
+  .acc.open .acc-head .arrow{transform:rotate(90deg);}
+  .acc-body{
+    display:none;
+    padding:18px 22px;
+    border-top:1px solid var(--line);
+    animation:fadeIn .3s ease;
+  }
+  .acc.open .acc-body{display:block;}
+
+  /* ========== BACK TOP ========== */
+  .back-top{
+    position:fixed;
+    bottom:26px; right:26px;
+    width:48px; height:48px;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+    border:none;
+    font-size:1.15rem;
+    cursor:pointer;
+    box-shadow:var(--shadow-lg), 0 0 24px var(--accent-glow);
+    display:none;
+    z-index:60;
+    transition:all .2s;
+  }
+  .back-top.show{display:flex; align-items:center; justify-content:center;}
+  .back-top:hover{transform:translateY(-3px) scale(1.05);}
+
+  /* ========== MOBILE ========== */
+  @media(max-width:900px){
+    #sidebar{transform:translateX(-100%);}
+    #sidebar.open{transform:translateX(0);}
+    #main{margin-left:0;}
+    #menuToggle{display:flex !important;}
+    .section{padding:20px 18px 80px;}
+    .hero h2{font-size:1.5rem;}
+    .hero{padding:36px 0 20px;}
+    .top-actions{top:12px; right:12px;}
+    .top-btn{width:40px; height:40px; font-size:1rem;}
+    #kpDetail{position:static;}
+  }
+  #menuToggle{
+    display:none;
+    position:fixed;
+    top:16px; left:16px;
+    z-index:70;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--txt);
+    width:44px; height:44px;
+    border-radius:12px;
+    font-size:1.15rem;
+    cursor:pointer;
+    align-items:center;
+    justify-content:center;
+    box-shadow:var(--shadow-md);
+  }
+
+  /* ========== TOAST ========== */
+  .toast{
+    position:fixed;
+    top:80px; right:24px;
+    padding:14px 22px;
+    background:var(--panel);
+    color:var(--txt);
+    border:1px solid var(--line);
+    border-left:4px solid var(--ok);
+    border-radius:var(--radius-md);
+    font-weight:600;
+    font-size:.85rem;
+    z-index:200;
+    transform:translateX(500px);
+    transition:transform .35s cubic-bezier(.4,0,.2,1);
+    box-shadow:var(--shadow-lg);
+    max-width:340px;
+  }
+  .toast.show{transform:translateX(0);}
+  .toast.warn{border-left-color:var(--warn);}
+  .toast.err{border-left-color:var(--err);}
+  .toast.info{border-left-color:var(--accent);}
+
+  /* ========== SEQUENCE BUILDER ========== */
+  .seq-builder{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:18px 20px;
+    margin:14px 0;
+    box-shadow:var(--shadow-sm);
+  }
+  .seq-slots{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    min-height:48px;
+    padding:10px;
+    background:var(--panel2);
+    border-radius:8px;
+    margin:10px 0;
+    border:1.5px dashed var(--line2);
+    transition:all .2s;
+  }
+  .seq-slot{
+    padding:7px 14px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;
+    border-radius:7px;
+    font-size:.78rem;
+    font-weight:700;
+    font-family:'JetBrains Mono',monospace;
+    cursor:pointer;
+    box-shadow:0 2px 6px var(--accent-glow);
+    transition:all .2s;
+  }
+  .seq-slot:hover{transform:translateY(-2px);}
+  .seq-pool{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0;}
+  .seq-chip{
+    padding:7px 14px;
+    background:var(--panel2);
+    border:1.5px solid var(--line);
+    border-radius:7px;
+    font-size:.78rem;
+    cursor:pointer;
+    transition:all .2s;
+    font-family:'JetBrains Mono',monospace;
+    color:var(--txt-soft);
+    font-weight:600;
+  }
+  .seq-chip:hover{
+    background:var(--panel3);
+    border-color:var(--accent);
+    color:var(--accent);
+    transform:translateY(-1px);
+  }
+  .seq-chip.used{opacity:.25; pointer-events:none;}
+
+  /* ========== SECTION COMPLETE BUTTON ========== */
+  .complete-wrap{
+    margin-top:40px;
+    padding-top:24px;
+    border-top:1px dashed var(--line);
+    display:flex;
+    justify-content:flex-end;
+  }
+
+  /* ========== STAT CARDS ========== */
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:14px;
+    margin:16px 0;
+  }
+  .stat-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:16px 18px;
+    transition:all .2s;
+  }
+  .stat-card:hover{border-color:var(--line2); transform:translateY(-2px);}
+  .stat-card .stat-label{
+    font-size:.7rem;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .stat-card .stat-value{
+    font-size:1.3rem;
+    font-weight:800;
+    color:var(--txt);
+    letter-spacing:-.3px;
+  }
+  .stat-card .stat-value.accent{color:var(--accent);}
+  .stat-card .stat-value.ok{color:var(--ok);}
+
+  /* hide overflow visual noise */
+  ::-webkit-scrollbar{width:10px; height:10px;}
+  ::-webkit-scrollbar-track{background:var(--panel2);}
+  ::-webkit-scrollbar-thumb{background:var(--line2); border-radius:5px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+</style>
+</head>
+<body>
+
+<button id="menuToggle">☰</button>
+<div class="top-actions">
+  <button class="top-btn" id="themeToggle" title="Toggle theme">🌙</button>
+</div>
+
+<aside id="sidebar">
+  <div class="brand">
+    <h1>APEX QV Series<small>Interactive Training</small></h1>
+  </div>
+  <div id="progressBox">
+    Training Progress
+    <div class="bar"><div class="fill" id="progressFill"></div></div>
+    <div id="progressText">0 / 12 modules completed</div>
+  </div>
+  <nav id="nav">
+    <div class="group">Getting Started</div>
+    <a href="#" data-target="overview"><span>📘</span> Overview <span class="chk"></span></a>
+    <a href="#" data-target="safety"><span>⚠️</span> Safety <span class="chk"></span></a>
+
+    <div class="group">Operation</div>
+    <a href="#" data-target="install"><span>🔧</span> Installation <span class="chk"></span></a>
+    <a href="#" data-target="operation"><span>▶️</span> Daily Operation <span class="chk"></span></a>
+
+    <div class="group">Main Box Training</div>
+    <a href="#" data-target="keypad"><span>⌨️</span> Interactive Keypad <span class="chk"></span></a>
+    <a href="#" data-target="testguide"><span>🧪</span> Component Tests <span class="chk"></span></a>
+    <a href="#" data-target="simulator"><span>🎮</span> Simulator <span class="chk"></span></a>
+
+    <div class="group">Maintenance</div>
+    <a href="#" data-target="cleaning"><span>🧼</span> Cleaning <span class="chk"></span></a>
+    <a href="#" data-target="maintenance"><span>🛠️</span> Maintenance <span class="chk"></span></a>
+
+    <div class="group">Diagnostics</div>
+    <a href="#" data-target="errors"><span>🚨</span> Error Codes <span class="chk"></span></a>
+    <a href="#" data-target="troubleshoot"><span>🔍</span> Troubleshooting <span class="chk"></span></a>
+    <a href="#" data-target="exam"><span>🎓</span> Certification Exam <span class="chk"></span></a>
+  </nav>
+</aside>
+
+<main id="main">
+
+<!-- ================= OVERVIEW ================= -->
+<section id="overview" class="section active">
+  <div class="hero">
+    <div class="eyebrow">Module 01</div>
+    <h2>Overview &amp; <span class="accent">Machine Models</span></h2>
+    <p>The APEX QV Series is a cup-type vending machine available in several configurations. Complete this module to unlock its quiz and progress toward certification.</p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total Models</div><div class="stat-value accent">5</div></div>
+    <div class="stat-card"><div class="stat-label">Max Selections</div><div class="stat-value">73</div></div>
+    <div class="stat-card"><div class="stat-label">Max Canisters</div><div class="stat-value ok">14</div></div>
+    <div class="stat-card"><div class="stat-label">Cooling Type</div><div class="stat-value" style="font-size:.9rem;">1 Comp / 2 Evap</div></div>
+  </div>
+
+  <h3>Model Lineup</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Model</th><th>Type</th><th>Dimensions (mm)</th><th>Mass (empty / loaded)</th><th>Selections</th><th>Canisters</th></tr></thead>
+      <tbody>
+        <tr><td><strong>APEX 120QV</strong></td><td>Sanden / VHC-AP120QV</td><td>1830 × 1170 × 740</td><td>300 / 440 kg</td><td>28–66</td><td>11</td></tr>
+        <tr><td><strong>APEX 120QVR</strong></td><td>Sanden / VRC-AP120QVR</td><td>1830 × 1170 × 740</td><td>326 / 469 kg</td><td>28–73</td><td>14</td></tr>
+        <tr><td><strong>APEX 100QVR</strong></td><td>Sanden / CST-AP900</td><td>1830 × 990 × 720</td><td>275 / 360 kg</td><td>22–55</td><td>10</td></tr>
+        <tr><td><strong>APEX 80QR</strong></td><td>Sanden / CST-AR700</td><td>1830 × 800 × 720</td><td>240 / 305 kg</td><td>19–44</td><td>8</td></tr>
+        <tr><td><strong>APEX 80QI</strong></td><td>Sanden / CST-AP700</td><td>1830 × 800 × 720</td><td>227 / 317 kg</td><td>19–42</td><td>9</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card info">
+    <h4>⚙️ Key Subsystems</h4>
+    <ul class="clean">
+      <li><strong>CMS</strong> — Y-axis transport, cup hand, impeller, retention chutes, auto door</li>
+      <li><strong>RC Brewer (VSC-31RC)</strong> — Air-agitation / suction extraction</li>
+      <li><strong>Cup Mechanism</strong> — Chain-driven storage &amp; discharge</li>
+      <li><strong>Cooling Unit</strong> — 1 compressor / 2 evaporator (ice maker + water tank)</li>
+      <li><strong>Syrup Pumps</strong> — Gear pump, BIB supply</li>
+    </ul>
+  </div>
+
+  <div class="card quiz" data-quiz="overview">
+    <h4>📝 Knowledge Check</h4>
+    <div class="quiz-question" data-q="0" data-answer="1">
+      <p><strong>Which model has the largest canister count (14)?</strong></p>
+      <div class="quiz-opt" data-opt="0">APEX 120QV</div>
+      <div class="quiz-opt" data-opt="1">APEX 120QVR</div>
+      <div class="quiz-opt" data-opt="2">APEX 100QVR</div>
+      <div class="quiz-opt" data-opt="3">APEX 80QI</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="1" data-answer="2">
+      <p><strong>What does CMS stand for?</strong></p>
+      <div class="quiz-opt" data-opt="0">Coffee Management System</div>
+      <div class="quiz-opt" data-opt="1">Cup Mixing Station</div>
+      <div class="quiz-opt" data-opt="2">Cup Management System</div>
+      <div class="quiz-opt" data-opt="3">Central Motor System</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="overview">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= SAFETY ================= -->
+<section id="safety" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 02</div>
+    <h2>Safety <span class="accent">Precautions</span></h2>
+    <p>Read all warnings and cautions carefully before operating, servicing, or installing the machine.</p>
+  </div>
+
+  <div class="card err">
+    <h4>⚠️ WARNING — Risk of Death or Serious Injury</h4>
+    <ul class="clean">
+      <li>Installation must be by a professional installer or your dealer.</li>
+      <li>Comply with Road Act, Fire Service Act, Food Sanitation Act, Electricity Business Act.</li>
+      <li>Use a single-phase 100V outlet rated 15A+ independently.</li>
+      <li>Never use extension cords or branched outlets — risk of fire.</li>
+      <li>Do not connect ground to gas pipe, water pipe, telephone ground, or lightning rod.</li>
+      <li>Install earth leakage breaker where mandated.</li>
+      <li>Install on strong, level floor. Avoid dust and corrosive gas.</li>
+      <li>Always wear protective equipment (safety shoes, non-slip gloves).</li>
+      <li>Never climb on top of the machine.</li>
+      <li>Always connect ground — incomplete ground risks electric shock.</li>
+      <li>Take earthquake tipping-prevention measures.</li>
+      <li>Do not store ether, benzene, alcohol, LP gas, or chemicals inside.</li>
+      <li>Always turn off power before replacing lamps or cleaning interior.</li>
+    </ul>
+  </div>
+
+  <div class="card warn">
+    <h4>⚠️ CAUTION — Risk of Injury or Property Damage</h4>
+    <ul class="clean">
+      <li>Do not touch moving parts (cup transport, impeller, brewer, mill, ice maker).</li>
+      <li>Be careful of your head after crouched work.</li>
+      <li>Confirm hoses are inserted after cleaning — hot water may spurt.</li>
+      <li>Apply rinse hot water only to drain pan and bend stage.</li>
+      <li>Return rinse valve to specified position after use.</li>
+      <li>Perform daily hygiene per Food Sanitation Act.</li>
+    </ul>
+  </div>
+
+  <div class="card quiz" data-quiz="safety">
+    <h4>📝 Knowledge Check</h4>
+    <div class="quiz-question" data-q="0" data-answer="1">
+      <p><strong>Can you connect the ground wire to a water pipe?</strong></p>
+      <div class="quiz-opt" data-opt="0">Yes, water pipes are safe grounds</div>
+      <div class="quiz-opt" data-opt="1">No, never connect to water/gas/lightning</div>
+      <div class="quiz-opt" data-opt="2">Only if the pipe is plastic</div>
+      <div class="quiz-opt" data-opt="3">Yes, if the machine is 100V</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="1" data-answer="0">
+      <p><strong>What should you do before replacing an interior lamp?</strong></p>
+      <div class="quiz-opt" data-opt="0">Turn off the power</div>
+      <div class="quiz-opt" data-opt="1">Wear rubber gloves only</div>
+      <div class="quiz-opt" data-opt="2">Open the door and proceed</div>
+      <div class="quiz-opt" data-opt="3">Call the power company</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="safety">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= INSTALL ================= -->
+<section id="install" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 03</div>
+    <h2>Installation &amp; <span class="accent">Setup</span></h2>
+    <p>Follow this 14-step sequence to correctly install and start up the vending machine.</p>
+  </div>
+
+  <h3>Installation Work Sequence</h3>
+  <div id="installSteps"></div>
+
+  <h3>Main Box DIP Switch Setting</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>No.</th><th>Item</th><th>OFF</th><th>ON</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Frequency</td><td>60 Hz</td><td>50 Hz (factory)</td></tr>
+        <tr><td>2</td><td>CUP1 size</td><td>12 oz</td><td>9 oz</td></tr>
+        <tr><td>3/4</td><td>CUP2 size combo</td><td colspan="2">ON/ON=16oz, ON/OFF=9oz, OFF/ON=16oz, OFF/OFF=12oz</td></tr>
+        <tr><td>5</td><td>Coffee increase/decrease</td><td>Taste priority</td><td>Cost priority</td></tr>
+        <tr><td>8</td><td>Peak shift / cut</td><td>No</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card quiz" data-quiz="install">
+    <h4>📝 Knowledge Check</h4>
+    <div class="quiz-question" data-q="0" data-answer="2">
+      <p><strong>What is the factory default for DIP SW1?</strong></p>
+      <div class="quiz-opt" data-opt="0">60 Hz</div>
+      <div class="quiz-opt" data-opt="1">ON = 60 Hz</div>
+      <div class="quiz-opt" data-opt="2">50 Hz</div>
+      <div class="quiz-opt" data-opt="3">No default</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="1" data-answer="1">
+      <p><strong>When should the 3-way cock lever be turned upward?</strong></p>
+      <div class="quiz-opt" data-opt="0">During normal operation</div>
+      <div class="quiz-opt" data-opt="1">During water tank supply</div>
+      <div class="quiz-opt" data-opt="2">During syrup replacement</div>
+      <div class="quiz-opt" data-opt="3">Never — always forward</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="install">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= OPERATION ================= -->
+<section id="operation" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 04</div>
+    <h2>Daily <span class="accent">Operation</span></h2>
+    <p>Master the startup sequence, understand operating modes, and follow the daily checklist.</p>
+  </div>
+
+  <h3>Startup Checklist — Try it!</h3>
+  <ul class="chk-list" data-checklist="startup">
+    <li>Turn <strong>earth leakage breaker</strong> ON — interior lamp lights, service outlet powered</li>
+    <li>Turn <strong>current breaker</strong> ON — control system initializes (~50 s)</li>
+    <li>Set clock: <span class="kbd">Timer</span> → <span class="kbd">0</span> <span class="kbd">0</span> → enter date → <span class="kbd">Set</span></li>
+    <li>Release food-sanitation hold: press <span class="kbd">Food Sanitation Reset</span></li>
+    <li>Confirm water tank overflow; set 3-way cock to normal</li>
+    <li>Verify no error codes on sold-out monitor</li>
+  </ul>
+  <p id="startupProgress" style="color:var(--muted); font-size:.82rem;"></p>
+
+  <h3>Operating Modes</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>Trigger</th><th>Behavior</th></tr></thead>
+      <tbody>
+        <tr><td>Setup</td><td>Power ON</td><td>Initial boiling, initialization (~50 s)</td></tr>
+        <tr><td>Normal</td><td>Default</td><td>Standard heater control</td></tr>
+        <tr><td>Multiple</td><td>Last 10-min sales ≥ set cups</td><td>Higher heater duty</td></tr>
+        <tr><td>Energy saving</td><td>Timer 40 window</td><td>Upper heater 87 °C, lower OFF</td></tr>
+        <tr><td>Peak shift/cut</td><td>Jul–Sep, 12:00–16:00</td><td>Staggered heater / compressor</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card quiz" data-quiz="operation">
+    <h4>📝 Knowledge Check</h4>
+    <div class="quiz-question" data-q="0" data-answer="1">
+      <p><strong>How long does control system initialization take?</strong></p>
+      <div class="quiz-opt" data-opt="0">10 seconds</div>
+      <div class="quiz-opt" data-opt="1">~50 seconds</div>
+      <div class="quiz-opt" data-opt="2">5 minutes</div>
+      <div class="quiz-opt" data-opt="3">Instant</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="operation">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= KEYPAD ================= -->
+<section id="keypad" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 05</div>
+    <h2>Main Box <span class="accent">Interactive Keypad</span></h2>
+    <p>Press any key. The LCD navigates through real menus exactly like the actual machine. Follow the prompts or explore freely.</p>
+  </div>
+
+  <div class="card info">
+    💡 <strong>Try this:</strong> Press <span class="kbd">Management</span> → type <span class="kbd">5</span> <span class="kbd">1</span> → press <span class="kbd">Set</span> to open Reference Amount Setting.
+  </div>
+
+  <div class="keypad-wrap">
+    <div class="keypad">
+      <div class="kp-top">
+        <div class="kp-prom">PROM</div>
+        <div class="kp-dip">DIP SW</div>
+      </div>
+      <div class="kp-lcd" id="lcd">
+        <div class="lcd-line" id="lcdLine1">LCD 40 × 2  —  STANDBY</div>
+        <div class="lcd-main" id="lcdLine2">Press a function key…</div>
+      </div>
+      <div class="kp-monitor">
+        <div class="kp-led" id="led1"></div>
+        <div class="kp-led ok" id="led2"></div>
+        <div class="kp-led amber" id="led3"></div>
+        <div class="kp-led" id="led4"></div>
+        <div class="kp-led ok" id="led5"></div>
+      </div>
+      <div class="kp-select-row">
+        <div class="kp-select">▲</div><div class="kp-select">▲</div><div class="kp-select">▲</div>
+        <div class="kp-select">▲</div><div class="kp-select">▲</div><div class="kp-select">▲</div>
+        <div class="kp-select">▲</div><div class="kp-select">▲</div><div class="kp-select">▲</div>
+      </div>
+      <div class="kp-rows">
+        <div class="kp-col left">
+          <div class="kp-btn red" data-key="soldout">Sold-out Monitor</div>
+          <div class="kp-btn red" data-key="okmon">OK Monitor</div>
+          <div class="kp-btn red" data-key="refund">Refund Monitor</div>
+          <div class="kp-btn amber" data-key="tenkey">Numeric Keypad</div>
+        </div>
+        <div class="kp-col center">
+          <div class="kp-grid g3">
+            <div class="kp-btn" data-key="timer">Timer</div>
+            <div class="kp-btn" data-key="7">7</div>
+            <div class="kp-btn" data-key="8">8</div>
+            <div class="kp-btn" data-key="9">9</div>
+            <div class="kp-btn" data-key="mgmt">Management</div>
+            <div class="kp-btn" data-key="4">4</div>
+            <div class="kp-btn" data-key="5">5</div>
+            <div class="kp-btn" data-key="6">6</div>
+            <div class="kp-btn" data-key="slow">Slow / Test</div>
+            <div class="kp-btn" data-key="1">1</div>
+            <div class="kp-btn" data-key="2">2</div>
+            <div class="kp-btn" data-key="3">3</div>
+            <div class="kp-btn" data-key="0">0</div>
+            <div class="kp-btn" data-key="star">*</div>
+            <div class="kp-btn" data-key="set">Set</div>
+          </div>
+          <div class="kp-grid g3" style="margin-top:10px;">
+            <div class="kp-btn green" data-key="fwd">▲ Forward</div>
+            <div class="kp-btn green" data-key="rev">▼ Reverse</div>
+            <div class="kp-btn" data-key="correct">Correct</div>
+          </div>
+        </div>
+        <div class="kp-col right">
+          <div class="kp-btn green" data-key="complete">Complete</div>
+          <div class="kp-btn green" data-key="operation">Operation</div>
+          <div class="kp-btn" data-key="set2">Set</div>
+          <div class="kp-btn purple" data-key="service">Service</div>
+          <div class="kp-btn purple" data-key="qc">QC Work</div>
+          <div class="kp-btn purple" data-key="optest">Operation Test</div>
+          <div class="kp-btn purple" data-key="syrup">Syrup</div>
+          <div class="kp-btn purple" data-key="cup">Cup</div>
+          <div class="kp-btn purple" data-key="pack">Pack</div>
+        </div>
+      </div>
+      <div class="kp-grid g3" style="margin-top:14px;">
+        <div class="kp-btn" data-key="salesticket">Sales Ticket</div>
+        <div class="kp-btn" data-key="changeset">Change Set</div>
+        <div class="kp-btn" data-key="product">Product Price</div>
+        <div class="kp-btn" data-key="avgcup">Average Cup</div>
+        <div class="kp-btn" data-key="ranking">Ingredient Ranking</div>
+        <div class="kp-btn" data-key="foodsan">Food Sanitation Reset</div>
+      </div>
+    </div>
+
+    <div id="kpDetail">
+      <div class="placeholder">
+        <span class="big">⌨️</span>
+        <strong>Press a key</strong><br>
+        The LCD will navigate menus. The help panel here shows your current state and available actions.
+      </div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="keypad">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= TEST GUIDE ================= -->
+<section id="testguide" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 06</div>
+    <h2>Component <span class="accent">Test Guide</span></h2>
+    <p>Build the exact key sequence for each task, then check your answer.</p>
+  </div>
+
+  <div class="seq-builder" data-seq="1" data-answer="Management,8,2,Set">
+    <h4>🎯 Task 1: Access Output Signal Check</h4>
+    <div class="seq-slots"></div>
+    <div class="seq-pool">
+      <span class="seq-chip" data-val="Management">Management</span>
+      <span class="seq-chip" data-val="8">8</span>
+      <span class="seq-chip" data-val="2">2</span>
+      <span class="seq-chip" data-val="Set">Set</span>
+      <span class="seq-chip" data-val="Operation">Operation</span>
+      <span class="seq-chip" data-val="Timer">Timer</span>
+    </div>
+    <button class="btn" data-check-seq="1">Check</button>
+    <button class="btn ghost" data-reset-seq="1">Reset</button>
+    <div class="quiz-feedback"></div>
+  </div>
+
+  <div class="seq-builder" data-seq="2" data-answer="Service,Sanitation,Operation">
+    <h4>🎯 Task 2: Run Sanitation Cycle</h4>
+    <div class="seq-slots"></div>
+    <div class="seq-pool">
+      <span class="seq-chip" data-val="Service">Service</span>
+      <span class="seq-chip" data-val="Sanitation">Sanitation</span>
+      <span class="seq-chip" data-val="Operation">Operation</span>
+      <span class="seq-chip" data-val="Complete">Complete</span>
+      <span class="seq-chip" data-val="QC Work">QC Work</span>
+    </div>
+    <button class="btn" data-check-seq="2">Check</button>
+    <button class="btn ghost" data-reset-seq="2">Reset</button>
+    <div class="quiz-feedback"></div>
+  </div>
+
+  <div class="seq-builder" data-seq="3" data-answer="Operation Test,Ice Continuous,Operation">
+    <h4>🎯 Task 3: Discharge Ice Continuously</h4>
+    <div class="seq-slots"></div>
+    <div class="seq-pool">
+      <span class="seq-chip" data-val="Operation Test">Operation Test</span>
+      <span class="seq-chip" data-val="Ice Continuous">Ice Continuous</span>
+      <span class="seq-chip" data-val="Hot Water Continuous">Hot Water Continuous</span>
+      <span class="seq-chip" data-val="Operation">Operation</span>
+      <span class="seq-chip" data-val="Set">Set</span>
+    </div>
+    <button class="btn" data-check-seq="3">Check</button>
+    <button class="btn ghost" data-reset-seq="3">Reset</button>
+    <div class="quiz-feedback"></div>
+  </div>
+
+  <h3>Output Signal Check Reference</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Param</th><th>Component</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>38</td><td>Fan 3 (BIB fan motor)</td><td>Run 5 s</td></tr>
+        <tr><td>42</td><td>Mill motor</td><td>Run 5 s</td></tr>
+        <tr><td>48</td><td>RYVI (ice maker solenoid)</td><td>1 s ON / 0.5 s OFF × 3</td></tr>
+        <tr><td>49</td><td>RYVB (water tank solenoid)</td><td>1 s ON / 0.5 s OFF × 3</td></tr>
+        <tr><td>55–57</td><td>CMS sub-menus (Door, X-Y, Cup)</td><td>Navigate into CMS tests</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card quiz" data-quiz="testguide">
+    <h4>📝 Knowledge Check</h4>
+    <div class="quiz-question" data-q="0" data-answer="1">
+      <p><strong>Which key stops continuous hot water discharge early?</strong></p>
+      <div class="quiz-opt" data-opt="0">Set</div>
+      <div class="quiz-opt" data-opt="1">Operation (press again)</div>
+      <div class="quiz-opt" data-opt="2">Correct</div>
+      <div class="quiz-opt" data-opt="3">Management</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="1" data-answer="2">
+      <p><strong>What does a "×" on the CMS Sensor test indicate?</strong></p>
+      <div class="quiz-opt" data-opt="0">Sensor is working</div>
+      <div class="quiz-opt" data-opt="1">Sensor is disabled by design</div>
+      <div class="quiz-opt" data-opt="2">Abnormality — sales operation stops</div>
+      <div class="quiz-opt" data-opt="3">Sensor needs cleaning</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="testguide">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= SIMULATOR ================= -->
+<section id="simulator" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 07</div>
+    <h2>Operation <span class="accent">Simulator</span></h2>
+    <p>Follow the task prompt and type the correct key sequence using the buttons below.</p>
+  </div>
+
+  <div class="card info" style="padding:20px;">
+    <div class="kp-lcd" id="simLcd">
+      <div class="lcd-line">SIMULATOR</div>
+      <div class="lcd-main" id="simLcdMain">— Standby —</div>
+    </div>
+    <div style="font-size:.9rem; color:var(--txt); margin-top:12px;" id="simTask"></div>
+    <div style="margin-top:14px; font-size:.85rem;">
+      <strong style="color:var(--accent);">Your input:</strong>
+      <span id="simInput" style="font-family:'JetBrains Mono',monospace; color:var(--gold); margin-left:10px; font-weight:600;"></span>
+    </div>
+  </div>
+
+  <div class="card" style="padding:16px;">
+    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <button class="btn" data-sim="Management">Management</button>
+      <button class="btn" data-sim="Timer">Timer</button>
+      <button class="btn" data-sim="Slow / Test">Slow / Test</button>
+      <button class="btn" data-sim="Service">Service</button>
+      <button class="btn" data-sim="QC Work">QC Work</button>
+      <button class="btn" data-sim="Operation Test">Operation Test</button>
+      <button class="btn" data-sim="Syrup">Syrup</button>
+      <button class="btn" data-sim="Cup">Cup</button>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+      <button class="btn ghost" data-sim="0">0</button>
+      <button class="btn ghost" data-sim="1">1</button>
+      <button class="btn ghost" data-sim="2">2</button>
+      <button class="btn ghost" data-sim="3">3</button>
+      <button class="btn ghost" data-sim="4">4</button>
+      <button class="btn ghost" data-sim="5">5</button>
+      <button class="btn ghost" data-sim="6">6</button>
+      <button class="btn ghost" data-sim="7">7</button>
+      <button class="btn ghost" data-sim="8">8</button>
+      <button class="btn ghost" data-sim="9">9</button>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+      <button class="btn" data-sim="Set">Set</button>
+      <button class="btn" data-sim="Operation">Operation</button>
+      <button class="btn" data-sim="Complete">Complete</button>
+      <button class="btn" data-sim="▲ Forward">▲ Forward</button>
+      <button class="btn" data-sim="▼ Reverse">▼ Reverse</button>
+      <button class="btn red" data-sim-reset>Reset</button>
+    </div>
+  </div>
+
+  <h3>Available Tasks</h3>
+  <div id="simTasks"></div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="simulator">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= CLEANING ================= -->
+<section id="cleaning" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 08</div>
+    <h2>Cleaning <span class="accent">Procedures</span></h2>
+    <p>Interactive checklist — tick off items as you complete them. Progress is saved locally.</p>
+  </div>
+
+  <h3>① Every Visit</h3>
+  <ul class="chk-list" data-checklist="clean-visit">
+    <li>Run <span class="kbd">Service</span> → <span class="kbd">Sanitation</span> (brewer + impeller + water passage)</li>
+    <li>Rinse ice chute + ice hopper with rinse valve hot water</li>
+    <li>Clean cup transport Y-axis, cup hand, slatted floor</li>
+    <li>Clean drain pan (resin + SUS surfaces)</li>
+    <li>Wipe cabinet interior, door inner surface</li>
+    <li>Wipe bend stage + auto door inside</li>
+    <li>Empty + wash drain bucket; place float back inside</li>
+    <li>Empty waste bucket + clean machine floor</li>
+    <li>Collect trash; clean vending machine surroundings</li>
+  </ul>
+
+  <h3>③ Every 1000 Bends or Monthly</h3>
+  <ul class="chk-list" data-checklist="clean-monthly">
+    <li>Clean ventilation filter + intake filter (2 locations)</li>
+    <li>Wipe canister lid + body with damp towel</li>
+    <li>Remove mill adjustment dial, brush internal ingredients</li>
+    <li>Remove + wash retention chute; wipe dry before reinstall</li>
+    <li>Remove + wash RC chute + mill chute; wipe dry</li>
+    <li>Remove + wash RC brewer (chamber, rubber well, drum, screen seal)</li>
+    <li>Clean ice maker discharge port + ice chute with rinse valve + brush</li>
+    <li>Run <span class="kbd">Service</span> → <span class="kbd">Impeller Rinse</span>; wipe impeller + shaft</li>
+    <li>Brush beverage hoses + nozzles; run test rinse</li>
+    <li>Clean condenser filter + brewer filter</li>
+  </ul>
+
+  <h3>④ Every 2–3 Months</h3>
+  <ul class="chk-list" data-checklist="clean-quarterly">
+    <li>Clean cup storage inside (alcohol towel)</li>
+    <li>Clean coin mech verification + gate with dedicated towel</li>
+    <li>Clean bill validator belt + rollers (no oil!)</li>
+    <li>Clean machine interior ceiling BEFORE other cleaning</li>
+    <li>Drain + wash water reservoir; wipe float</li>
+  </ul>
+
+  <div class="card quiz" data-quiz="cleaning">
+    <h4>📝 Knowledge Check</h4>
+    <div class="quiz-question" data-q="0" data-answer="1">
+      <p><strong>What can you use on the bill validator belt?</strong></p>
+      <div class="quiz-opt" data-opt="0">Machine oil</div>
+      <div class="quiz-opt" data-opt="1">Rubber cleaner only — no oil or grease</div>
+      <div class="quiz-opt" data-opt="2">Thinner</div>
+      <div class="quiz-opt" data-opt="3">Benzene</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="1" data-answer="2">
+      <p><strong>How often should you clean the RC brewer?</strong></p>
+      <div class="quiz-opt" data-opt="0">Every visit</div>
+      <div class="quiz-opt" data-opt="1">Every week</div>
+      <div class="quiz-opt" data-opt="2">Every 1000 bends or monthly</div>
+      <div class="quiz-opt" data-opt="3">Yearly</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="cleaning">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= MAINTENANCE ================= -->
+<section id="maintenance" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 09</div>
+    <h2>Maintenance &amp; <span class="accent">Inspection</span></h2>
+    <p>Consumable parts, timing belt tension, and adjustment procedures.</p>
+  </div>
+
+  <h3>Consumable Parts</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Part</th><th>Location</th><th>Interval</th></tr></thead>
+      <tbody>
+        <tr><td>Teflon seal</td><td>Piston</td><td>6–12 months</td></tr>
+        <tr><td>Rubber ring</td><td>Piston</td><td>6–12 months</td></tr>
+        <tr><td>Screen seal AP</td><td>RC brewer</td><td>6–12 months</td></tr>
+        <tr><td>Rubber well</td><td>Paper feed</td><td>6–12 months</td></tr>
+        <tr><td>Impeller</td><td>CMS</td><td>100,000 bends or 1 year</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Timing Belt Tension</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mechanism</th><th>Proper Tension</th><th>Simple Check</th></tr></thead>
+      <tbody>
+        <tr><td>Cup transport (Y-axis)</td><td>23.5–27.4 N</td><td>120 g push = 5 mm deflection</td></tr>
+        <tr><td>Impeller mixing</td><td>—</td><td>100 g push = 5–8 mm deflection</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card quiz" data-quiz="maintenance">
+    <h4>📝 Knowledge Check</h4>
+    <div class="quiz-question" data-q="0" data-answer="1">
+      <p><strong>When should the impeller be replaced at the latest?</strong></p>
+      <div class="quiz-opt" data-opt="0">50,000 bends or 6 months</div>
+      <div class="quiz-opt" data-opt="1">100,000 bends or 1 year</div>
+      <div class="quiz-opt" data-opt="2">500,000 bends or 3 years</div>
+      <div class="quiz-opt" data-opt="3">Only when broken</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="maintenance">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= ERRORS ================= -->
+<section id="errors" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 10</div>
+    <h2>Error Codes &amp; <span class="accent">Definitions</span></h2>
+    <p>Search the full sold-out / failure code list by code, name, or content.</p>
+  </div>
+
+  <input type="text" class="search-bar" id="errSearch" placeholder="🔍  Search by code, name, or content…">
+  <div class="filter-chips" id="errChips">
+    <span class="chip active" data-cat="all">All</span>
+    <span class="chip" data-cat="comm">Communication</span>
+    <span class="chip" data-cat="water">Water / Drain</span>
+    <span class="chip" data-cat="sold">Sold-out</span>
+    <span class="chip" data-cat="ice">Ice Maker</span>
+    <span class="chip" data-cat="mech">Mechanism</span>
+    <span class="chip" data-cat="pump">Pump / Motor</span>
+    <span class="chip" data-cat="cms">CMS / Cup</span>
+    <span class="chip" data-cat="sensor">Sensor</span>
+    <span class="chip" data-cat="video">Video</span>
+  </div>
+  <div id="errTableWrap"></div>
+
+  <div class="card quiz" data-quiz="errors">
+    <h4>📝 Knowledge Check</h4>
+    <div class="quiz-question" data-q="0" data-answer="2">
+      <p><strong>Code 0100 "Drain Full" requires what action?</strong></p>
+      <div class="quiz-opt" data-opt="0">Replace the drain bucket</div>
+      <div class="quiz-opt" data-opt="1">Press Food Sanitation Reset</div>
+      <div class="quiz-opt" data-opt="2">Empty the drain bucket; reset dam/full SW</div>
+      <div class="quiz-opt" data-opt="3">Replace the ice maker</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="1" data-answer="1">
+      <p><strong>What does code 0022 indicate?</strong></p>
+      <div class="quiz-opt" data-opt="0">Coin mech error</div>
+      <div class="quiz-opt" data-opt="1">Main–sub controller communication error</div>
+      <div class="quiz-opt" data-opt="2">Ice maker failure</div>
+      <div class="quiz-opt" data-opt="3">Drain full</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="2" data-answer="2">
+      <p><strong>Which code indicates CO₂ gas is empty?</strong></p>
+      <div class="quiz-opt" data-opt="0">0110</div>
+      <div class="quiz-opt" data-opt="1">0201</div>
+      <div class="quiz-opt" data-opt="2">0340</div>
+      <div class="quiz-opt" data-opt="3">0380</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="errors">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= TROUBLESHOOT ================= -->
+<section id="troubleshoot" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 11</div>
+    <h2>Troubleshooting <span class="accent">Scenarios</span></h2>
+    <p>Step-by-step diagnostic checklists for common failure scenarios.</p>
+  </div>
+
+  <div class="acc open">
+    <div class="acc-head">A. Whole machine dead <span class="arrow">▶</span></div>
+    <div class="acc-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Check</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Earth leakage breaker ON?</td><td>Turn ON; check outlet</td></tr>
+            <tr><td>2</td><td>Power lamp burnt?</td><td>Replace</td></tr>
+            <tr><td>3</td><td>Input/output voltage</td><td>No input → cord; no output → replace breaker; OK → noise filter</td></tr>
+            <tr><td>4</td><td>Spout heater hot?</td><td>No → check NFB; yes → check 5A fuse</td></tr>
+            <tr><td>5</td><td>5A fuse blown</td><td>Replace; find root cause</td></tr>
+            <tr><td>6</td><td>PCN4 pin voltage</td><td>No → replace power box</td></tr>
+            <tr><td>7</td><td>MCN4 pin voltage</td><td>No → harness; yes → replace main box</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="acc-head">B. Coin not accepted <span class="arrow">▶</span></div>
+    <div class="acc-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Check</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Mech pilot lamp lit?</td><td>No → harness; OK → replace mech</td></tr>
+            <tr><td>2</td><td>All sold-out?</td><td>Clear cause</td></tr>
+            <tr><td>3</td><td>Mgmt 35 tube = 0?</td><td>Set to ≥1</td></tr>
+            <tr><td>4</td><td>Door switch works?</td><td>No → replace</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="acc-head">C. No water supplied <span class="arrow">▶</span></div>
+    <div class="acc-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Check</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Drain bucket full?</td><td>Empty</td></tr>
+            <tr><td>2</td><td>Dam float works?</td><td>Empty + find leak</td></tr>
+            <tr><td>3</td><td>Reservoir switch</td><td>Check sold-out 0110/0120</td></tr>
+            <tr><td>4</td><td>Supply solenoid operates?</td><td>Mgmt 82: VS1–VS3. Reservoir = VS1+VS3</td></tr>
+            <tr><td>5</td><td>Solenoid clogged</td><td>Clean</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="acc-head">D. Hot water not boiling <span class="arrow">▶</span></div>
+    <div class="acc-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Check</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Reservoir water present?</td><td>Supply</td></tr>
+            <tr><td>2</td><td>Food-sanitation hold ON?</td><td>Press reset</td></tr>
+            <tr><td>3</td><td>U/D indicator</td><td>No U/D → check code 0910 / timer 80</td></tr>
+            <tr><td>4</td><td>Limiter tripped?</td><td>Reset</td></tr>
+            <tr><td>5</td><td>Heater 100V?</td><td>No → wiring; yes → replace heater</td></tr>
+            <tr><td>6</td><td>Power box PCN5/PCN6/PCN1</td><td>100V → check thermal fuse + wiring</td></tr>
+            <tr><td>7</td><td>Power box PCN4/PCN3</td><td>U=8V, D=24V → replace power box</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="acc-head">E. Water tank not cooling <span class="arrow">▶</span></div>
+    <div class="acc-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Check</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Water in tank?</td><td>Supply</td></tr>
+            <tr><td>2</td><td>B/I indicator</td><td>Food-sanitation reset (0140)</td></tr>
+            <tr><td>3</td><td>Mgmt 62 Th7 temp</td><td>≥10°C wait; no change → next</td></tr>
+            <tr><td>4</td><td>Ice present?</td><td>Yes → step 8; no → next</td></tr>
+            <tr><td>5</td><td>Condenser + comp running?</td><td>Only comp → step 5</td></tr>
+            <tr><td>6</td><td>Comp OL / start relay / cap</td><td>Abnormal → repair</td></tr>
+            <tr><td>7</td><td>Power box PCN5/PCN6</td><td>100V → check harness</td></tr>
+            <tr><td>8</td><td>Power box PCN4/PCN3</td><td>24V → replace power box</td></tr>
+            <tr><td>9</td><td>Sub box SCN13</td><td>24V → check signal relay harness</td></tr>
+            <tr><td>10</td><td>Mgmt 82 RYVB</td><td>Operates → refrigerant clog</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="acc-head">F. Ice not made <span class="arrow">▶</span></div>
+    <div class="acc-body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Check</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Code 0380 displayed?</td><td>Yes → step 3</td></tr>
+            <tr><td>2</td><td>Reservoir water?</td><td>Supply</td></tr>
+            <tr><td>3</td><td>"I" indicator</td><td>0380 → reset auger OL</td></tr>
+            <tr><td>4</td><td>Condenser / comp running?</td><td>Same as E-4/5/6</td></tr>
+            <tr><td>5</td><td>Power box PCN5/PCN6</td><td>100V → check harness</td></tr>
+            <tr><td>6</td><td>Power box PCN4/PCN3</td><td>24V → replace power box</td></tr>
+            <tr><td>7</td><td>Sub box SCN13</td><td>24V → check harness</td></tr>
+            <tr><td>8</td><td>Code 0022?</td><td>No → replace sub box</td></tr>
+            <tr><td>9</td><td>Mgmt 82 RYVI</td><td>Operates → refrigerant clog</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <h3>🎯 Scenario Quiz</h3>
+  <div class="card quiz" data-quiz="troubleshoot">
+    <div class="quiz-question" data-q="0" data-answer="1">
+      <p><strong>Machine displays code 0100 (Drain Full). What is your FIRST action?</strong></p>
+      <div class="quiz-opt" data-opt="0">Replace the drain bucket switch</div>
+      <div class="quiz-opt" data-opt="1">Empty the drain bucket and check the dam float</div>
+      <div class="quiz-opt" data-opt="2">Reset the earth leakage breaker</div>
+      <div class="quiz-opt" data-opt="3">Replace the compressor</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="1" data-answer="2">
+      <p><strong>Hot water is not boiling and U/D indicators are off. What could be wrong?</strong></p>
+      <div class="quiz-opt" data-opt="0">Coffee mill is clogged</div>
+      <div class="quiz-opt" data-opt="1">Cup mechanism is broken</div>
+      <div class="quiz-opt" data-opt="2">Water outage timer active (code 0910) or timer 80 set</div>
+      <div class="quiz-opt" data-opt="3">Syrup pump failure</div>
+      <div class="quiz-feedback"></div>
+    </div>
+    <div class="quiz-question" data-q="2" data-answer="0">
+      <p><strong>Coins are not accepted. The mech pilot lamp is OFF. FIRST thing to check?</strong></p>
+      <div class="quiz-opt" data-opt="0">Harness to the coin mech</div>
+      <div class="quiz-opt" data-opt="1">Replace the bill validator</div>
+      <div class="quiz-opt" data-opt="2">Replace the main box</div>
+      <div class="quiz-opt" data-opt="3">Check the ice maker</div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="troubleshoot">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ================= EXAM ================= -->
+<section id="exam" class="section">
+  <div class="hero">
+    <div class="eyebrow">Module 12</div>
+    <h2>Certification <span class="accent">Exam</span></h2>
+    <p>Complete all 11 modules to unlock the final exam. Score 80% or higher to earn certification.</p>
+  </div>
+
+  <div id="examStatus" class="card info"></div>
+
+  <div id="examContainer" style="display:none;">
+    <div class="score-panel">
+      <div class="lbl">Current Score</div>
+      <div class="big" id="examScore">0%</div>
+      <div style="font-size:.8rem; color:var(--muted);" id="examProgress">0 / 15 answered</div>
+    </div>
+    <div id="examQuestions"></div>
+    <div style="margin-top:20px;">
+      <button class="btn" id="submitExam">Submit Exam</button>
+      <button class="btn ghost" id="resetExam">Reset</button>
+    </div>
+    <div id="examResult" style="margin-top:16px;"></div>
+  </div>
+
+  <div class="card warn" id="examLocked">
+    <h4>🔒 Exam Locked</h4>
+    <p>Complete all modules before taking the exam. Return to each section and click "Mark Module Complete".</p>
+  </div>
+
+  <div class="complete-wrap"><button class="btn grn" data-complete="exam">✓ Mark Module Complete</button></div>
+</section>
+
+</main>
+
+<button class="back-top" id="backTop">↑</button>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   THEME
+============================================================ */
+const themeToggle = document.getElementById('themeToggle');
+const savedTheme = localStorage.getItem('apex_theme') || 'dark';
+if(savedTheme === 'light') document.body.classList.add('light');
+themeToggle.textContent = document.body.classList.contains('light') ? '☀️' : '🌙';
+themeToggle.addEventListener('click', ()=>{
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  themeToggle.textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('apex_theme', isLight ? 'light' : 'dark');
+});
+
+/* ============================================================
+   STATE
+============================================================ */
+const STORAGE_KEY = 'apex_qv_training_v3';
+let state = {
+  completedModules: [],
+  keysExplored: [],
+  seqCorrect: {},
+  examAnswers: {}
+};
+try{
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if(saved) state = Object.assign(state, JSON.parse(saved));
+}catch(e){}
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+
+function toast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+const navLinks = document.querySelectorAll('#nav a');
+const sections = document.querySelectorAll('.section');
+const sidebar = document.getElementById('sidebar');
+document.getElementById('menuToggle').addEventListener('click', ()=>sidebar.classList.toggle('open'));
+
+navLinks.forEach(link=>{
+  link.addEventListener('click', e=>{
+    e.preventDefault();
+    const target = link.dataset.target;
+    navLinks.forEach(l=>l.classList.remove('active'));
+    link.classList.add('active');
+    sections.forEach(s=>s.classList.toggle('active', s.id===target));
+    window.scrollTo({top:0, behavior:'smooth'});
+    if(window.innerWidth<=900) sidebar.classList.remove('open');
+    updateExamLock();
+  });
+});
+
+/* ============================================================
+   PROGRESS
+============================================================ */
+const ALL_MODULES = ['overview','safety','install','operation','keypad','testguide','simulator','cleaning','maintenance','errors','troubleshoot','exam'];
+
+function updateProgress(){
+  const done = state.completedModules.length;
+  const total = ALL_MODULES.length;
+  document.getElementById('progressFill').style.width = (done/total*100) + '%';
+  document.getElementById('progressText').textContent = `${done} / ${total} modules completed`;
+  document.querySelectorAll('#nav a').forEach(a=>{
+    a.classList.toggle('done', state.completedModules.includes(a.dataset.target));
+  });
+  updateExamLock();
+}
+
+document.querySelectorAll('[data-complete]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const mod = btn.dataset.complete;
+    if(!state.completedModules.includes(mod)){
+      state.completedModules.push(mod);
+      saveState();
+      updateProgress();
+      toast('✓ Module complete!');
+    }else{
+      toast('Already complete', 'warn');
+    }
+  });
+});
+
+/* ============================================================
+   ACCORDIONS
+============================================================ */
+document.querySelectorAll('.acc-head').forEach(h=>{
+  h.addEventListener('click', ()=>h.parentElement.classList.toggle('open'));
+});
+
+/* ============================================================
+   CHECKLISTS
+============================================================ */
+document.querySelectorAll('.chk-list li').forEach(li=>{
+  li.addEventListener('click', ()=>li.classList.toggle('checked'));
+});
+const startupList = document.querySelector('[data-checklist="startup"]');
+if(startupList){
+  startupList.querySelectorAll('li').forEach(li=>{
+    li.addEventListener('click', ()=>{
+      const total = startupList.querySelectorAll('li').length;
+      const done = startupList.querySelectorAll('li.checked').length;
+      document.getElementById('startupProgress').textContent = `${done} / ${total} steps complete`;
+    });
+  });
+}
+
+/* ============================================================
+   QUIZZES
+============================================================ */
+document.querySelectorAll('.quiz-question').forEach(q=>{
+  const answer = parseInt(q.dataset.answer);
+  const opts = q.querySelectorAll('.quiz-opt');
+  const fb = q.querySelector('.quiz-feedback');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(opt.classList.contains('disabled')) return;
+      const picked = parseInt(opt.dataset.opt);
+      opts.forEach(o=>{
+        o.classList.remove('selected','correct','wrong');
+        o.classList.add('disabled');
+        const p = parseInt(o.dataset.opt);
+        if(p === answer) o.classList.add('correct');
+        else if(p === picked) o.classList.add('wrong');
+      });
+      if(picked === answer){
+        fb.className = 'quiz-feedback show ok';
+        fb.innerHTML = '✓ Correct!';
+      }else{
+        fb.className = 'quiz-feedback show bad';
+        fb.innerHTML = '✗ Incorrect — review the section and try again.';
+      }
+    });
+  });
+});
+
+/* ============================================================
+   KEYPAD NAVIGATION
+============================================================ */
+const kp = { mode: 'standby', buffer: '', subIdx: 0, currentItem: null };
+
+const MENUS = {
+  standby: {
+    title: 'STANDBY',
+    help: `<h5>Standby Mode</h5><p>The machine is idle. Press any function key to begin.</p>
+      <h5>Available Function Keys</h5>
+      <ul>
+        <li><span class="kbd">Management</span> — 2-digit code entry</li>
+        <li><span class="kbd">Timer</span> — clock and energy-saving timers</li>
+        <li><span class="kbd">Slow / Test</span> — flavor data, prices, product test</li>
+        <li><span class="kbd">Service</span> — cleaning sub-menu</li>
+        <li><span class="kbd">QC Work</span> — chemical cleaning</li>
+        <li><span class="kbd">Operation Test</span> — component test sub-menu</li>
+        <li><span class="kbd">Syrup</span> — BIB / syrup screens</li>
+        <li><span class="kbd">Cup</span> — cup discharge test</li>
+      </ul>`
+  },
+  management: {
+    title: 'MANAGEMENT',
+    codeLen: 2,
+    help: `<h5>Management Mode</h5><p>Type a 2-digit code and press <span class="kbd">Set</span>. Press <span class="kbd">Correct</span> to backspace.</p>
+      <h5>Common Codes</h5>
+      <ul>
+        <li>01 — Model code / Unified serial</li>
+        <li>10 — Total paid counter</li>
+        <li>35 — Coin mech tube set count</li>
+        <li>36 — Change adjustment mode</li>
+        <li>38 — Refund operation</li>
+        <li>51 — Reference amount setting</li>
+        <li>60 — Operation pattern</li>
+        <li>63/64 — Hot water / sold-out temp</li>
+        <li>68 — Timing setting</li>
+        <li>70 — Switching settings</li>
+        <li>80 — Input signal check</li>
+        <li>82 — Output signal check</li>
+        <li>90/91 — Memory card out / in</li>
+        <li>97/98/99 — Printer / Group / ROM</li>
+      </ul>`,
+    items: {
+      '01': { name: 'Model Code / Unified Serial Number', detail: 'Displays model code (ROM-fixed) and 8-digit unified serial number. Serial can be entered only once with tenkey; after that only master card.' },
+      '10': { name: 'Total Paid Counter / Test Counter', detail: 'Cumulative paid sales and test sales counters. Confirmation only.' },
+      '11': { name: 'Selling Price-Specific Coin Counter', detail: 'Coin sales by S1 (high) → S10 (low). Confirmation only.' },
+      '12': { name: 'Selling Price-Specific Credit Counter', detail: 'Paid free bend, ID card, key card sales by K1 → K10.' },
+      '13': { name: 'Selling Price-Specific Card Counter', detail: 'Prepaid card sales by C1 → C10.' },
+      '14': { name: 'Group-Specific Counter', detail: 'Sales count and amount per group (Mgmt 98).' },
+      '15': { name: 'Flavor-Specific Paid Counter', detail: 'Cumulative per-flavor counter.' },
+      '16': { name: 'Game Hit Refund Counter', detail: 'Total and price-specific game refund counter.' },
+      '18': { name: 'Time Zone-Specific Paid Counter', detail: 'Hourly cumulative counter.' },
+      '19': { name: 'Day of Week-Specific Paid Counter', detail: 'Daily cumulative counter.' },
+      '20': { name: 'Selection-Specific F Code Confirmation', detail: 'Shows F code for each selection. Use Product Selling Price key to change.' },
+      '21': { name: 'Selection-Specific Flavor Counter Confirm', detail: 'Shows which selection button maps to each flavor card.' },
+      '28': { name: 'Research Counter Setting', detail: 'Sales counter setting for a specified flavor within a period. Ct1 → Ct10.' },
+      '29': { name: 'Research Counter Confirmation', detail: 'Shows results of the research period. Press Select + "1" + Set + Operation to clear.' },
+      '30': { name: 'Sales Stagnation Time', detail: 'Cumulative time unable to sell due to sold-out. Last month + current month. Unit = minutes.' },
+      '31': { name: 'Sold-out/Failure Code Start-End Time', detail: 'Latest 10 events with start/end time.' },
+      '32': { name: 'Maintenance Time', detail: 'Last 5 door-open times.' },
+      '34': { name: 'Denomination-Specific Management Count', detail: 'Inserted (IN) and paid out (OUT) coins by denomination.' },
+      '35': { name: 'Coin Mech Tube Internal Set Count', detail: 'Set remaining amount and change set count. "Change set" ≤ "Remaining amount".' },
+      '36': { name: 'Change Adjustment Mode', detail: '0 = No, 1 = Yes. Enables auto change adjustment feature.' },
+      '37': { name: 'Failure / Power Outage Inserted Amount', detail: 'Temporarily stores inserted amount during power loss. Press Select to reset.' },
+      '38': { name: 'Refund Operation', detail: 'Shows latest 5 refunds with reason code, selection, amount, date/time.' },
+      '40': { name: 'Video Device Setting', detail: 'Standby screens 1–5 pattern, process screens 1–2, video OFF time (1–99 min).' },
+      '41': { name: 'Video F Code Assignment', detail: 'Assign F codes to video screens NO1 → NO20.' },
+      '51': { name: 'Reference Amount Setting', detail: 'Discharge + measure each ingredient, then input value. Press Operation to discharge. Adjust cold water FIRST.', submenu: ['Beans1','Beans2','Beans3','Coffee1','Coffee2','Cream','Sugar','MIX2','MIX3','MIX4','MIX5','MIX6','MIX7','SY1','SY2','SY3','SY4','VH1','VH2','VH3','VC1','VCO','Ice','FLT1'] },
+      '60': { name: 'Operation Pattern Setting', detail: 'Set 4 seasonal patterns per month. 0=Normal, 1=Water tank energy saving, 2=Peak shift/cut, 3=Water tank priority.' },
+      '61': { name: 'Coin Mech / Magnetic Card Setting', detail: 'Control switching, card price, card+coin, 0-yen card, key card issue year, test card registration, invalid card registration.' },
+      '62': { name: 'Temperature Information', detail: 'Displays temperature from all sensors Th1 → Th8. Confirmation only.' },
+      '63': { name: 'Hot Water Temp Control Setting', detail: 'Range 90–99°C. ROM = 93°C (QV), 97°C (QVR). Unit = 1°C.' },
+      '64': { name: 'Sold-out Temperature Setting', detail: 'Regular + instant systems. Range 65–90°C. Use regular ≥85°C for food sanitation.' },
+      '65': { name: 'Free Bend Setting', detail: 'Select free bend, free/paid type, timer switching, period, cup count. "***" = unlimited.' },
+      '68': { name: 'Timing Setting', detail: 'Panel light-off, cup removal forget, mill operation timing, mill operation time, brewer start A/B, sales outlet close timing.' },
+      '70': { name: 'Switching Settings', detail: 'G setting, food sanitation, CO₂ pressure switch, CdS sensor, my cup mode, coin discount, product temp, function post-press, memory card, water tank auto supply, sales timer lamp, refund processing, panel light-off APi, cold water high temp, fluorescent dimming, test bend cup, ingredient pre-discharge.' },
+      '72': { name: 'Correction', detail: 'Energy saving switching (0–30 cups) and drying correction (sales interval + hot water correction).' },
+      '73': { name: 'Rinse Amount Setting', detail: 'Manual / door open / auto sanitation items. Timer settings for door open + cup external impeller. Rinse amount (0–990 cc).' },
+      '80': { name: 'Input Signal Check', detail: 'Displays each signal: ○ active, × inactive, - indefinite. Use to verify switches and sensors.' },
+      '82': { name: 'Output Signal Check', detail: 'Individual load test. All loads stop first. Press Operation to run selected load for specified time or 1 cycle.', submenu: ['38 Fan3','39 GK1','40 GK2','41 GK3','42 Mill M','43 BRHT','46 Chii1','47 Chii2','48 RYVI','49 RYVB','51 Sign','52 Chii3','53 Chii4','54 Chii5','55 Door Test','56 X-Y Test','57 Cup Test','58 Chute Test','59 Kakuhan','60 Kasei','61 Chosei'] },
+      '83': { name: 'Selling Price Confirmation (by Selection)', detail: 'Press selection button to see its price on amount display. APi lights.' },
+      '84': { name: 'Selling Price Confirmation (by Price)', detail: 'Select S1–S10 / C1–C10 with select key, press Operation to see which selections use that price.' },
+      '90': { name: 'Output to Memory Card', detail: 'Insert card → input area No. → Operation. Master No.01–10, Setup No.01–23.' },
+      '91': { name: 'Input from Memory Card', detail: 'Insert card → input area No. → Set → input unified serial number → Operation.' },
+      '97': { name: 'Printer Push Button Setting', detail: 'Set print mode (1–5), print content (0–2), print type (0–1) for each of 2 push buttons.' },
+      '98': { name: 'Group Setting', detail: 'Set up to 20 groups, 104 flavors each. Counter processing per group.' },
+      '99': { name: 'ROM Version', detail: 'Displays installed ROM version: main / sub / CMS / IC button sleeve.' }
+    }
+  },
+  timer: {
+    title: 'TIMER',
+    codeLen: 2,
+    help: `<h5>Timer Mode</h5><p>Type a 2-digit code and press <span class="kbd">Set</span>.</p>
+      <ul>
+        <li>00 — Current time</li>
+        <li>10 — Auto sanitation</li>
+        <li>15 — Auto brewer rinse</li>
+        <li>17 — Auto alcohol spray</li>
+        <li>20 — Fluorescent lamp energy saving</li>
+        <li>25 — Anti-theft change-shortage lamp</li>
+        <li>30 — Video device control</li>
+        <li>40 — Energy saving operation</li>
+        <li>70 — Sales timer</li>
+        <li>80 — Water outage timer</li>
+        <li>90 — Auger motor interval / time</li>
+      </ul>`,
+    items: {
+      '00': { name: 'Current Time', detail: 'Set year, month, day, hour, minute. Day of week is set automatically.' },
+      '10': { name: 'Auto Sanitation Operation Time', detail: 'Set start time per day of week. All days batch setting also possible.' },
+      '15': { name: 'Auto Brewer Rinse Operation Time', detail: 'Set brewer rinse start time per day of week.' },
+      '17': { name: 'Auto Alcohol Spray Operation Time', detail: 'Set alcohol spray start time per day of week. Stops during other cleaning operations.' },
+      '20': { name: 'Fluorescent Lamp Energy Saving', detail: 'Set light-off start and end times hourly per day of week. 00=always off, 24=always on.' },
+      '25': { name: 'Anti-Theft Change-Shortage Lamp', detail: 'Set forced light-on times for change shortage lamp per day of week.' },
+      '30': { name: 'Video Device Control', detail: '0 = Normal, 1 = Sound OFF, 2 = Video & sound OFF. Per day of week, hourly.' },
+      '40': { name: 'Energy Saving Operation Control', detail: 'Set hot water tank heater energy saving time per day of week. 4 digits: start + end.' },
+      '70': { name: 'Sales Timer', detail: 'Set sales-permitted time zone. Up to 8 patterns per day, per day of week, hourly/minute.' },
+      '80': { name: 'Water Outage Timer', detail: 'Set time zone to forcibly stop water supply solenoid and ice maker. 2 settings per day, hourly.' },
+      '90': { name: 'Auger Motor Operation Interval & Time', detail: 'Prevents ice freezing in stocker. Interval in minutes, time in seconds. "00" or "**" = no operation.' }
+    }
+  },
+  slow: {
+    title: 'SLOW / TEST',
+    codeLen: 2,
+    help: `<h5>Slow / Test Mode</h5><p>Type a 2-digit code and press <span class="kbd">Set</span>.</p>
+      <ul>
+        <li>00 — All-selection test bend</li>
+        <li>01–44 — Flavor test bend</li>
+        <li>99 — Function increase / decrease setting</li>
+      </ul>`,
+    items: {
+      '00': { name: 'All-Selection Test Bend', detail: 'Press a selection button to perform product test sale.' },
+      '99': { name: 'Function Increase / Decrease Setting', detail: 'Set increase/decrease amount per function group. Beans/coffee/cream/sugar = 0.1 g; hot water = 1 cc.' }
+    }
+  },
+  service: {
+    title: 'SERVICE',
+    help: `<h5>Service Sub-Menu</h5><p>Use <span class="kbd">▲</span> / <span class="kbd">▼</span> to navigate. Press <span class="kbd">Operation</span> to execute.</p>`,
+    submenu: [
+      { name: 'Sanitation', detail: 'Reservoir drain → brewer rinse → impeller rinse → cold water → carbonated water → alcohol spray.' },
+      { name: 'Impeller Rinse', detail: 'Lowers impeller and discharges hot water to clean.' },
+      { name: 'Water Drain', detail: 'Stops water supply and drains water reservoir + ice maker water line.' },
+      { name: 'Brewer Rinse', detail: 'Hot water only, full extraction cycle (includes reverse).' },
+      { name: 'Paper Set', detail: 'Stops brewer at paper-set position, then returns to standby.' },
+      { name: 'Alcohol', detail: 'Alcohol wash of impeller and CST.' }
+    ]
+  },
+  qc: {
+    title: 'QC WORK',
+    help: `<h5>QC Work Sub-Menu</h5><p>Use <span class="kbd">▲</span> / <span class="kbd">▼</span>, then <span class="kbd">Operation</span> to run.</p>`,
+    submenu: [
+      { name: 'QC', detail: 'Chemical sanitation of water circuit (excl. syrup + hot water lines). Follow on-screen prompts. Ice maker forced OFF.' },
+      { name: 'QC Brewer', detail: 'Chemical cleaning of coffee brewer and beverage passage.' },
+      { name: 'Forced Water Supply', detail: 'Forces VS1+VS2 ON, VS3 OFF regardless of reservoir level. Press Operation again or Complete to stop.' }
+    ]
+  },
+  optest: {
+    title: 'OPERATION TEST',
+    help: `<h5>Operation Test Sub-Menu</h5><p>Use <span class="kbd">▲</span> / <span class="kbd">▼</span>, then <span class="kbd">Operation</span> to run.</p>`,
+    submenu: [
+      { name: 'CMS Test', detail: 'Sub-menu: Sensor, Door, X-Y, Cup, Chute, Stirring, Correction, Adjustment.' },
+      { name: 'Hot Water Continuous', detail: 'Continuous hot water discharge. 40 s max, press Operation again to stop.' },
+      { name: 'Ice Continuous', detail: 'Continuous ice discharge. Press Operation to stop.' },
+      { name: 'Carbonated Discharge', detail: 'Continuous carbonated water discharge (no carbonation). 40 s max.' },
+      { name: 'Carbonated Continuous', detail: 'Continuous carbonated water. 40 s max.' },
+      { name: 'Cold Water Continuous', detail: 'Continuous cold water discharge. 40 s max.' },
+      { name: 'RC Brewer', detail: 'Runs brewer 1 cycle.' },
+      { name: 'Mill', detail: 'Runs mill while Operation held, stops on release.' }
+    ]
+  },
+  syrup: {
+    title: 'SYRUP',
+    help: `<h5>Syrup Screens</h5><p>Use <span class="kbd">▲</span> / <span class="kbd">▼</span> to navigate the 5 screens.</p>`,
+    submenu: [
+      { name: 'Remaining Amount per BIB', detail: 'Displays remaining amount (cc) per BIB. Select + Set + Operation to reset.' },
+      { name: 'Continuous Discharge Test', detail: 'Select syrup number, press Operation. 20 s max.' },
+      { name: 'Bag Setting', detail: '1 = 1 bag, 2 = 2 bags, 3 = 2.5-gal bag. Select + Set.' },
+      { name: 'Full Amount Setting', detail: '0–9999 cc. Select + Set to change.' },
+      { name: 'Sold-out Amount Setting', detail: '0–999 cc. Select + Set to change.' }
+    ]
+  },
+  cup: {
+    title: 'CUP TEST',
+    help: `<h5>Cup Test</h5><p>Select CUP1 or CUP2, then press <span class="kbd">Operation</span> to discharge.</p>`,
+    submenu: [
+      { name: 'CUP1 (Rear — 9 oz)', detail: 'Discharges one cup from the rear ring (standard: 9 oz).' },
+      { name: 'CUP2 (Front — 12 oz)', detail: 'Discharges one cup from the front ring (standard: 12 oz).' }
+    ]
+  }
+};
+
+const kpDetail = document.getElementById('kpDetail');
+const lcdLine1 = document.getElementById('lcdLine1');
+const lcdLine2 = document.getElementById('lcdLine2');
+const lcd = document.getElementById('lcd');
+const allKeys = document.querySelectorAll('.kp-btn');
+
+function renderLCD(){
+  const menu = MENUS[kp.mode];
+  if(kp.mode === 'standby'){
+    lcdLine1.textContent = 'LCD 40 × 2  —  STANDBY';
+    lcdLine2.innerHTML = 'Press a function key… <span class="lcd-cursor">▊</span>';
+    return;
+  }
+  if(menu.codeLen){
+    lcdLine1.textContent = `[${menu.title}]  ENTER ${menu.codeLen}-DIGIT CODE`;
+    if(kp.buffer.length === 0){
+      lcdLine2.innerHTML = 'Code: _ _ <span class="lcd-cursor">▊</span>';
+    }else{
+      const padded = kp.buffer.padEnd(menu.codeLen, '_').split('').join(' ');
+      lcdLine2.innerHTML = `Code: ${padded} <span class="lcd-cursor">▊</span>`;
+    }
+    return;
+  }
+  if(menu.submenu){
+    const item = menu.submenu[kp.subIdx];
+    lcdLine1.textContent = `[${menu.title}]  ${kp.subIdx + 1} / ${menu.submenu.length}`;
+    lcdLine2.textContent = `► ${item.name}`;
+    return;
+  }
+  lcdLine1.textContent = `[${menu.title}]`;
+  lcdLine2.textContent = 'Ready';
+}
+
+function renderDetail(){
+  const menu = MENUS[kp.mode];
+  if(kp.currentItem){
+    const item = kp.currentItem;
+    let submenuHtml = '';
+    if(item.submenu){
+      submenuHtml = `<h5>Sub-Items</h5><div class="menu-tree">` +
+        item.submenu.map((s, i) => `<div class="menu-item ${i === kp.subIdx ? 'active' : ''}"><span class="code">${String(i+1).padStart(2,'0')}</span>${s}</div>`).join('') +
+        `</div><p style="font-size:.78rem; color:var(--muted);">Use <span class="kbd">▲</span> / <span class="kbd">▼</span> to browse. <span class="kbd">Complete</span> to exit.</p>`;
+    }
+    kpDetail.innerHTML = `
+      <h4>${item.name}</h4>
+      <div class="sub">${menu.title} — Item selected</div>
+      <div class="detail-body">
+        <p>${item.detail}</p>
+        ${submenuHtml}
+        <h5>Available Actions</h5>
+        <ul>
+          <li><span class="kbd">▲</span> / <span class="kbd">▼</span> — Browse items</li>
+          <li><span class="kbd">Operation</span> — Execute / confirm</li>
+          <li><span class="kbd">Correct</span> — Return to code entry</li>
+          <li><span class="kbd">Complete</span> — Exit to standby</li>
+        </ul>
+      </div>`;
+    return;
+  }
+  if(menu.submenu){
+    const item = menu.submenu[kp.subIdx];
+    kpDetail.innerHTML = `
+      <h4>${item.name}</h4>
+      <div class="sub">${menu.title} — ${kp.subIdx + 1} of ${menu.submenu.length}</div>
+      <div class="detail-body">
+        <p>${item.detail}</p>
+        <h5>Sub-Menu Contents</h5>
+        <div class="menu-tree">
+          ${menu.submenu.map((s, i) => `<div class="menu-item ${i === kp.subIdx ? 'active' : ''}">${s.name}</div>`).join('')}
+        </div>
+        <h5>How to Operate</h5>
+        <div class="seq">▲/▼ navigate → Operation to run → Complete to exit</div>
+      </div>`;
+    return;
+  }
+  kpDetail.innerHTML = `
+    <h4>${menu.title}</h4>
+    <div class="sub">Interactive Menu</div>
+    <div class="detail-body">${menu.help}</div>`;
+}
+
+function pressKey(key){
+  if(key === 'complete'){
+    kp.mode = 'standby'; kp.buffer = ''; kp.subIdx = 0; kp.currentItem = null;
+    renderLCD(); renderDetail();
+    return;
+  }
+  if(key === 'correct'){
+    if(kp.buffer.length > 0) kp.buffer = kp.buffer.slice(0, -1);
+    else if(kp.currentItem){ kp.currentItem = null; kp.subIdx = 0; }
+    else if(kp.mode !== 'standby'){ kp.mode = 'standby'; kp.subIdx = 0; }
+    renderLCD(); renderDetail();
+    return;
+  }
+  if(key === 'fwd' || key === 'rev'){
+    const dir = key === 'fwd' ? 1 : -1;
+    if(kp.currentItem && kp.currentItem.submenu){
+      kp.subIdx = (kp.subIdx + dir + kp.currentItem.submenu.length) % kp.currentItem.submenu.length;
+    }else if(MENUS[kp.mode].submenu){
+      const len = MENUS[kp.mode].submenu.length;
+      kp.subIdx = (kp.subIdx + dir + len) % len;
+    }
+    renderLCD(); renderDetail();
+    return;
+  }
+  const modeMap = { mgmt: 'management', timer: 'timer', slow: 'slow', service: 'service', qc: 'qc', optest: 'optest', syrup: 'syrup', cup: 'cup' };
+  if(modeMap[key]){
+    kp.mode = modeMap[key]; kp.buffer = ''; kp.subIdx = 0; kp.currentItem = null;
+    renderLCD(); renderDetail();
+    return;
+  }
+  if(/^[0-9]$/.test(key)){
+    if(MENUS[kp.mode].codeLen && !kp.currentItem){
+      if(kp.buffer.length < MENUS[kp.mode].codeLen) kp.buffer += key;
+    }
+    renderLCD(); renderDetail();
+    return;
+  }
+  if(key === 'set' || key === 'set2' || key === 'operation'){
+    if(MENUS[kp.mode].codeLen && kp.buffer.length === MENUS[kp.mode].codeLen && !kp.currentItem){
+      const item = MENUS[kp.mode].items && MENUS[kp.mode].items[kp.buffer];
+      if(item){ kp.currentItem = item; kp.subIdx = 0; }
+      else { toast(`Code ${kp.buffer} not found in ${MENUS[kp.mode].title}`, 'warn'); }
+      renderLCD(); renderDetail();
+      return;
+    }
+    if(MENUS[kp.mode].submenu){
+      const item = MENUS[kp.mode].submenu[kp.subIdx];
+      toast(`▶ Executing: ${item.name}`);
+      renderLCD(); renderDetail();
+      return;
+    }
+    if(kp.currentItem){
+      toast(`▶ Executing: ${kp.currentItem.name}`);
+      return;
+    }
+  }
+  const otherInfo = {
+    soldout: { title: 'Sold-out Monitor', body: 'Press to display list of active sold-out items (up to 4 per screen, oldest first). Press again or ▲ for next screen. Max 10 screens. Complete to exit.' },
+    okmon: { title: 'OK Monitor', body: 'Press to view predictive failure items. 4 per screen. Complete clears current screen.' },
+    refund: { title: 'Refund Monitor', body: 'Press to view last 5 refund records (reason code, selection, amount, date/time).' },
+    tenkey: { title: 'Numeric Keypad', body: 'Use 0–9 to enter codes, prices, quantities. Star (*) toggles valid/invalid and changes sign in correction screens.' },
+    salesticket: { title: 'Sales Ticket', body: 'Total counter, coin (S1–S10), card (C1–C10), prepaid+card (P1–P10), credit (K1–K10), test counter.' },
+    changeset: { title: 'Change Set', body: 'Coin payout and automatic change adjustment. Requires Management 36 = 1 (ON).' },
+    product: { title: 'Product Selling Price', body: 'Menu-driven product switching: 1) Selection F code → 2) Reference amount → 3) Slow setting.' },
+    avgcup: { title: 'Average Cup', body: 'Displays average cups/day and maximum cups/day (7-day rolling).' },
+    ranking: { title: 'Ingredient Ranking', body: 'Shows average energization count per ingredient, ranked.' },
+    foodsan: { title: 'Food Sanitation Reset', body: 'Releases food-sanitation hold. Hold conditions: hot water ≤63.5°C, cold water ≥10°C.' },
+    star: { title: '* (Star)', body: 'Toggle timer valid/invalid, management data switching, unlimited data input, or change +/- sign in correction screens.' },
+    pack: { title: 'Pack', body: 'Valid only when Flavia pack system is installed. Not used on APEX QV series.' }
+  };
+  if(otherInfo[key]){
+    const info = otherInfo[key];
+    kpDetail.innerHTML = `
+      <h4>${info.title}</h4>
+      <div class="sub">Direct Function Key</div>
+      <div class="detail-body"><p>${info.body}</p></div>`;
+    toast(`ℹ ${info.title}`, 'info');
+  }
+}
+
+allKeys.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    allKeys.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    pressKey(btn.dataset.key);
+    if(!state.keysExplored.includes(btn.dataset.key)){
+      state.keysExplored.push(btn.dataset.key);
+      saveState();
+    }
+  });
+});
+
+renderLCD();
+renderDetail();
+
+/* ============================================================
+   SEQUENCE BUILDER
+============================================================ */
+document.querySelectorAll('.seq-builder').forEach(builder=>{
+  const slots = builder.querySelector('.seq-slots');
+  const chips = builder.querySelectorAll('.seq-chip');
+  chips.forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      if(chip.classList.contains('used')) return;
+      const slot = document.createElement('div');
+      slot.className = 'seq-slot';
+      slot.textContent = chip.dataset.val;
+      slot.dataset.val = chip.dataset.val;
+      slot.title = 'Click to remove';
+      slot.addEventListener('click', ()=>{
+        slot.remove();
+        chip.classList.remove('used');
+      });
+      slots.appendChild(slot);
+      chip.classList.add('used');
+    });
+  });
+});
+
+document.querySelectorAll('[data-check-seq]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.dataset.checkSeq;
+    const builder = document.querySelector(`.seq-builder[data-seq="${id}"]`);
+    const expected = builder.dataset.answer.split(',');
+    const userSeq = Array.from(builder.querySelectorAll('.seq-slot')).map(s=>s.dataset.val);
+    const fb = builder.querySelector('.quiz-feedback');
+    if(userSeq.length !== expected.length){
+      fb.className = 'quiz-feedback show bad';
+      fb.textContent = '✗ Sequence incomplete. Keep adding steps.';
+      return;
+    }
+    const correct = userSeq.every((v,i)=>v===expected[i]);
+    if(correct){
+      fb.className = 'quiz-feedback show ok';
+      fb.textContent = '✓ Correct sequence!';
+      state.seqCorrect[id] = true;
+      saveState();
+    }else{
+      fb.className = 'quiz-feedback show bad';
+      fb.textContent = '✗ Not quite. Expected: ' + expected.join(' → ');
+    }
+  });
+});
+
+document.querySelectorAll('[data-reset-seq]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const id = btn.dataset.resetSeq;
+    const builder = document.querySelector(`.seq-builder[data-seq="${id}"]`);
+    builder.querySelector('.seq-slots').innerHTML = '';
+    builder.querySelectorAll('.seq-chip').forEach(c=>c.classList.remove('used'));
+    const fb = builder.querySelector('.quiz-feedback');
+    fb.className = 'quiz-feedback'; fb.textContent = '';
+  });
+});
+
+/* ============================================================
+   SIMULATOR
+============================================================ */
+const simTasks = [
+  { id:1, task:'Enter Output Signal Check (Management 82)', answer:['Management','8','2','Set'] },
+  { id:2, task:'Set current time (Timer 00)', answer:['Timer','0','0','Set'] },
+  { id:3, task:'Run Sanitation (Service → Sanitation)', answer:['Service','Sanitation','Operation'] },
+  { id:4, task:'Discharge Ice Continuously', answer:['Operation Test','Ice Continuous','Operation'] },
+  { id:5, task:'Check Syrup Remaining Amount', answer:['Syrup','Set'] },
+  { id:6, task:'Enter Reference Amount Setting (Mgmt 51)', answer:['Management','5','1','Set'] }
+];
+let simState = { currentIdx: 0, input: [], completed: [] };
+
+function renderSimTasks(){
+  const wrap = document.getElementById('simTasks');
+  wrap.innerHTML = simTasks.map((t,i)=>`
+    <div class="card ${simState.completed.includes(t.id)?'ok':''}" style="cursor:pointer;" data-sim-task="${i}">
+      <strong>${t.task}</strong>
+      ${simState.completed.includes(t.id)?' <span class="badge b-grn">✓ Done</span>':''}
+      <div style="font-size:.78rem; color:var(--muted); margin-top:6px;">Answer length: ${t.answer.length} keys</div>
+    </div>
+  `).join('');
+  document.querySelectorAll('[data-sim-task]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      simState.currentIdx = parseInt(el.dataset.simTask);
+      simState.input = [];
+      renderSimTask();
+    });
+  });
+}
+function renderSimTask(){
+  const t = simTasks[simState.currentIdx];
+  document.getElementById('simTask').innerHTML = `<strong style="color:var(--accent);">${t.task}</strong>`;
+  document.getElementById('simInput').textContent = simState.input.join(' → ') || '(empty)';
+  const lcdMain = document.getElementById('simLcdMain');
+  if(simState.completed.includes(t.id)){
+    lcdMain.textContent = '✓ Task previously completed';
+    lcdMain.style.color = 'var(--ok)';
+  }else{
+    lcdMain.textContent = '— Ready —';
+    lcdMain.style.color = 'var(--lcd-text)';
+  }
+}
+document.querySelectorAll('[data-sim]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    simState.input.push(btn.dataset.sim);
+    renderSimTask();
+    const t = simTasks[simState.currentIdx];
+    if(simState.input.length === t.answer.length){
+      const ok = simState.input.every((v,i)=>v===t.answer[i]);
+      const lcdMain = document.getElementById('simLcdMain');
+      if(ok){
+        lcdMain.textContent = '✓ SUCCESS';
+        lcdMain.style.color = 'var(--ok)';
+        if(!simState.completed.includes(t.id)){
+          simState.completed.push(t.id);
+          renderSimTasks();
+          toast('✓ Task complete!');
+        }
+      }else{
+        lcdMain.textContent = '✗ ERROR — wrong key sequence';
+        lcdMain.style.color = 'var(--err)';
+        setTimeout(()=>{
+          simState.input = [];
+          renderSimTask();
+        }, 1800);
+      }
+    }
+  });
+});
+document.querySelector('[data-sim-reset]').addEventListener('click', ()=>{
+  simState.input = [];
+  renderSimTask();
+});
+renderSimTasks();
+renderSimTask();
+
+/* ============================================================
+   ERROR CODES
+============================================================ */
+const errorCodes = [
+  {code:"0000", name:"Control Box Abnormality", cat:"comm", content:"Memory data abnormality", release:"Memory clear, box replacement", note:"All loads OFF"},
+  {code:"0012", name:"Slow Data Abnormality", cat:"comm", content:"Slow data screen data unset", release:"Re-set slow data", note:""},
+  {code:"0022", name:"Main-Sub Communication Abnormality", cat:"comm", content:"Main–sub controller communication error", release:"Normal communication", note:""},
+  {code:"0024", name:"IC Button Sleeve Communication", cat:"comm", content:"IC button sleeve communication error", release:"Normal communication", note:""},
+  {code:"0025", name:"Coin Mech Communication", cat:"comm", content:"Coin mech communication error", release:"Normal communication", note:"All deposits prohibited"},
+  {code:"0027", name:"Bill Validator Communication", cat:"comm", content:"Bill validator communication error", release:"Normal communication", note:"Bill validator disabled"},
+  {code:"0029", name:"Magnetic Card R/W Communication", cat:"comm", content:"Magnetic card slave communication error", release:"Normal communication", note:"Magnetic card disabled"},
+  {code:"0031", name:"ID Card R/W Communication", cat:"comm", content:"ID card slave communication error", release:"Normal communication", note:"ID card disabled"},
+  {code:"0033", name:"Memory Card R/W Abnormality", cat:"comm", content:"Memory card R/W error", release:"Card R/W normal operation", note:"Card disabled"},
+  {code:"0034", name:"Printer Communication", cat:"comm", content:"Printer communication error", release:"Normal communication", note:"Printer disabled"},
+  {code:"0035", name:"Online Communication", cat:"comm", content:"Online slave communication error", release:"Normal communication", note:"Online disabled"},
+  {code:"0036", name:"Video Device Communication", cat:"comm", content:"Video device communication error", release:"Normal communication", note:"Video disabled"},
+  {code:"0037", name:"Keypad Box Communication", cat:"comm", content:"Keypad box slave communication error", release:"Normal communication", note:"Keypad disabled"},
+  {code:"0040", name:"Clock Data Abnormality", cat:"comm", content:"Clock data abnormal or unset", release:"Timer 00 reset", note:"Timer function disabled"},
+  {code:"0100", name:"Drain Full", cat:"water", content:"Drain bucket full, dam SW operates", release:"Full SW + dam SW return", note:"Water circuit OFF"},
+  {code:"0110", name:"Reservoir Low Water Level", cat:"water", content:"Water reservoir low level", release:"Reservoir low-level SW return", note:"Ice maker + HT pump OFF"},
+  {code:"0111", name:"Cassette Water Shortage", cat:"water", content:"No water even with supply pump running", release:"Power OFF/ON", note:"Pump OFF"},
+  {code:"0120", name:"Hot Water Tank Low Level", cat:"water", content:"Hot water tank low level", release:"Low-level SW return", note:"Heater OFF"},
+  {code:"0130", name:"Cold Water High Temperature", cat:"water", content:"Cold water temperature too high", release:"Applicable selection sold-out", note:"TH7 > 8 °C sold-out"},
+  {code:"0140", name:"Cold Water Hold", cat:"water", content:"Food-sanitation hold at 10 °C", release:"Food-sanitation release", note:""},
+  {code:"0150", name:"Regular System Hot Water Low Temp", cat:"water", content:"Regular hot water too cold", release:"Heater tank warms up", note:"Applicable flavor sold-out"},
+  {code:"0151", name:"Instant System Hot Water Low Temp", cat:"water", content:"Instant hot water too cold", release:"Heater tank warms up", note:"Applicable flavor sold-out"},
+  {code:"0160", name:"Hot Water Hold", cat:"water", content:"Food-sanitation hold at 63 °C", release:"Food-sanitation release", note:""},
+  {code:"0170", name:"Power Outage", cat:"water", content:"Power outage occurred", release:"Power restored", note:"Special initialization"},
+  {code:"0201", name:"Cup 2 Sold-out", cat:"sold", content:"Cup 2 sold-out (9 oz)", release:"Cup 2 present", note:""},
+  {code:"0202", name:"Cup 3 Sold-out", cat:"sold", content:"Cup 3 sold-out (12 oz)", release:"Cup 3 present", note:""},
+  {code:"0203", name:"Cup 4 Sold-out", cat:"sold", content:"Cup 4 sold-out (16 oz)", release:"Cup 4 present", note:""},
+  {code:"0300", name:"Syrup 1 Sold-out", cat:"sold", content:"Syrup 1 sold-out", release:"Syrup 1 present", note:""},
+  {code:"0301", name:"Syrup 2 Sold-out", cat:"sold", content:"Syrup 2 sold-out", release:"Syrup 2 present", note:""},
+  {code:"0302", name:"Syrup 3 Sold-out", cat:"sold", content:"Syrup 3 sold-out", release:"Syrup 3 present", note:""},
+  {code:"0303", name:"Syrup 4 Sold-out", cat:"sold", content:"Syrup 4 sold-out", release:"Syrup 4 present", note:""},
+  {code:"0310", name:"Canister 1 Sold-out", cat:"sold", content:"Canister 1 sold-out", release:"Canister 1 present", note:"Applicable flavor sold-out"},
+  {code:"0311", name:"Canister 2 Sold-out", cat:"sold", content:"Canister 2 sold-out", release:"Canister 2 present", note:""},
+  {code:"0312", name:"Canister 3 Sold-out", cat:"sold", content:"Canister 3 sold-out", release:"Canister 3 present", note:""},
+  {code:"0313", name:"Canister 4 Sold-out", cat:"sold", content:"Canister 4 sold-out", release:"Canister 4 present", note:""},
+  {code:"0314", name:"Canister 5 Sold-out", cat:"sold", content:"Canister 5 sold-out", release:"Canister 5 present", note:""},
+  {code:"0315", name:"Canister 6 Sold-out", cat:"sold", content:"Canister 6 sold-out", release:"Canister 6 present", note:""},
+  {code:"0316", name:"Canister 7 Sold-out", cat:"sold", content:"Canister 7 sold-out", release:"Canister 7 present", note:""},
+  {code:"0317", name:"Canister 8 Sold-out", cat:"sold", content:"Canister 8 sold-out", release:"Canister 8 present", note:""},
+  {code:"0318", name:"Canister 9 Sold-out", cat:"sold", content:"Canister 9 sold-out", release:"Canister 9 present", note:""},
+  {code:"0319", name:"Canister 10 Sold-out", cat:"sold", content:"Canister 10 sold-out", release:"Canister 10 present", note:""},
+  {code:"0320", name:"Canister 15 Sold-out", cat:"sold", content:"Canister 15 sold-out", release:"Canister 15 present", note:"Applicable flavor sold-out"},
+  {code:"0340", name:"Carbon Dioxide Gas Sold-out", cat:"sold", content:"CO₂ gas out", release:"Replace cylinder", note:""},
+  {code:"0350", name:"RC Paper None / Abnormality", cat:"sold", content:"RC paper missing or abnormal", release:"Set paper", note:""},
+  {code:"0370", name:"Ice Sold-out", cat:"ice", content:"No ice", release:"Ice present", note:"Cold beverage sold-out"},
+  {code:"0380", name:"Ice Maker Abnormality", cat:"ice", content:"Ice maker abnormality", release:"Power OFF/ON", note:"Comp + auger OFF"},
+  {code:"0381", name:"Overcooling Operation", cat:"ice", content:"Overcooling detected", release:"—", note:""},
+  {code:"0382", name:"Ice Making Capacity Insufficient", cat:"ice", content:"Capacity below spec", release:"—", note:""},
+  {code:"0383", name:"MC Refrigerant Leak", cat:"ice", content:"Refrigerant leak", release:"—", note:""},
+  {code:"0384", name:"Auger Protector Abnormality", cat:"ice", content:"Auger protector tripped", release:"Reset protector", note:"Comp + auger OFF"},
+  {code:"0400", name:"RC Brewer Operation Abnormality", cat:"mech", content:"Brewer cycle abnormal", release:"—", note:""},
+  {code:"0410", name:"Mill Operation Abnormality", cat:"mech", content:"Mill motor lock", release:"—", note:"Mill OL"},
+  {code:"0411", name:"Mill Safety SW", cat:"mech", content:"Mill blade cover missing", release:"Reinstall cover", note:""},
+  {code:"0450", name:"Coin Mech Abnormality", cat:"mech", content:"Coin mech error", release:"Normal operation", note:"Detail code 01–19"},
+  {code:"0460", name:"Bill Validator Operation Abnormality", cat:"mech", content:"Bill validator error", release:"Normal operation", note:"Detail code 01–08"},
+  {code:"0470", name:"Magnetic Card Operation Abnormality", cat:"mech", content:"Magnetic card R/W error", release:"Normal operation", note:"Detail code 01–07"},
+  {code:"0480", name:"ID Card Operation Abnormality", cat:"mech", content:"ID card R/W error", release:"Normal operation", note:""},
+  {code:"0490", name:"Printer Abnormality", cat:"mech", content:"Printer mechanism error", release:"—", note:""},
+  {code:"0500", name:"Syrup Pump 1 Abnormality", cat:"pump", content:"Syrup pump 1 error", release:"Applicable flavor sold-out", note:""},
+  {code:"0501", name:"Syrup Pump 2 Abnormality", cat:"pump", content:"Syrup pump 2 error", release:"Applicable flavor sold-out", note:""},
+  {code:"0502", name:"Syrup Pump 3 Abnormality", cat:"pump", content:"Syrup pump 3 error", release:"Applicable flavor sold-out", note:""},
+  {code:"0503", name:"Syrup Pump 4 Abnormality", cat:"pump", content:"Syrup pump 4 error", release:"Applicable flavor sold-out", note:""},
+  {code:"0510", name:"Hot Water Supply Pump Abnormality", cat:"pump", content:"Hot water tank supply pump error", release:"Power OFF/ON", note:"Hot pump OFF"},
+  {code:"0520", name:"Cold Procon Abnormality", cat:"pump", content:"Cold procon pump error", release:"—", note:""},
+  {code:"0530", name:"Refund Motor Abnormality", cat:"pump", content:"Refund motor error", release:"—", note:""},
+  {code:"0540", name:"Keypad Box Operation Abnormality", cat:"pump", content:"Keypad box error", release:"Normal operation", note:"Keypad disabled"},
+  {code:"0550", name:"Vender Guard Installation Abnormality", cat:"pump", content:"Vender guard not connected", release:"Connect vender guard", note:"All sold-out"},
+  {code:"0560", name:"IC Button Abnormality", cat:"pump", content:"IC button / sleeve error", release:"Normal operation", note:""},
+  {code:"0600", name:"Cup Mechanism Abnormality [Front]", cat:"cms", content:"Cup mechanism error", release:"Cup discharge mechanism normal", note:"Detail codes 01,02,05,06"},
+  {code:"0610", name:"Automatic Door Mechanism Abnormality", cat:"cms", content:"Auto door error", release:"Auto door normal", note:"Detail codes 01–04"},
+  {code:"0700", name:"CMS Mechanism Representative Abnormality", cat:"cms", content:"CMS error, cause unknown", release:"—", note:""},
+  {code:"0710", name:"Transport Mechanism Position Abnormality", cat:"cms", content:"Cannot detect standby/origin", release:"—", note:""},
+  {code:"0711", name:"Sub-CMS Communication Abnormality", cat:"cms", content:"Sub–CMS communication error", release:"—", note:""},
+  {code:"0712", name:"Transport Mechanism Control Abnormality", cat:"cms", content:"CMS control box failure", release:"—", note:""},
+  {code:"0721", name:"Y Motor Abnormality", cat:"cms", content:"Y motor failure", release:"—", note:""},
+  {code:"0722", name:"Z Motor Abnormality", cat:"cms", content:"Z motor failure", release:"—", note:""},
+  {code:"0723", name:"Hand Motor Abnormality", cat:"cms", content:"Hand motor failure", release:"—", note:""},
+  {code:"0724", name:"Impeller Abnormality", cat:"cms", content:"Impeller mechanism error", release:"Mechanism normal", note:""},
+  {code:"0725", name:"R Motor Abnormality", cat:"cms", content:"R motor failure (catch swing)", release:"—", note:""},
+  {code:"0730", name:"Cup Detection Abnormality", cat:"cms", content:"Cup not detected at outlet", release:"—", note:""},
+  {code:"0740", name:"Cup Transport Abnormality", cat:"cms", content:"Cup transport error", release:"Mechanism normal", note:""},
+  {code:"0790", name:"Bend Time", cat:"cms", content:"Sales time > 5 minutes", release:"—", note:""},
+  {code:"0792", name:"Cup Removal Forget Abnormality", cat:"cms", content:"Cup removal wait time-up", release:"Remove cup + power OFF/ON", note:""},
+  {code:"0800", name:"Ingredient Chute Motor Abnormality 1", cat:"cms", content:"Chute motor 1 error", release:"Applicable flavor sold-out", note:""},
+  {code:"0810", name:"Ingredient Chute Motor Abnormality 11", cat:"cms", content:"Chute motor 11 error", release:"Applicable flavor sold-out", note:""},
+  {code:"0900", name:"Sales Timer", cat:"cms", content:"Sales timer running", release:"Timer ends", note:"Preparing"},
+  {code:"0910", name:"Water Outage Timer", cat:"cms", content:"Water outage timer running", release:"Timer ends", note:""},
+  {code:"1000", name:"Hot Water Temp Sensor Representative", cat:"sensor", content:"Hot water sensor data abnormal", release:"—", note:""},
+  {code:"1001", name:"Hot Water Temp Sensor 1", cat:"sensor", content:"Th1 sensor error", release:"Sensor normal", note:""},
+  {code:"1002", name:"Hot Water Temp Sensor 2", cat:"sensor", content:"Th2 sensor error", release:"Sensor normal", note:""},
+  {code:"1003", name:"Hot Water Temp Sensor 3", cat:"sensor", content:"Th3 sensor error", release:"Sensor normal", note:""},
+  {code:"1006", name:"Compressor Sensor 6", cat:"sensor", content:"Comp sensor error", release:"Sensor normal", note:"Comp OFF at ≥75 °C"},
+  {code:"1007", name:"Cold Water Temp Sensor 7", cat:"sensor", content:"Cold water sensor error", release:"Sensor normal", note:"Tank cooling OFF"},
+  {code:"1008", name:"Internal Temp Sensor 8", cat:"sensor", content:"Internal temp sensor error", release:"Sensor normal", note:""},
+  {code:"1010", name:"Cold Water Temp Sensor", cat:"sensor", content:"Cold water sensor error", release:"—", note:""},
+  {code:"1020", name:"Evaporator Temp Sensor", cat:"sensor", content:"Evaporator sensor error", release:"—", note:""},
+  {code:"1030", name:"Boiling Thermo Operation", cat:"sensor", content:"Boiling thermo tripped", release:"Thermo reset", note:"Heater OFF"},
+  {code:"1200", name:"Sales Outlet Cup Sensor", cat:"sensor", content:"Outlet cup sensor error", release:"Sensor normal", note:""},
+  {code:"1300", name:"CMS Sensor Representative", cat:"sensor", content:"CMS sensor error", release:"—", note:""},
+  {code:"1320", name:"Y Front Limit Abnormality", cat:"sensor", content:"Y-axis front limit error", release:"—", note:""},
+  {code:"1321", name:"Y Rear Limit Abnormality", cat:"sensor", content:"Y-axis rear limit error", release:"—", note:""},
+  {code:"1322", name:"Y-P Point Sensor Abnormality", cat:"sensor", content:"Y-axis P point sensor error", release:"—", note:""},
+  {code:"1323", name:"Y-Axis Sensor Abnormality", cat:"sensor", content:"Y-axis sensor error", release:"—", note:""},
+  {code:"1440", name:"Ice Fixed Amount Sensor 1", cat:"sensor", content:"Ice metering sensor 1 error", release:"Sensor normal", note:""},
+  {code:"1441", name:"Ice Fixed Amount Sensor 2", cat:"sensor", content:"Ice metering sensor 2 error", release:"Sensor normal", note:""},
+  {code:"1500", name:"Video Device Representative Abnormality", cat:"video", content:"Video device error", release:"—", note:""},
+  {code:"1510", name:"Video Device Game Refund", cat:"video", content:"Game hit refund", release:"—", note:""}
+];
+let currentCat = "all";
+let currentSearch = "";
+function renderErrors(){
+  const wrap = document.getElementById('errTableWrap');
+  const filtered = errorCodes.filter(e=>{
+    const catMatch = currentCat === "all" || e.cat === currentCat;
+    const s = currentSearch.toLowerCase();
+    const searchMatch = !s || e.code.includes(s) || e.name.toLowerCase().includes(s) || e.content.toLowerCase().includes(s);
+    return catMatch && searchMatch;
+  });
+  if(filtered.length === 0){
+    wrap.innerHTML = `<div class="placeholder"><span class="big">🔍</span>No codes match.</div>`;
+    return;
+  }
+  let html = `<div class="table-wrap"><table><thead><tr><th style="width:80px;">Code</th><th>Name</th><th>Cause</th><th>Release</th><th>Notes</th></tr></thead><tbody>`;
+  filtered.forEach(e=>{
+    html += `<tr><td><strong style="color:var(--accent); font-family:'JetBrains Mono',monospace;">${e.code}</strong></td><td>${e.name}</td><td>${e.content}</td><td>${e.release}</td><td><small style="color:var(--muted);">${e.note}</small></td></tr>`;
+  });
+  html += `</tbody></table></div><p style="font-size:.78rem; color:var(--muted); margin-top:10px;">Showing ${filtered.length} of ${errorCodes.length} codes.</p>`;
+  wrap.innerHTML = html;
+}
+document.getElementById('errSearch').addEventListener('input', e=>{ currentSearch = e.target.value; renderErrors(); });
+document.querySelectorAll('#errChips .chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('#errChips .chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    currentCat = chip.dataset.cat;
+    renderErrors();
+  });
+});
+renderErrors();
+
+/* ============================================================
+   INSTALL STEPS
+============================================================ */
+const installStepsData = [
+  ['Remove transport parts','Remove transport tape. Remove accessory parts taped inside.'],
+  ['Install parts (1)','Install water filter, lock, interior lamp bulb, connect CO₂ cylinder.'],
+  ['Install machine','Connect water supply piping (R1/2), install filter, level, adjust door lock.'],
+  ['Switch frequency','Set Main Box DIP SW No.1 (factory = 50 Hz).'],
+  ['Connect power & ground','Dedicated outlet AC100V ±10V, 15A. Connect ground.'],
+  ['Power ON','Earth leakage breaker ON → current breaker ON.'],
+  ['Control startup','Set time, release food-sanitation hold, change slow/price data if needed.'],
+  ['Water tank supply','3-way cock forward; operate supply valve; overflow → lever upward.'],
+  ['Fill ingredients & cups','Powder, syrup BIB, paper cups, paper filters.'],
+  ['Install parts (2)','Kick panel, nameplate, price seals, unified sticker.'],
+  ['Clean piping','Discharge ice + re-make. Drain + re-boil hot water. Run sanitation.'],
+  ['Position correction','Cup hand stop position, nozzle positions.'],
+  ['Set reference amounts','Each ingredient, hot water, cold water, carbonated, syrup, ice.'],
+  ['Test sales','Coin and test sale.']
+];
+document.getElementById('installSteps').innerHTML = installStepsData.map(([t,d],i)=>`
+  <div class="step"><div class="num">${i+1}</div><div class="body"><strong>${t}</strong>${d}</div></div>
+`).join('');
+
+/* ============================================================
+   EXAM
+============================================================ */
+const examQuestions = [
+  { q:"Which model has the largest canister count?", opts:["APEX 120QV","APEX 120QVR","APEX 100QVR","APEX 80QI"], ans:1 },
+  { q:"Can the ground wire be connected to a water pipe?", opts:["Yes, water pipes are safe","No, never","Only if plastic","Yes if 100V"], ans:1 },
+  { q:"What is the factory default for Main Box DIP SW1?", opts:["60 Hz","50 Hz","None","Both"], ans:1 },
+  { q:"How long does control system initialization take?", opts:["10 s","~50 s","5 min","Instant"], ans:1 },
+  { q:"Which code indicates CO₂ gas is empty?", opts:["0110","0201","0340","0380"], ans:2 },
+  { q:"What does code 0022 mean?", opts:["Coin mech error","Main–sub communication error","Ice maker failure","Drain full"], ans:1 },
+  { q:"When should the impeller be replaced at the latest?", opts:["50k bends / 6 mo","100k bends / 1 yr","500k / 3 yr","Only when broken"], ans:1 },
+  { q:"Correct sequence for Output Signal Check?", opts:["Mgmt → 8 → 2 → Set","Timer → 0 → 0","Service → Sanitation","Operation Test → Ice"], ans:0 },
+  { q:"How often should you clean the RC brewer?", opts:["Every visit","Weekly","Every 1000 bends or monthly","Yearly"], ans:2 },
+  { q:"What should NEVER be applied to the bill validator belt?", opts:["Rubber cleaner","Dry towel","Machine oil or grease","Cotton swab"], ans:2 },
+  { q:"Which key interrupts a running program?", opts:["Set","Operation","Complete","Correct"], ans:2 },
+  { q:"What does the * (star) key do?", opts:["Multiply values","Toggle timer valid/invalid and change sign","Delete all data","Print report"], ans:1 },
+  { q:"Tolerance for hot water VH1/VH2 reference amount?", opts:["150 ± 3 cc","100 ± 3 cc","200 ± 5 cc","250 ± 5 cc"], ans:0 },
+  { q:"Where does the 3-way cock lever point during normal use?", opts:["Up","Forward","Down","Left"], ans:1 },
+  { q:"What does code 0100 'Drain Full' require as first action?", opts:["Replace drain bucket","Empty + reset dam SW","Replace ice maker","Press food reset"], ans:1 }
+];
+let examState = { answers: {} };
+function renderExam(){
+  const container = document.getElementById('examQuestions');
+  container.innerHTML = examQuestions.map((q,i)=>{
+    const chosen = examState.answers[i];
+    return `<div class="card" data-exam-q="${i}">
+      <p style="color:var(--txt); font-size:.95rem;"><strong>${i+1}. ${q.q}</strong></p>
+      ${q.opts.map((opt,j)=>`<div class="quiz-opt ${chosen===j?'selected':''}" data-exam-opt="${j}" data-exam-q="${i}">${opt}</div>`).join('')}
+    </div>`;
+  }).join('');
+  container.querySelectorAll('[data-exam-opt]').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const qi = parseInt(opt.dataset.examQ);
+      const oi = parseInt(opt.dataset.examOpt);
+      examState.answers[qi] = oi;
+      renderExam(); updateExamScore();
+    });
+  });
+  updateExamScore();
+}
+function updateExamScore(){
+  const answered = Object.keys(examState.answers).length;
+  let correct = 0;
+  Object.keys(examState.answers).forEach(i=>{
+    if(examState.answers[i] === examQuestions[i].ans) correct++;
+  });
+  const pct = answered ? Math.round(correct / examQuestions.length * 100) : 0;
+  document.getElementById('examScore').textContent = pct + '%';
+  document.getElementById('examProgress').textContent = `${answered} / ${examQuestions.length} answered`;
+}
+document.getElementById('submitExam').addEventListener('click', ()=>{
+  const answered = Object.keys(examState.answers).length;
+  if(answered < examQuestions.length){
+    toast(`Please answer all ${examQuestions.length} questions.`, 'warn');
+    return;
+  }
+  let correct = 0;
+  examQuestions.forEach((q,i)=>{ if(examState.answers[i] === q.ans) correct++; });
+  const pct = Math.round(correct / examQuestions.length * 100);
+  const passed = pct >= 80;
+  document.getElementById('examResult').innerHTML = `
+    <div class="score-panel">
+      <div class="lbl">Final Score</div>
+      <div class="big" style="${passed?'':'color:var(--err); -webkit-text-fill-color:var(--err);'}">${pct}%</div>
+      <div style="font-size:.95rem; color:${passed?'var(--ok)':'var(--err)'}; margin-top:10px; font-weight:600;">
+        ${passed ? '✓ PASSED — Certified APEX QV Technician' : '✗ FAILED — Review and retake'}
+      </div>
+      <div style="font-size:.78rem; color:var(--muted); margin-top:8px;">${correct} of ${examQuestions.length} correct</div>
+    </div>`;
+  if(passed) toast('🎓 Certification Passed!');
+  else toast('Exam failed. Review and retry.', 'err');
+});
+document.getElementById('resetExam').addEventListener('click', ()=>{
+  examState.answers = {};
+  renderExam();
+  document.getElementById('examResult').innerHTML = '';
+});
+
+function updateExamLock(){
+  const allDone = ALL_MODULES.every(m => state.completedModules.includes(m));
+  const status = document.getElementById('examStatus');
+  const locked = document.getElementById('examLocked');
+  const container = document.getElementById('examContainer');
+  if(allDone){
+    status.innerHTML = `<strong style="color:var(--ok);">✓ All modules complete!</strong> Exam unlocked.`;
+    locked.style.display = 'none';
+    container.style.display = 'block';
+    if(!document.getElementById('examQuestions').children.length){
+      renderExam();
+    }
+  }else{
+    const done = state.completedModules.length;
+    status.innerHTML = `<strong style="color:var(--warn);">${done} / ${ALL_MODULES.length} modules complete.</strong> Finish all modules to unlock the exam.`;
+    locked.style.display = 'block';
+    container.style.display = 'none';
+  }
+}
+
+/* ============================================================
+   BACK TO TOP
+============================================================ */
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', ()=>backTop.classList.toggle('show', window.scrollY>400));
+backTop.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+/* ============================================================
+   INIT
+============================================================ */
+updateProgress();
+updateExamLock();
+console.log("APEX QV Interactive Training Simulator v3 loaded.");
+</script>
+</body>
+</html>

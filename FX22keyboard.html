@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX22 Keyboard — Interactive Learning</title>
+    <style>
+        :root {
+            --fuji-red: #cc0000;
+            --fuji-dark: #1a1a2e;
+            --fuji-blue: #0f3460;
+            --fuji-accent: #e94560;
+            --fuji-light: #f5f7fa;
+            --fuji-border: #d1d9e6;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --sidebar-width: 290px;
+            --btn-green: #27ae60;
+            --btn-red: #c0392b;
+            --btn-blue: #2980b9;
+            --btn-orange: #e67e22;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', Meiryo, sans-serif;
+            background: var(--fuji-light);
+            color: #2c3e50;
+            line-height: 1.75;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: linear-gradient(135deg, var(--fuji-dark), var(--fuji-blue));
+            color: white; padding: 0.7rem 1.5rem;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+            height: 60px;
+        }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .header h1 { font-size: 1.15rem; font-weight: 700; }
+        .header h1 span { color: var(--fuji-accent); }
+        .header-badge {
+            background: var(--fuji-red); padding: 0.2rem 0.7rem; border-radius: 20px;
+            font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+        }
+        .menu-toggle {
+            display: none; background: none; border: none; color: white;
+            font-size: 1.5rem; cursor: pointer; padding: 0.3rem;
+        }
+
+        /* ===== MAIN ===== */
+        .main {
+            margin-top: 60px;
+            padding: 2rem 2.5rem; max-width: 1400px; margin-left: auto; margin-right: auto;
+        }
+
+        .module-header {
+            background: linear-gradient(135deg, var(--fuji-dark), var(--fuji-blue));
+            color: white; padding: 1.8rem 2rem; border-radius: 12px;
+            margin-bottom: 1.5rem; position: relative; overflow: hidden;
+        }
+        .module-header::after {
+            content: ''; position: absolute; top: -50%; right: -10%;
+            width: 300px; height: 300px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+        }
+        .module-header h2 { font-size: 1.5rem; margin-bottom: 0.4rem; }
+        .module-header p { opacity: 0.85; font-size: 0.92rem; }
+        .module-number {
+            display: inline-block; background: var(--fuji-red); color: white;
+            font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.7rem;
+            border-radius: 20px; margin-bottom: 0.5rem; text-transform: uppercase;
+        }
+
+        .card {
+            background: white; border-radius: 10px; padding: 1.5rem;
+            margin-bottom: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid var(--fuji-border);
+        }
+        .card h3 {
+            font-size: 1.1rem; color: var(--fuji-blue); margin-bottom: 0.8rem;
+            padding-bottom: 0.5rem; border-bottom: 2px solid #eef3ff;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        /* ===== KEYBOARD WORKSPACE ===== */
+        .kb-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        /* ===== KEYBOARD VISUAL ===== */
+        .keyboard-device {
+            background: linear-gradient(180deg, #2c3e50, #1a252f);
+            border-radius: 16px; padding: 1.2rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            border: 2px solid #445566;
+        }
+        .kb-display {
+            background: #c8e6c9; color: #1a3a1a;
+            border-radius: 8px; padding: 0.8rem 1rem;
+            font-family: 'Courier New', monospace; font-size: 0.85rem;
+            margin-bottom: 1rem; min-height: 70px;
+            border: 3px solid #8bc34a;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
+            line-height: 1.4;
+        }
+        .kb-display .display-row { white-space: pre; }
+        .kb-display .display-label {
+            font-size: 0.65rem; color: #2e7d32; text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 700;
+        }
+        .kb-keys {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 0.35rem;
+        }
+        .kb-key {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 0.5rem 0.3rem; border-radius: 8px;
+            font-size: 0.7rem; font-weight: 700;
+            text-align: center; cursor: pointer;
+            border: none; color: white;
+            transition: all 0.15s ease;
+            min-height: 52px; line-height: 1.15;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.25);
+            position: relative;
+            user-select: none;
+        }
+        .kb-key:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 rgba(0,0,0,0.25);
+            filter: brightness(1.15);
+        }
+        .kb-key:active, .kb-key.pressed {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 rgba(0,0,0,0.25);
+        }
+        .kb-key.active {
+            outline: 3px solid #ffeb3b;
+            outline-offset: 2px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { outline-color: #ffeb3b; }
+            50% { outline-color: #fff59d; }
+        }
+        .kb-key .jp { font-size: 0.75rem; }
+        .kb-key .en { font-size: 0.58rem; opacity: 0.85; font-weight: 600; margin-top: 1px; }
+        .kb-key.color-blue { background: linear-gradient(180deg, #3d8bc9, #2980b9); }
+        .kb-key.color-green { background: linear-gradient(180deg, #2ecc71, #27ae60); }
+        .kb-key.color-red { background: linear-gradient(180deg, #e74c3c, #c0392b); }
+        .kb-key.color-orange { background: linear-gradient(180deg, #f39c12, #e67e22); }
+        .kb-key.color-dark { background: linear-gradient(180deg, #455a64, #263238); }
+        .kb-key.color-gray { background: linear-gradient(180deg, #95a5a6, #7f8c8d); }
+        .kb-key.color-purple { background: linear-gradient(180deg, #9b59b6, #8e44ad); }
+        .kb-key.color-teal { background: linear-gradient(180deg, #1abc9c, #16a085); }
+        .kb-key.color-indigo { background: linear-gradient(180deg, #5c6bc0, #3949ab); }
+        .kb-key.span-2 { grid-column: span 2; }
+        .kb-key.span-3 { grid-column: span 3; }
+        .kb-key.span-4 { grid-column: span 4; }
+
+        .kb-separator {
+            grid-column: 1 / -1; height: 2px; background: #445566;
+            margin: 0.3rem 0; border-radius: 1px;
+        }
+
+        /* ===== DETAIL PANEL ===== */
+        .detail-panel {
+            background: white; border-radius: 12px;
+            padding: 1.5rem; border: 2px solid var(--fuji-border);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            min-height: 400px; position: sticky; top: 80px;
+            max-height: calc(100vh - 100px); overflow-y: auto;
+        }
+        .detail-panel::-webkit-scrollbar { width: 6px; }
+        .detail-panel::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+        .detail-placeholder {
+            text-align: center; padding: 4rem 1rem;
+            color: #8899aa;
+        }
+        .detail-placeholder .icon { font-size: 3rem; margin-bottom: 1rem; }
+        .detail-placeholder h3 {
+            font-size: 1.1rem; color: var(--fuji-blue);
+            border: none; padding: 0; margin-bottom: 0.5rem;
+        }
+
+        .detail-header {
+            display: flex; align-items: center; gap: 1rem;
+            padding-bottom: 1rem; border-bottom: 2px solid #eef3ff;
+            margin-bottom: 1rem;
+        }
+        .detail-header .key-icon {
+            width: 60px; height: 60px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: white; flex-shrink: 0;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+        }
+        .detail-header .key-icon.color-blue { background: linear-gradient(180deg, #3d8bc9, #2980b9); }
+        .detail-header .key-icon.color-green { background: linear-gradient(180deg, #2ecc71, #27ae60); }
+        .detail-header .key-icon.color-red { background: linear-gradient(180deg, #e74c3c, #c0392b); }
+        .detail-header .key-icon.color-orange { background: linear-gradient(180deg, #f39c12, #e67e22); }
+        .detail-header .key-icon.color-dark { background: linear-gradient(180deg, #455a64, #263238); }
+        .detail-header .key-icon.color-gray { background: linear-gradient(180deg, #95a5a6, #7f8c8d); }
+        .detail-header .key-icon.color-purple { background: linear-gradient(180deg, #9b59b6, #8e44ad); }
+        .detail-header .key-icon.color-teal { background: linear-gradient(180deg, #1abc9c, #16a085); }
+        .detail-header .key-icon.color-indigo { background: linear-gradient(180deg, #5c6bc0, #3949ab); }
+
+        .detail-header h3 {
+            font-size: 1.2rem; color: var(--fuji-dark);
+            border: none; padding: 0; margin: 0;
+        }
+        .detail-header .jp-name {
+            font-size: 0.85rem; color: #8899aa; margin-top: 2px;
+        }
+        .detail-header .category-tag {
+            display: inline-block; padding: 0.15rem 0.6rem;
+            border-radius: 12px; font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase; margin-top: 0.4rem;
+            background: #eef3ff; color: var(--fuji-blue);
+        }
+
+        .detail-summary {
+            background: #f8fafc; border-radius: 8px;
+            padding: 1rem 1.2rem; margin-bottom: 1rem;
+            font-size: 0.88rem; border-left: 4px solid var(--fuji-blue);
+        }
+
+        .detail-section-title {
+            font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
+            color: var(--fuji-blue); letter-spacing: 1px;
+            margin: 1.2rem 0 0.6rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .detail-section-title .count {
+            background: var(--fuji-red); color: white;
+            padding: 0.1rem 0.5rem; border-radius: 10px;
+            font-size: 0.65rem;
+        }
+
+        .sub-item {
+            background: #fafbfd; border: 1px solid #e8edf3;
+            border-radius: 8px; padding: 0.7rem 0.9rem;
+            margin-bottom: 0.5rem; transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sub-item:hover {
+            border-color: var(--fuji-blue);
+            background: #f0f7ff;
+            transform: translateX(3px);
+        }
+        .sub-item.open {
+            background: #eef3ff;
+            border-color: var(--fuji-blue);
+        }
+        .sub-item-header {
+            display: flex; align-items: center; gap: 0.6rem;
+        }
+        .sub-item-code {
+            background: var(--fuji-blue); color: white;
+            font-size: 0.7rem; font-weight: 800;
+            padding: 0.15rem 0.5rem; border-radius: 4px;
+            min-width: 52px; text-align: center;
+            flex-shrink: 0;
+        }
+        .sub-item-code.wide { min-width: 72px; }
+        .sub-item-name {
+            flex: 1; font-size: 0.85rem; font-weight: 600;
+            color: var(--fuji-dark);
+        }
+        .sub-item-name .jp {
+            display: block; font-size: 0.7rem;
+            color: #8899aa; font-weight: 400; margin-top: 1px;
+        }
+        .sub-item-arrow {
+            font-size: 0.65rem; color: #aab;
+            transition: transform 0.3s;
+        }
+        .sub-item.open .sub-item-arrow { transform: rotate(180deg); }
+        .sub-item-body {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .sub-item.open .sub-item-body { max-height: 1500px; }
+        .sub-item-body-inner {
+            padding-top: 0.7rem; margin-top: 0.7rem;
+            border-top: 1px dashed #c8d5e5;
+            font-size: 0.83rem; color: #445566;
+        }
+        .sub-item-body-inner .desc {
+            margin-bottom: 0.6rem;
+        }
+        .sub-item-body-inner .meta-row {
+            display: flex; gap: 0.5rem; flex-wrap: wrap;
+            margin-top: 0.4rem;
+        }
+        .meta-tag {
+            background: white; border: 1px solid var(--fuji-border);
+            padding: 0.15rem 0.5rem; border-radius: 6px;
+            font-size: 0.72rem; color: #556677;
+        }
+        .meta-tag strong { color: var(--fuji-blue); }
+
+        .btn-sequence {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem;
+            margin: 0.5rem 0; padding: 0.6rem 0.7rem;
+            background: #fff; border-radius: 8px;
+            border: 1px solid #e0e8f0;
+        }
+        .btn-key {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 40px; height: 38px; padding: 0 0.6rem;
+            border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+            color: white; box-shadow: 0 2px 3px rgba(0,0,0,0.15);
+            text-align: center; line-height: 1.1;
+        }
+        .btn-key.blue { background: var(--btn-blue); }
+        .btn-key.green { background: var(--btn-green); }
+        .btn-key.red { background: var(--btn-red); }
+        .btn-key.orange { background: var(--btn-orange); }
+        .btn-key.gray { background: #7f8c8d; }
+        .btn-arrow { font-size: 1rem; color: var(--fuji-red); font-weight: 700; }
+
+        .result-box {
+            background: #f0fff5; border: 1px solid #b8e6c8;
+            border-radius: 6px; padding: 0.6rem 0.9rem;
+            margin: 0.5rem 0; font-size: 0.8rem;
+        }
+        .result-box .result-label {
+            font-weight: 800; color: var(--success);
+            font-size: 0.68rem; text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .safety-box {
+            border-radius: 8px; padding: 0.7rem 1rem;
+            margin: 0.6rem 0; display: flex; gap: 0.6rem;
+            align-items: flex-start; font-size: 0.82rem;
+        }
+        .safety-box.caution { background: #fffaf0; border-left: 4px solid var(--warning); }
+        .safety-box.info { background: #f0f7ff; border-left: 4px solid var(--info); }
+        .safety-box.warning { background: #fff5f5; border-left: 4px solid var(--danger); }
+        .safety-box .safety-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .safety-box .safety-content { flex: 1; }
+
+        .no-items-msg {
+            text-align: center; padding: 1.5rem;
+            color: #8899aa; font-size: 0.85rem;
+            background: #f8fafc; border-radius: 8px;
+            border: 1px dashed #d1d9e6;
+        }
+
+        @media (max-width: 1000px) {
+            .kb-workspace { grid-template-columns: 1fr; }
+            .detail-panel { position: static; max-height: none; }
+        }
+        @media (max-width: 700px) {
+            .main { padding: 1rem; }
+            .kb-keys { grid-template-columns: repeat(6, 1fr); }
+            .kb-key.span-2, .kb-key.span-3, .kb-key.span-4 { grid-column: span 2; }
+            .menu-toggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <button class="menu-toggle" onclick="alert('Use browser back to return to the full training module.')">☰</button>
+        <h1>FX22 <span>Keyboard Explorer</span></h1>
+        <span class="header-badge">Interactive</span>
+    </div>
+</header>
+
+<main class="main">
+
+    <div class="module-header">
+        <span class="module-number">Interactive Module</span>
+        <h2>⌨️ Keyboard Operations — Click Any Key</h2>
+        <p>Click any button on the FX22 maintenance keyboard below to see its detailed function list, sub-items, and step-by-step button sequences.</p>
+    </div>
+
+    <div class="kb-workspace">
+
+        <!-- ===== LEFT: KEYBOARD VISUAL ===== -->
+        <div>
+            <div class="card">
+                <h3>🔑 FX22 Maintenance Keyboard</h3>
+                <div class="keyboard-device">
+                    <div class="kb-display" id="kbDisplay">
+                        <div class="display-label">DATA DISPLAY</div>
+                        <div class="display-row" id="displayText">2012.12.26  Tue  14:12       COOL 3500g  ICE 200 pieces<br>HOT 97°C<br>COLD 01°C</div>
+                    </div>
+                    <div class="kb-keys" id="kbKeys">
+                        <!-- Row 1 -->
+                        <button class="kb-key color-blue" data-key="price" onclick="selectKey('price')">
+                            <span class="jp">価格</span><span class="en">PRICE</span>
+                        </button>
+                        <button class="kb-key color-blue" data-key="sales" onclick="selectKey('sales')">
+                            <span class="jp">売上</span><span class="en">SALES</span>
+                        </button>
+                        <button class="kb-key color-blue" data-key="beverage" onclick="selectKey('beverage')">
+                            <span class="jp">飲料</span><span class="en">BEVERAGE</span>
+                        </button>
+                        <button class="kb-key color-dark" data-key="num7" onclick="selectKey('num7')">7</button>
+                        <button class="kb-key color-dark" data-key="num8" onclick="selectKey('num8')">8</button>
+                        <button class="kb-key color-dark" data-key="num9" onclick="selectKey('num9')">9</button>
+                        <button class="kb-key color-dark span-2" data-key="prevpage" onclick="selectKey('prevpage')">
+                            <span class="jp">前ページ</span><span class="en">PREV</span>
+                        </button>
+                        <button class="kb-key color-dark span-2" data-key="nextpage" onclick="selectKey('nextpage')">
+                            <span class="jp">次ページ</span><span class="en">NEXT</span>
+                        </button>
+                        <button class="kb-key color-purple" data-key="m1" onclick="selectKey('m1')">M1</button>
+                        <button class="kb-key color-purple" data-key="m2" onclick="selectKey('m2')">M2</button>
+
+                        <!-- Row 2 -->
+                        <button class="kb-key color-blue" data-key="selection" onclick="selectKey('selection')">
+                            <span class="jp">選択</span><span class="en">SELECTION</span>
+                        </button>
+                        <button class="kb-key color-blue" data-key="ingredient" onclick="selectKey('ingredient')">
+                            <span class="jp">原料補給</span><span class="en">INGREDIENT</span>
+                        </button>
+                        <button class="kb-key color-green" data-key="memory" onclick="selectKey('memory')">
+                            <span class="jp">記憶/動作</span><span class="en">MEMORY</span>
+                        </button>
+                        <button class="kb-key color-dark" data-key="num4" onclick="selectKey('num4')">4</button>
+                        <button class="kb-key color-dark" data-key="num5" onclick="selectKey('num5')">5</button>
+                        <button class="kb-key color-dark" data-key="num6" onclick="selectKey('num6')">6</button>
+                        <button class="kb-key color-dark span-2" data-key="m3" onclick="selectKey('m3')">M3</button>
+                        <button class="kb-key color-dark span-2" data-key="m4" onclick="selectKey('m4')">M4</button>
+                        <button class="kb-key color-purple" data-key="m5" onclick="selectKey('m5')">M5</button>
+                        <button class="kb-key color-purple" data-key="register" onclick="selectKey('register')">
+                            <span class="jp">登録</span><span class="en">REG</span>
+                        </button>
+
+                        <!-- Row 3 -->
+                        <button class="kb-key color-blue" data-key="timer" onclick="selectKey('timer')">
+                            <span class="jp">タイマー</span><span class="en">TIMER</span>
+                        </button>
+                        <button class="kb-key color-blue" data-key="inspection" onclick="selectKey('inspection')">
+                            <span class="jp">点検</span><span class="en">INSPECTION</span>
+                        </button>
+                        <button class="kb-key color-blue" data-key="cleaning" onclick="selectKey('cleaning')">
+                            <span class="jp">洗浄</span><span class="en">CLEANING</span>
+                        </button>
+                        <button class="kb-key color-dark" data-key="num1" onclick="selectKey('num1')">1</button>
+                        <button class="kb-key color-dark" data-key="num2" onclick="selectKey('num2')">2</button>
+                        <button class="kb-key color-dark" data-key="num3" onclick="selectKey('num3')">3</button>
+                        <button class="kb-key color-orange span-2" data-key="clear" onclick="selectKey('clear')">
+                            <span class="jp">クリア</span><span class="en">CLEAR</span>
+                        </button>
+                        <button class="kb-key color-red span-2" data-key="end" onclick="selectKey('end')">
+                            <span class="jp">終了</span><span class="en">END</span>
+                        </button>
+                        <button class="kb-key color-gray" data-key="num0" onclick="selectKey('num0')">0</button>
+                        <button class="kb-key color-gray" data-key="decimal" onclick="selectKey('decimal')">·</button>
+
+                        <!-- Row 4 -->
+                        <button class="kb-key color-blue" data-key="test" onclick="selectKey('test')">
+                            <span class="jp">テスト</span><span class="en">TEST</span>
+                        </button>
+                        <button class="kb-key color-blue" data-key="mechset" onclick="selectKey('mechset')">
+                            <span class="jp">メカ設定</span><span class="en">MECH SET</span>
+                        </button>
+                        <button class="kb-key color-blue" data-key="remaining" onclick="selectKey('remaining')">
+                            <span class="jp">残量</span><span class="en">REMAIN</span>
+                        </button>
+                        <button class="kb-key color-teal" data-key="syrupcont" onclick="selectKey('syrupcont')">
+                            <span class="jp">シロップ<br>連続出し</span><span class="en">SYRUP</span>
+                        </button>
+                        <button class="kb-key color-teal" data-key="cuptest" onclick="selectKey('cuptest')">
+                            <span class="jp">カップ<br>テスト</span><span class="en">CUP</span>
+                        </button>
+                        <button class="kb-key color-teal" data-key="icecont" onclick="selectKey('icecont')">
+                            <span class="jp">氷<br>連続出し</span><span class="en">ICE</span>
+                        </button>
+                        <button class="kb-key color-teal" data-key="carbcont" onclick="selectKey('carbcont')">
+                            <span class="jp">炭酸水<br>連続出し</span><span class="en">CARB</span>
+                        </button>
+                        <button class="kb-key color-teal" data-key="coldcont" onclick="selectKey('coldcont')">
+                            <span class="jp">冷水<br>連続出し</span><span class="en">COLD</span>
+                        </button>
+                        <button class="kb-key color-indigo" data-key="allrinse" onclick="selectKey('allrinse')">
+                            <span class="jp">全系統<br>リンス</span><span class="en">ALL RINSE</span>
+                        </button>
+                        <button class="kb-key color-indigo" data-key="powderrinse" onclick="selectKey('powderrinse')">
+                            <span class="jp">粉系<br>リンス</span><span class="en">POWDER</span>
+                        </button>
+                        <button class="kb-key color-indigo" data-key="brewerrinse" onclick="selectKey('brewerrinse')">
+                            <span class="jp">ブリュア<br>リンス</span><span class="en">BREWER</span>
+                        </button>
+                        <button class="kb-key color-gray" data-key="soldoutlamp" onclick="selectKey('soldoutlamp')">
+                            <span class="jp">売切<br>ランプ</span><span class="en">SOLD-OUT</span>
+                        </button>
+                    </div>
+                </div>
+                <div style="margin-top:1rem; font-size:0.78rem; color:#667788; text-align:center;">
+                    💡 Click any key above to see its detailed functions →
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RIGHT: DETAIL PANEL ===== -->
+        <div class="detail-panel" id="detailPanel">
+            <div class="detail-placeholder" id="detailPlaceholder">
+                <div class="icon">⌨️</div>
+                <h3>Select a Key</h3>
+                <p>Click any button on the FX22 keyboard to view:</p>
+                <ul style="text-align:left; display:inline-block; margin-top:1rem; font-size:0.85rem;">
+                    <li>✓ Full button function</li>
+                    <li>✓ Sub-items with codes</li>
+                    <li>✓ Step-by-step button sequences</li>
+                    <li>✓ Expected results</li>
+                    <li>✓ Safety cautions</li>
+                </ul>
+            </div>
+            <div id="detailContent"></div>
+        </div>
+
+    </div>
+
+</main>
+
+<script>
+// ===== KEYBOARD DATA =====
+const keyboardData = {
+    // ===== MODE KEYS =====
+    price: {
+        name: 'Price', jp: '価格', icon: '💰', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Set and confirm pricing data for all beverages. Controls cash prices, card prices, discounts, and group-specific pricing.',
+        items: [
+            { code: '01', name: 'All Column Same Price', jp: '全コラム同一価格設定',
+              desc: 'Sets all beverage prices to the same value. Applied to both cash and card prices.',
+              sequence: [
+                  { type: 'key', label: 'Price', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Price Value]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }, { type: 'arrow' },
+                  { type: 'key', label: 'End', color: 'red' }
+              ],
+              result: 'All beverages set to the same price. Values 010–990 = price, 999 = free vend, 000 = sold-out.',
+              note: 'Verify final data in [Beverage] 001–856.' },
+            { code: '02', name: 'Group-Specific Price Setting', jp: 'グループ別価格設定',
+              desc: 'Sets prices collectively for each beverage group (1–20) set in [Selection] 06.',
+              sequence: [
+                  { type: 'key', label: 'Price', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 2', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Group 01–20]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Price]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Group prices set. Written to "Price" data of [Beverage].' },
+            { code: '03', name: 'Card Discount Amount', jp: 'カード割引額設定',
+              desc: 'Sets discount of card price vs cash price. Card price = cash price − discount.',
+              sequence: [
+                  { type: 'key', label: 'Price', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 3', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Discount ¥]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Card discount applied to all beverages. Card price cannot exceed cash price here.' },
+            { code: '04', name: 'Group-Specific Card Price', jp: 'グループ別カード価格設定',
+              desc: 'Sets card prices collectively for each beverage group.',
+              sequence: [
+                  { type: 'key', label: 'Price', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 4', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Group]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Card Price]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Group card prices set. Written to "Card" data of [Beverage].' },
+            { code: '50', name: 'My Cup Discount Amount', jp: 'マイカップ割引額',
+              desc: 'Sets discount for my-cup sales. Coin discount in 10-yen units, card discount in 1-yen units.',
+              sequence: [
+                  { type: 'key', label: 'Price', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '5 0', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Coin Discount]', color: 'blue' },
+                  { type: 'key', label: '[Card Discount]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'My cup discount set. Discount must be lower than all coin/card prices.',
+              caution: 'Morning service and change return take priority over my cup discount.' }
+        ]
+    },
+    sales: {
+        name: 'Sales', jp: '売上', icon: '📊', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Confirm and clear all sales data. Displays POS column-specific sales, total sales amounts, and electronic money totals.',
+        items: [
+            { code: '01', name: 'POS Column-Specific Sales Count', jp: 'POS コラム別売上数',
+              desc: 'Displays POS sales count per column.',
+              sequence: [
+                  { type: 'key', label: 'Sales', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 1', color: 'blue' }
+              ],
+              result: 'POS sales counts displayed per column.' },
+            { code: '03', name: 'Brand (e-Money) · POS Column-Specific Sales Count', jp: 'ブランド・POS コラム別売上数',
+              desc: 'Displays sales count per column by electronic money brand.', result: 'Brand-specific POS counts displayed.' },
+            { code: '51', name: 'Total Sales Amount', jp: '総売上額',
+              desc: 'Displays total sales amount.',
+              sequence: [
+                  { type: 'key', label: 'Sales', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '5 1', color: 'blue' }
+              ],
+              result: 'Total sales amount displayed.' },
+            { code: '52', name: 'Electronic Money Total Sales', jp: '電子マネー総売上額',
+              desc: 'Displays total sales by electronic money.',
+              result: 'E-money total displayed.' },
+            { code: '53', name: 'Brand (e-Money) · POS Column-Specific Sales Amount', jp: 'ブランド・POS コラム別売上額',
+              desc: 'Displays sales amount per column by brand.', result: 'Brand-specific column sales displayed.' },
+            { code: '60', name: 'Column-Specific Sales Amount', jp: 'コラム別売上額',
+              desc: 'Displays sales amount per column.',
+              sequence: [
+                  { type: 'key', label: 'Sales', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '6 0', color: 'blue' }
+              ],
+              result: 'Column-specific sales amounts displayed.' }
+        ]
+    },
+    beverage: {
+        name: 'Beverage', jp: '飲料', icon: '🥤', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Set and confirm individual beverage data. Controls ingredient amounts, ratios, gas volume, ice, cup size, and cooking timings.',
+        items: [
+            { code: '001–856', name: 'Beverage Items', jp: '飲料項目',
+              desc: 'Set individual beverage parameters: price, card price, ingredient amounts, ratio, gas volume, ice amount, cup size, and more.',
+              sequence: [
+                  { type: 'key', label: 'Beverage', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Item 001–856]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: '[Value]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Beverage data set. Display shows setting items and standard data.',
+              note: 'Only beverages used for selection buttons are displayed.' },
+            { code: '981', name: 'Operation Setting Copy', jp: '動作設定コピー',
+              desc: 'Copies operation settings from one beverage to another.',
+              sequence: [
+                  { type: 'key', label: 'Beverage', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '9 8 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Copy Source Col]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Copy Dest Col]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Operation settings copied from source to destination beverage.' },
+            { code: '987–997', name: 'Operation Settings (Cooking Timing)', jp: '動作設定',
+              desc: 'Sets cooking timing for: Cold Syrup (987), Cold Syrup Mix (988), Cold Syrup & Mix (989), Hot Syrup Mix (990), Hot Regular (991), Cold Regular (992), Hot Instant (993), Cold Instant (994), Hot Mix (995), Cold Mix (996), All-Mighty (997).',
+              result: 'Cooking timing parameters set for the selected beverage type.' },
+            { code: '998', name: 'Increase/Decrease Amount Setting', jp: '増減量設定',
+              desc: 'Sets the amount to increase/decrease when sugar, cream, or coffee buttons are pressed.',
+              sequence: [
+                  { type: 'key', label: 'Beverage', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '9 9 8', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Value]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Increase/decrease amounts set. Increase button = 2× value, middle button = 1× value.' },
+            { code: '999', name: 'Flow Rate Adjustment', jp: '流量調整',
+              desc: 'Sets adjustment value for each ingredient. Perform test, measure, and input measured amount.',
+              sequence: [
+                  { type: 'key', label: 'Beverage', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '9 9 9', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Fixed-time dispensing test runs. Input measured value into keyboard.',
+              note: 'Targets: Carbonated 150 mL, Cold water 150 mL, Hot water 153 mL, Syrup 035 mL.' }
+        ]
+    },
+    selection: {
+        name: 'Selection', jp: '選択', icon: '🎛️', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Configure system-wide selection settings: button/column mapping, group totals, temperature, sold-out control, promotions, and more.',
+        items: [
+            { code: '01', name: 'Column Selection Button Setting', jp: 'コラム選択ボタン設定',
+              desc: 'Assigns columns to selection buttons. Data load 1–9 loads preset arrangements; 0 allows free assignment.',
+              sequence: [
+                  { type: 'key', label: 'Selection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Type 0–9]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Selection button beverage arrangement updated.',
+              caution: 'Do not forget to also set [Selection] 03 canister switching.' },
+            { code: '04 / 05', name: 'Automatic Change Adjustment', jp: '自動釣銭合わせ設定',
+              desc: 'Sets change adjustment mode and coin management counts.',
+              result: 'Mode 0 = do not use, 1 = auto adjust, 2 = tube remaining amount mode.' },
+            { code: '06', name: 'Group Total Setting', jp: 'グループ集計設定',
+              desc: 'Assigns beverages to groups 1–20. Used in [Sales] 06/07, [Price] 02/04, [Timer] 14, [Selection] 64.',
+              sequence: [
+                  { type: 'key', label: 'Selection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 6', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Group 1–20]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Beverage No.]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Beverages assigned to group. Group data saved.' },
+            { code: '07', name: 'Sales Setting', jp: '売上設定',
+              desc: 'Sets display of [Sales] 02–05 price-specific sales.',
+              result: '0 = all amount, 1 = other/syrup, 2 = powder/regular/syrup.' },
+            { code: '08', name: 'Bulk Purchase / Change Auto Return', jp: 'まとめ買い・釣銭自動返却',
+              desc: 'Sets bulk purchase cup count (0–9) and change return time (00–30 sec).',
+              result: '0/1 = single vend, 2–8 = bulk purchase, 9 = unlimited.' },
+            { code: '09', name: 'System Priority Setting', jp: 'システム優先設定',
+              desc: 'Sets summer/winter circuit, compressor priority, and power cut.',
+              result: 'Summer = cold priority, Winter = hot priority. Power cut = prevents simultaneous cooling+heating.' },
+            { code: '10', name: 'Food Sanitation Temp Sold-out', jp: '食衛温度売切れ設定',
+              desc: 'Sets sold-out hold at food sanitation temperature (hot ≤63°C, cold ≥10°C).',
+              result: '0 = sold-out hold, 1 = test mode (no hold).' },
+            { code: '11', name: 'Temperature Setting', jp: '温度設定',
+              desc: 'Sets hot water temp, energy-saving hot water temp, various sold-out temperatures.',
+              sequence: [
+                  { type: 'key', label: 'Selection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '1 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: '[Temp Value]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Temperatures set. Standard: Hot water 97°C, Instant sold-out 74°C, Regular sold-out 85°C.' },
+            { code: '12', name: 'Ice No/Yes Button Setting', jp: '氷無入ボタン設定',
+              desc: 'Sets whether ice button makes beverages no-ice or with-ice.',
+              result: '0 = ice no button, 1 = ice yes button. Reverses syrup one-cup test meaning.' },
+            { code: '13', name: 'Standby Digital Display Setting', jp: '待機時デジタル表示器',
+              desc: 'Sets whether to display failure codes and temperatures on front display.',
+              result: 'Failure code: 0 = hide, 1 = show. Temperature: 0 = hot only, 1 = cold only, 2 = both, 3 = neither.' },
+            { code: '14', name: 'Sold-out Control Setting', jp: '売切コントロール設定',
+              desc: 'Sets sold-out control for ice, powder, bean, and syrup ingredients.',
+              result: 'Ice: 0 = control, 1 = no control, 2 = always sold-out. Others: 0 = no sold-out, 1 = sold-out.' },
+            { code: '15', name: 'Sold-out Lamp Lighting Setting', jp: '売切ランプ点灯設定',
+              desc: 'Sets when sold-out lamps light.',
+              result: '0 = during standby, 1 = after coin insertion.' },
+            { code: '16', name: 'POS Cup Setting', jp: 'POS用カップ設定',
+              desc: 'Sets cups used for POS cups.',
+              result: 'Assign cup No. 1–3 to POS cup types.' },
+            { code: '17', name: 'Mix Syrup Setting', jp: 'ミックスシロップ設定',
+              desc: 'Sets whether pressing 2 syrup buttons makes mixed syrup and the ratio.',
+              result: '0 = invalid, 1 = valid. Ratio A:B where A+B=10.' },
+            { code: '18', name: 'Sales Clear Prohibition', jp: '売上クリア禁止設定',
+              desc: 'Sets whether sales clear is permitted or prohibited.',
+              result: '0 = can clear, 1 = clear prohibited.' },
+            { code: '20', name: 'Promotion Probability Setting', jp: 'プロモーション確率設定',
+              desc: 'Sets promotion winning probability and promotion type.',
+              result: 'Probability 1/0–100. Type: 0 = change return, 1 = winning metal, 2 = premium, 3 = partial return, 4 = morning service.' },
+            { code: '21', name: 'Promotion Button Setting', jp: 'プロモーションボタン設定',
+              desc: 'Sets selection buttons subject to promotion.',
+              result: '0 = free (set buttons), 1 = batch.' },
+            { code: '22', name: 'Canister Alternating Sales', jp: 'キャニスタ交互販売設定',
+              desc: 'Enables alternating sales between paired canisters.',
+              result: '0 = do not, 1 = do. Disabled for coffee 2 in 2-coffee spec.' },
+            { code: '23–28', name: 'Point Settings', jp: 'ポイント設定',
+              desc: 'Sets group/button-specific points, payout points, and all-column same points.',
+              result: 'Various point counts configured for point card systems.' },
+            { code: '29', name: 'Point Count Addition Setting', jp: '加算ポイント数設定',
+              desc: 'Sets bonus point count during events.', result: 'Bonus points set.' },
+            { code: '30', name: 'Point Up Probability Setting', jp: 'ポイントアップ確率設定',
+              desc: 'Sets probability of reaching bonus point count.',
+              result: 'Probability 0–100. Cannot combine with [Timer] 16.' },
+            { code: '47', name: 'Lighting Condition Setting', jp: '照明点灯条件設定',
+              desc: 'Sets lighting conditions when [Selection] 59 = AUTO.',
+              result: '0 = invalid, 1 = during sales/work, 2 = during sales/work or human sensor.' },
+            { code: '48', name: 'Human Sensor Switching', jp: '人感センサ切換設定',
+              desc: 'Sets human sensor input source.',
+              result: '0 = invalid, 1 = external input, 2 = integrated display input.' },
+            { code: '50', name: 'Mechanical Counter Operation Mode', jp: 'メカカウンタ動作モード設定',
+              desc: 'Sets operation mode 0–9 for each group.', result: 'Mechanical counter counting conditions configured.' },
+            { code: '51', name: 'Sales Display Setting', jp: 'セールス表示設定',
+              desc: 'Sets whether to display sales count on digital display.',
+              result: '0 = hide, 1 = show. Hold coin return lever 5 sec, then press buttons to see counts.' },
+            { code: '52', name: 'Cold/Carbonated Water Pre-dispense', jp: '冷水・炭酸水先だし設定',
+              desc: 'Sets pre-dispense amount and interval for cold/carbonated water.',
+              result: '0 = no pre-dispense, 1–99 = interval time in seconds.' },
+            { code: '53', name: 'Casual Hot Water Amount', jp: 'カジュアル湯量設定',
+              desc: 'Sets elapsed time and hot water increase for next sale after inactivity.',
+              result: 'Compensates for piping drying when no sales occur.' },
+            { code: '55', name: 'Ice Chipper Motor Periodic Operation', jp: 'アイスチッパモータ定期運転設定',
+              desc: 'Sets periodic operation cycle and time for ice chipper.',
+              result: 'Prevents ice sticking, stabilizes ice dispensing. Cycle 999 = no periodic operation.' },
+            { code: '59', name: 'Lamp Lighting Switching', jp: 'ランプ類点灯切換設定',
+              desc: 'Sets lamp lighting states.',
+              result: '0 = auto, 1 = off, 2 = continuous. Also sets door lamp state during sales pause.' },
+            { code: '60', name: 'Substitute Cup Sales Setting', jp: '代用カップ販売設定',
+              desc: 'Enables substitute cup sales when cup column is sold-out or failed.',
+              result: 'Also enables winning cup sales via promotion probability.' },
+            { code: '61', name: 'Added Cold Water Setting', jp: '添加冷水設定',
+              desc: 'Sets cold water addition to hot mix or hot INS.',
+              result: 'Cold water added when hot water tank temp is above set temperature.' },
+            { code: '62', name: 'Syrup Switching Setting', jp: 'シロップ切換設定',
+              desc: 'Enables syrup switching between paired syrups when one is sold out.',
+              result: '0 = no alternating sales, 1 = alternating sales.' },
+            { code: '63', name: '"9999" Mode Prohibition', jp: '「9999」モード禁止設定',
+              desc: 'Sets whether to perform coin test when door is closed during POS connection.',
+              result: '0 = normal (coin test), 1 = no "9999" mode.' },
+            { code: '64', name: 'ID Card Group Setting', jp: 'IDカードグループ設定',
+              desc: 'Sets groups that can be sold with department-specific ID card and test ID card.',
+              result: 'Groups configured for ID card sales.' },
+            { code: '65', name: 'Token Valid Column Setting', jp: 'トークン有効コラム設定',
+              desc: 'Sets valid columns for Token A and Token B.',
+              result: 'Tokens assigned to specific columns.' },
+            { code: '66', name: 'Group Setting Switching', jp: 'グループ設定切換設定',
+              desc: 'Switches group setting mode.', result: '0 = individual, 1 = CS/CS/B batch.' },
+            { code: '74', name: 'Mobile Payment History Print', jp: 'モバイル決済履歴印字設定',
+              desc: 'Starts mobile payment history printing.', result: 'Mobile payment history printed.' },
+            { code: '76', name: 'Moving Flash Setting', jp: 'ムービングフラッシュ設定',
+              desc: 'Sets sales possible lamp blinking during standby.',
+              result: 'Up to 64 steps can be set for free pattern. Press sugar decrease to go back.' },
+            { code: '77', name: '2000 Yen Bill Control', jp: '2000円札制御設定',
+              desc: 'Sets validity of 2000 yen bills and sold-out lamp.',
+              result: '0 = compatible, 1 = not compatible.' },
+            { code: '79–84', name: 'Electronic Money Settings', jp: '電子マネー設定',
+              desc: 'Sets opening prohibition, opening/closing, brand-specific stop, processing history, status monitor, and brand number.',
+              result: 'Electronic money configuration set.' }
+        ]
+    },
+    ingredient: {
+        name: 'Ingredient Supplement', jp: '原料補給', icon: '🥫', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Manage ingredient inventory. Display remaining amounts, set supplement amounts, and preset after refilling.',
+        items: [
+            { code: '01', name: 'Syrup Management', jp: 'シロップ管理',
+              desc: 'Displays syrup remaining amount in % and elapsed days since last clear.',
+              result: 'Syrup 1–3 remaining % and elapsed days shown. Days while power OFF not counted.' },
+            { code: '02', name: 'Ingredient-Specific Remaining Amount', jp: '原料別残量表示',
+              desc: 'Displays remaining amount in mL (syrup) or g (powder) after subtracting sales from supplement amount.',
+              sequence: [
+                  { type: 'key', label: 'Ingredient', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 2', color: 'blue' }
+              ],
+              result: 'Remaining amounts displayed for all ingredients.',
+              note: 'Display screen only — setting is done in item 03.' },
+            { code: '03', name: 'Ingredient-Specific Supplement Amount', jp: '原料別補給量設定',
+              desc: 'Input supplement amount in L (syrup) or g (powder).',
+              sequence: [
+                  { type: 'key', label: 'Ingredient', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 3', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Amount]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Supplement amount set. Use "Remaining Amount" + "Reset ×2" to preset individual syrup.' }
+        ]
+    },
+    timer: {
+        name: 'Timer', jp: 'タイマー', icon: '⏰', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Configure time, energy-saving schedules, sales time zones, free vend, promotions, and point-up periods.',
+        items: [
+            { code: '01', name: 'Current Date/Time Setting', jp: '現在年月日、曜日、時分設定',
+              desc: 'Sets current clock data. Required when "Clock data abnormal" is displayed.',
+              sequence: [
+                  { type: 'key', label: 'Timer', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: '[Year/Month/Day/Time]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Clock data set. Display shows current date/time.' },
+            { code: '02', name: 'Fluorescent Lamp Power Saving', jp: '蛍光灯節電時刻設定',
+              desc: 'Sets power saving time zones for fluorescent lamp. Up to 2 times per day per day-of-week.',
+              result: 'Lamp power saving schedule set.' },
+            { code: '03', name: 'Cooling Unit Power Saving', jp: '冷却ユニット節電時刻設定',
+              desc: 'Sets power saving time for cooling unit.', result: 'Cooling unit power saving scheduled.' },
+            { code: '04', name: 'Hot Water Tank Heater Power Saving', jp: '温水タンクヒータ節電時刻設定',
+              desc: 'Sets power saving time for hot water tank heater.', result: 'Heater power saving scheduled.' },
+            { code: '05–12', name: 'Sales Time Zone Setting', jp: '販売時間帯設定',
+              desc: 'Sets time zone sales for every day (05) and each day of week (06–12).',
+              result: '0 = do not execute, 1 = execute (lamp on), 2 = execute (lamp on-off). Up to 7 times/day.' },
+            { code: '13', name: 'Free Vend Setting', jp: 'フリーベンド設定',
+              desc: 'Sets free vend limited by period and cup count.',
+              result: 'Mode 0 = no, 1 = daily, 2 = continuous, 3 = day-specific. Free vend ends at cup count or end time.' },
+            { code: '14', name: 'Free Vend Compatible Group', jp: 'フリーベンド対応グループ設定',
+              desc: 'Sets which groups are free vend.', result: 'Groups set here also become valid for key counter/key switch.' },
+            { code: '15', name: 'Promotion Period Setting', jp: 'プロモーション期間設定',
+              desc: 'Sets promotion period and method.',
+              result: 'Used with [Timer] 61 (Hibernate mode). Takes priority when both set.' },
+            { code: '16', name: 'Point Up Period Setting', jp: 'ポイントアップ期間設定',
+              desc: 'Sets point-up period limited by time and cup count.',
+              result: 'Mode 0 = no, 1 = daily, 2 = continuous, 3 = day-specific. Takes priority over [Selection] 30.' },
+            { code: '25–32', name: 'Point Up Period Day Setting', jp: 'ポイントアップ期間曜日設定',
+              desc: 'Sets point-up time zones for each day of week.', result: 'Up to 7 time zones per day. Start = point-up count, End = normal count.' },
+            { code: '50', name: 'MC Power Saving Setting', jp: 'MC省エネ設定',
+              desc: 'Sets cooling unit power saving control. Up to 4 time zones with set temperatures.',
+              result: 'Cold water temperature control scheduled. Priority 1 > 2 > 3 > 4.',
+              caution: 'When using this, disable [Timer] 03 (this setting takes priority).' },
+            { code: '51', name: 'Heater Power Saving Setting', jp: 'ヒータ省エネ設定',
+              desc: 'Sets hot water tank heater power saving control. Up to 4 time zones with set temperatures.',
+              result: 'Hot water temperature control scheduled.',
+              caution: 'When using this, disable [Timer] 04 (this setting takes priority).' },
+            { code: '52', name: 'Internal Load Power Saving', jp: '庫内負荷の省エネ設定',
+              desc: 'Sets ON/OFF temperatures and exhaust fan post-sale ON time.',
+              result: 'Internal load power saving configured. Standard data has safe values.' },
+            { code: '53', name: 'Fluorescent Lamp Power Saving', jp: '蛍光灯の省エネ設定',
+              desc: 'Sets dimming mode (35% dimming).', result: '0 = do not, 1 = do. May not dim depending on inverter type.' },
+            { code: '54', name: 'Learning Power Saving', jp: '学習省エネ設定',
+              desc: 'Enables learning power saving for hot water tank and cooling water tank.',
+              result: 'Analyzes past sales to automatically perform optimal power saving. Only valid when other power saving settings not made.' },
+            { code: '55', name: 'Outlet Door Closing Time', jp: '取出口扉閉時間設定',
+              desc: 'Sets time from cup removal to outlet door closing (for auto door).',
+              result: '1–9 seconds set.' },
+            { code: '56', name: 'Mobile Pre-selection Valid Time', jp: 'モバイル先選択有効時間設定',
+              desc: 'Sets valid time for selection button/function button pre-selection and mobile re-touch.',
+              result: 'Time values set for mobile operation.' },
+            { code: '58', name: 'Moving Flash Display Time', jp: 'ムービングフラッシュ表示時刻設定',
+              desc: 'Sets blinking time zone for moving flash.', result: 'Start/end time set. All 0000 = no operation.' },
+            { code: '61', name: 'Hibernate Mode Setting', jp: 'ハイバネートモード設定',
+              desc: 'Sets hibernate mode: minimum power saving, door lights off, no sales.',
+              result: '0 = do not, 1 = do. Implementation time set in [Timer] 15.' },
+            { code: '62', name: 'My Cup Timeout Setting', jp: 'マイカップタイムアウト設定',
+              desc: 'Sets time from my cup button press until cancel and return to standby position.',
+              result: '5–10 minutes set. Standard: 5 minutes.' },
+            { code: '65', name: 'Reserved Total Setting', jp: '予約集計設定',
+              desc: 'Sets total period for [Sales] 65.', result: 'Start/end date and time configured.' }
+        ]
+    },
+    inspection: {
+        name: 'Inspection', jp: '点検', icon: '🔍', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Diagnose failures, view sold-out causes, check operation status, temperatures, and input signals.',
+        items: [
+            { code: '01', name: 'Current Sold-out Monitor', jp: '現在の売切モニタ',
+              desc: 'Displays currently occurring sold-out causes (up to 8 per screen).',
+              sequence: [
+                  { type: 'key', label: 'Inspection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }
+              ],
+              result: 'Sold-out causes displayed: Ice maker abnormal, Coin tube abnormal, Coin empty, Nozzle, Coffee hot/cold, Cold water sold-out, Cold water hold.',
+              note: 'To release food sanitation hold, move cursor to data and press Clear.' },
+            { code: '02', name: 'Current Failure', jp: '現在の故障',
+              desc: 'Displays currently occurring failures (up to 4 per screen) with error codes.',
+              sequence: [
+                  { type: 'key', label: 'Inspection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 2', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }
+              ],
+              result: 'Failure content and error codes displayed. See Module 13 (Error Code Reference) for full definitions.' },
+            { code: '03', name: 'Past Failure History', jp: '過去の故障',
+              desc: 'Displays past failures in order from newest, up to 16 types.',
+              sequence: [
+                  { type: 'key', label: 'Inspection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 3', color: 'blue' }
+              ],
+              result: 'Past failures displayed with dates and codes.' },
+            { code: '04', name: 'Sales History Confirmation', jp: '販売履歴の確認',
+              desc: 'Displays last 50 transactions: coin/card insertion, date/time, amounts.',
+              sequence: [
+                  { type: 'key', label: 'Inspection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 4', color: 'blue' }
+              ],
+              result: 'Sales history displayed: insertion date/time, insertion amount, sales amount, remaining amount.' },
+            { code: '05', name: 'Operation Monitor', jp: '動作モニタ',
+              desc: 'Displays timer status, system priority circuit, food sanitation test status.',
+              sequence: [
+                  { type: 'key', label: 'Inspection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 5', color: 'blue' }
+              ],
+              result: 'Status displays: Cooling unit power saving, Heater power saving, Auto-rinse, Free vend, Summer/Winter circuit, Food sanitation hold, Power cut.' },
+            { code: '06', name: 'Temperature Display', jp: '温度表示',
+              desc: 'Displays 7 temperature readings: hot water tank, cooling tank water, ice maker eva outlet, ice maker ambient, internal heat exchanger inlet, cooling tank eva inlet, compressor discharge.',
+              sequence: [
+                  { type: 'key', label: 'Inspection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 6', color: 'blue' }
+              ],
+              result: 'All temperatures displayed on one screen.' },
+            { code: '10', name: 'Electronic Money Registration Deletion', jp: '電子マネー登録削除',
+              desc: 'Deletes electronic money registration in closed status.',
+              result: 'Deleted e-money (brand) sales also cleared.' },
+            { code: '50 / 58', name: 'Operation Unit Check', jp: '操作部チェック',
+              desc: 'Enters operation unit check mode to test selection buttons and lamp lighting.',
+              result: 'Button inputs and lamp outputs verified.' },
+            { code: '51', name: 'Output Operation Check', jp: '出力動作チェック',
+              desc: 'Arbitrarily operates and checks electrical outputs (motors, solenoid valves).',
+              sequence: [
+                  { type: 'key', label: 'Inspection', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '5 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Selected output operates. To cancel, reset power.',
+              caution: 'This mode overrides safety interlocks. Use with caution.' },
+            { code: '52', name: 'Abnormal Return Processing', jp: '異常返金処理設定',
+              desc: 'Sets whether to perform return processing at abnormality.',
+              result: '0 = do not, 1 = do, 2 = do (excluding auto door).' },
+            { code: '53', name: 'Failure Detail History', jp: '故障詳細履歴',
+              desc: 'Displays date/time and failure content when failure occurred.', result: 'Detailed failure history shown.' },
+            { code: '54', name: 'Cup Removal Setting', jp: 'カップ取り除き設定',
+              desc: 'Sets processing when cup is left at vending outlet.',
+              result: 'Processing mode: 00 = discard, 1 = sold-out. Processing time: 0–5 sec.' },
+            { code: '55', name: 'Counterfeit Coin Countermeasure', jp: '偽造コイン対策設定',
+              desc: 'Sets continuous insertion count per coin as counterfeit countermeasure.',
+              result: '00 = no limit, 01–99 = count limit per coin.' },
+            { code: '60', name: 'Ice Maker Alarm', jp: '製氷機アラーム',
+              desc: 'Handles ice maker replacement preparation and replacement alarms.',
+              result: 'Displays operating time. Sets beverage sold-out on replacement alarm (10,000 hrs or 100,000 solenoid operations).' },
+            { code: '61', name: 'Ice Maker Replacement History', jp: '製氷機交換履歴',
+              desc: 'Displays past 10 ice maker replacement dates.', result: 'Replacement history shown.' },
+            { code: '67', name: 'Sales Abnormality Monitor', jp: '販売異常モニタ',
+              desc: 'Displays failure content, date/time, button, column, amount at sales abnormality.',
+              result: 'Sales abnormality details displayed.' },
+            { code: '68', name: 'Input Signal Check', jp: '入力信号チェック',
+              desc: 'Detects and displays presence/absence of cup at outlet.',
+              result: '0 = no cup, 1 = cup present. Place/remove cup to test.' }
+        ]
+    },
+    cleaning: {
+        name: 'Cleaning', jp: '洗浄', icon: '🧽', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Configure and execute all cleaning operations: rinse cycles, drain, sanitation, and auto-rinse schedules.',
+        items: [
+            { code: '01', name: 'Water Reservoir Drain Setting', jp: 'ウォーターリザーバ排水設定',
+              desc: 'Sets automatic drain of water reservoir and ice maker once daily via door switch.',
+              result: '0 = do not execute, 1 = execute. Compensates for cooling tank evaporation.' },
+            { code: '02', name: 'Rinse', jp: 'リンス',
+              desc: 'Executes rinse cycles: All rinse (brewer + paddle + syrup), Syrup system rinse, Powder hot water rinse, Regular hot water rinse.',
+              sequence: [
+                  { type: 'key', label: 'Cleaning', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 2', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Rinse runs. Display shows "***** Rinse in progress *****" and returns to standby when complete.',
+              note: 'Press Memory again to stop continuous rinse. All rinse performs brewer + paddle + syrup sequentially.' },
+            { code: '03', name: 'Day-Specific Auto-Rinse Start Time', jp: '曜日別オートリンス開始時刻設定',
+              desc: 'Sets auto-rinse start time for each day of week.',
+              result: 'Rinse count 0–2 for syrup water line and powder hot water line. 0 = no rinse for that line.' },
+            { code: '07', name: 'Filter Drain Start Time', jp: 'フィルター水抜き開始時刻設定',
+              desc: 'Sets drain start time and operation time for filter.',
+              result: 'Start time and drain time (0.0 sec) set.' },
+            { code: '08', name: 'Regular Rinse Start Time', jp: 'レギュラーリンス開始時刻設定',
+              desc: 'Sets coffee brewer hot water rinse start time for each day of week.',
+              result: '99 = do not execute.' },
+            { code: '52', name: 'Ice Maker Drain Start Time', jp: '製氷機水抜き開始時刻設定',
+              desc: 'Sets ice maker drain start time for each day of week.',
+              result: '99 = do not execute. All days default to 05.' },
+            { code: '53', name: 'Hot System Sanitation', jp: 'ホット系サニテーション',
+              desc: 'Performs chemical cleaning of coffee brewer circuit with oxygen-based bleaching agent.',
+              sequence: [
+                  { type: 'key', label: 'Cleaning', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '5 3', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Pre-rinse (2× regular) → inject ~4g bleaching agent → Main cleaning (4× regular + 2× powder) → Confirm pH ≤ 8.5.',
+              caution: 'Cannot execute during vending, brewer test, drain full, or ice maker drain valve operation. Remove mill dispensing chute first.' },
+            { code: '54', name: 'Auto-Rinse Cup Count Setting', jp: 'オートリンス杯数設定',
+              desc: 'Counts sales per beverage and rinses when set cup count and time are reached.',
+              result: 'Start time 23, Brewer 500 cups, Paddle 0 cups. Cup count 99 = rinse at set count.' },
+            { code: '67', name: 'Paddle Rinse Setting', jp: 'バドルリンス設定',
+              desc: 'Sets paddle rinse and my cup paddle rinse amount.',
+              result: 'Mode 0 = no cup, 1 = cup present. My cup rinse amount 0 mL (range 10–99 mL).' }
+        ]
+    },
+    test: {
+        name: 'Test', jp: 'テスト', icon: '🧪', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Execute component tests: individual vending, cup test, continuous dispensing, CMS motion tests, position correction, and motor tests.',
+        items: [
+            { code: '01', name: 'Individual Test', jp: '単品テスト',
+              desc: '3 types of individual tests: column-specified, selection button test (999), demonstration (997).',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Column No.]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Standard beverage vended using smaller cup size.',
+              note: 'Data 999 = press selection button to test vend. Data 997 = demonstration (door close does not cancel).' },
+            { code: '02', name: 'Cup Test', jp: 'カップテスト',
+              desc: 'Dispenses selected cup from drop ring column.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 2', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Selected cup drops from drop ring column into cup hand.' },
+            { code: '03', name: 'Continuous Dispensing', jp: '連続出し',
+              desc: 'Continuous dispensing of syrup, cold water, ice, carbonated water, cups, and CMS nozzle position.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '0 3', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Selected ingredient dispensed continuously. Press Memory again to stop.',
+              note: 'Syrup continuous dispensing cannot run multiple simultaneously.' },
+            { code: '04', name: 'Pseudo Vending', jp: '擬似販売',
+              desc: 'Accepts coins/bills/cards even in sold-out state and performs return actions as if sold.',
+              result: '0 = normal, 1 = pseudo vending. Does not vend, sounds buzzer after 5 sec.' },
+            { code: '05', name: 'Print Machine No. Registration', jp: 'プリント機械No.登録',
+              desc: 'Sets machine number printed first by printer.', result: 'Machine number set for vending machine identification.' },
+            { code: '06', name: 'Card/Cash Simultaneous Use', jp: 'カード・現金同時使用切換え',
+              desc: 'Sets whether to accept card and cash simultaneously.', result: '0 = no, 1 = yes.' },
+            { code: '07', name: '0 Yen Card Processing', jp: '0円カード処理',
+              desc: 'Sets whether to return or take in card when settled card becomes 0 yen.',
+              result: '0 = return, 1 = take in. Take-in only if card reader has take-in mechanism.' },
+            { code: '08', name: 'Department ID Card Issue Year/Month', jp: '部署別IDカード発行年月',
+              desc: 'Sets issue year/month validation for ID cards.',
+              result: 'Card must be issued after this year/month and not after current year/month.' },
+            { code: '09', name: 'Test ID Card Registration', jp: 'テストIDカード登録',
+              desc: 'Registers test ID card numbers.', result: '101–110 input possible (3-digit).' },
+            { code: '10', name: 'Invalid ID Card Registration', jp: '無効部署別IDカード登録',
+              desc: 'Sets ID card numbers to invalidate.', result: '001–110 input possible. ID 100 cannot be used.' },
+            { code: '11', name: '1 Vend Capture Card Registration', jp: '1ベンド取込みカード登録',
+              desc: 'Registers cards as 1-vend cards (taken in after one sale).', result: '00–99 input possible. 00 = no setting.' },
+            { code: '12', name: 'Printout Setting', jp: 'プリントアウト設定',
+              desc: 'Sets function for each of the 3 printer buttons.',
+              result: '1 = total, 2 = grand total, 3 = total + clear, 4 = grand total + clear, 5 = invalid.' },
+            { code: '13', name: 'Print Content Setting', jp: '印字内容設定',
+              desc: 'Sets sales items printed for each printer button.',
+              result: '0 = card + coin + cumulative, 1 = card + coin, 2 = card only.' },
+            { code: '50', name: 'Mill Motor Test', jp: 'ミルモータテスト',
+              desc: 'Operates mill motor for 5 seconds.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '5 0', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Mill motor operates for 5 seconds. Listen for grinding sound.',
+              caution: 'If motor does not operate, check protector switch and DC24V.' },
+            { code: '51', name: 'CMS Test', jp: 'CMSテスト',
+              desc: '5 screens: All Operation, Step Test, Paddle Test, Operation Range, Door Test.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '5 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Screen 1: All stations + paddle up/down. Screen 2: One step at a time. Screen 3: Paddle up/down + rotation. Screen 4: Full operation range. Screen 5: Auto door open/close.',
+              caution: 'Do NOT put hands in paddle area during test.' },
+            { code: '52', name: 'CMS Position Correction', jp: 'CMS位置補正設定',
+              desc: 'Corrects X-Y axis stop positions at 5 locations.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '5 2', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Next Page', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: '[Value]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Cup transport moves to selected position. Visual confirmation that position aligns.',
+              note: 'Range: X/Y ±10 mm. "+" = left/forward, "−" = right/backward.' },
+            { code: '53', name: 'IC Button Initial Setting', jp: 'ICボタン初期設定',
+              desc: 'Address allocation for IC buttons.', result: 'Used when "IC button unset" failure occurs.' },
+            { code: '54', name: 'IC Button Replacement Setting', jp: 'ICボタン交換設定',
+              desc: 'Address allocation for replaced IC buttons.', result: 'Address assigned to new IC button.' },
+            { code: '55', name: 'IC Button Operation Confirmation', jp: 'ICボタン動作確認',
+              desc: 'Confirms address allocation of each IC button.', result: 'All IC buttons verified.' },
+            { code: '58', name: 'Cartridge Water Supply Tank Setting', jp: 'カートリッジ式給水タンク設定',
+              desc: 'Operates water supply pump for cartridge tank.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '5 8', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Cartridge pump runs. Repeat until "Water tank low water" disappears.' },
+            { code: '61', name: 'Water Tank Water Supply', jp: '水槽給水設定',
+              desc: 'Forced water supply regardless of reservoir level.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '6 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Water fills cooling water tank. Press Memory again to stop.' },
+            { code: '67', name: 'Regular Mechanical Test', jp: 'レギュラーメカテスト設定',
+              desc: 'Performs regular mechanical frame feed.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '6 7', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Brewer mechanical frame feed operates.' },
+            { code: '70', name: 'Stop Setting', jp: '停止設定',
+              desc: 'Sets operation/stop of ice maker, cooling water tank, and hot water tank.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '7 0', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: '0 or 1', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: '0 = operate, 1 = stop. Selected component operates or stops.' }
+        ]
+    },
+    mechset: {
+        name: 'Mechanical Setting', jp: 'メカ設定', icon: '⚙️', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Configure hardware mechanisms: mill, cup mechanism, ice calculation, cartridge tank, Z-axis, chlorine generator, and more.',
+        items: [
+            { code: '01', name: 'Mill Motor Setting', jp: 'ミルモータ設定',
+              desc: 'Sets presence/absence of mill motor. Switches control such as beverage time chart.',
+              result: '0 = none, 1 = yes.' },
+            { code: '03', name: 'Cup Mechanism Setting', jp: 'カップ機構設定',
+              desc: 'Sets model of installed cup mechanism.', result: '0 = 1-type round, 1 = 2-type round.' },
+            { code: '04', name: 'Ice Remaining Calculation', jp: '氷残量計算',
+              desc: 'Sets ice stocker capacity, ice making capacity, power frequency, and ice sold-out level.',
+              result: 'Capacity: 0 = 2.1 kg, 1 = 3.5 kg. Ice making: 0 = 180g/5min, 1 = 220g/5min, 2 = 160g/5min, 3 = 140g/5min. Frequency: 0 = 50Hz, 1 = 60Hz.' },
+            { code: '11', name: 'Cartridge Water Supply Tank', jp: 'カートリッジ式給水タンク設定',
+              desc: 'Sets presence/absence of cartridge-type water supply method.',
+              result: '0 = none, 1 = yes.' },
+            { code: '16', name: 'Hand Cup Setting', jp: 'ハンド用カップ設定',
+              desc: 'Sets cup used for each cup size.',
+              sequence: [
+                  { type: 'key', label: 'Mech Set', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '1 6', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Cursor', color: 'gray' }, { type: 'arrow' },
+                  { type: 'key', label: '[Cup Type]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Cup size assigned. Change [Selection] 16 (POS cup) at the same time.',
+              note: '1: 4.5oz, 2: 5oz, 3: 6.5oz, 4: 7oz, 5: 8oz, 6: 9oz, 7: 12oz, 8: 16oz.' },
+            { code: '17', name: 'Ice Fixed Amount Sensor', jp: '氷定量センサ設定',
+              desc: 'Sets presence/absence of ice fixed amount sensor.', result: '0 = none, 1 = yes. Improves ice dispensing accuracy.' },
+            { code: '18', name: 'Z-Axis Setting', jp: 'Z軸設定',
+              desc: 'Sets presence/absence of Z-axis mechanism.', result: '0 = none, 1 = yes.' },
+            { code: '22', name: 'Chlorine Generator Setting', jp: '塩素発生器設定',
+              desc: 'Sets chlorine generator presence, timing, time, interval, and initial settings.',
+              result: 'Configured for water sterilization. Measurement: 0 = normal, 1 = measure.' },
+            { code: '23', name: 'Warming Button Setting', jp: 'ぬるめボタン設定',
+              desc: 'Sets warming button control.', result: '0 = none, 1 = yes. Not used on this machine.' },
+            { code: '51', name: 'Agitator Motor Power Saving', jp: 'アジテータモータ省エネ設定',
+              desc: 'Sets agitator motor operation during water tank OFF.',
+              result: '0 = normal, 1 = intermittent, 2 = stop.' },
+            { code: '54', name: 'General-Purpose Operation Switching', jp: '汎用動作切換設定',
+              desc: 'Sets mobile card reader settlement display and ten-key selection button.',
+              result: 'Mobile: 0 = off, 1 = on. Ten-key: 0 = none, 1 = yes.' },
+            { code: '61', name: 'Outlet Door Setting', jp: '取出口扉設定',
+              desc: 'Sets outlet door mechanism type.', result: '0 = manual open/close, 1 = automatic open/close.' },
+            { code: '72', name: 'Vend Slave Setting', jp: 'ベンドスレーブ設定',
+              desc: 'Sets vend slave specific: water tank control, my cup sales.',
+              result: 'Water tank: 0 = water temp, 1 = ice bank. My cup: 0 = not in reserved total, 1 = in reserved total.' },
+            { code: '76', name: 'Cartridge Tank Hygiene Management', jp: 'カートリッジ式給水タンク衛生管理設定',
+              desc: 'Sets hygiene management for cartridge water supply tank.',
+              result: '0 = none, 1 = do. Alarm at 7 days. Sold-out days 7–14.' },
+            { code: '86', name: 'CMS Cup Sensor Test', jp: 'CMSカップセンサテスト',
+              desc: 'Confirms cup drop sensor and cup present/absent sensor operation.',
+              sequence: [
+                  { type: 'key', label: 'Mech Set', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '8 6', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Sensor status displayed: 0 = no cup (received light), 1 = cup present (blocked light).' },
+            { code: '98', name: 'Management Data Display', jp: 'カンリデータ表示',
+              desc: 'Displays software version.', result: 'Software version shown.' }
+        ]
+    },
+    remaining: {
+        name: 'Remaining Amount', jp: '残量', icon: '📉', color: 'color-blue',
+        category: 'Mode Key',
+        summary: 'Display and preset ingredient remaining amounts. Press to show remaining amounts; use reset keys to preset individual syrups after refilling.',
+        items: [
+            { code: '—', name: 'Display Remaining Amounts', jp: '残量表示',
+              desc: 'Shows remaining amounts for all syrups and powders.',
+              sequence: [
+                  { type: 'key', label: 'Remaining', color: 'blue' }
+              ],
+              result: 'Display shows: Syrup 1/2/3 remaining mL, Powder remaining g. Example: 02) Remaining 01234 mL 03450 mL 03456 mL.' },
+            { code: '—', name: 'Preset Individual Syrup', jp: '個別プリセット',
+              desc: 'After refilling a syrup, press remaining + reset key twice to set to full value.',
+              sequence: [
+                  { type: 'key', label: 'Remaining', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Syrup No.] Reset ×2', color: 'orange' }, { type: 'arrow' },
+                  { type: 'key', label: 'End', color: 'red' }
+              ],
+              result: 'Syrup remaining amount set to full value. Example: Syrup 1 reset ×2 → 06500 mL.',
+              caution: 'If this operation is not performed, sold-out may occur even when syrup remains (subtraction method).' }
+        ]
+    },
+    memory: {
+        name: 'Memory/Operation', jp: '記憶/動作', icon: '✅', color: 'color-green',
+        category: 'Execute Key',
+        summary: 'Store data and execute tests. Press after inputting a value to save it, or press to start/stop a test operation.',
+        items: [
+            { code: '—', name: 'Store Data', jp: 'データ記憶',
+              desc: 'Stores setting data for beverage, price, selection, timer, test, ingredient, cleaning, and mechanical setting.',
+              sequence: [
+                  { type: 'key', label: '[Mode]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Item]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Value]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Data saved. Display confirms storage.' },
+            { code: '—', name: 'Execute Test', jp: 'テスト実行',
+              desc: 'Starts or stops a test operation.',
+              sequence: [
+                  { type: 'key', label: 'Test', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Test Item]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Memory', color: 'green' }
+              ],
+              result: 'Test starts. Press Memory again to stop (for continuous operations).' }
+        ]
+    },
+    end: {
+        name: 'End', jp: '終了', icon: '🚪', color: 'color-red',
+        category: 'Execute Key',
+        summary: 'End keyboard operation and return to standby state. Unsaved changes are discarded.',
+        items: [
+            { code: '—', name: 'Return to Standby', jp: '待機状態に戻す',
+              desc: 'Ends keyboard operation and returns the machine to standby.',
+              sequence: [
+                  { type: 'key', label: 'End', color: 'red' }
+              ],
+              result: 'Machine returns to standby. Display shows temperature screen. Unsaved data discarded.',
+              note: 'Press End at any time to quickly exit a menu.' }
+        ]
+    },
+    clear: {
+        name: 'Clear', jp: 'クリア', icon: '🗑️', color: 'color-orange',
+        category: 'Execute Key',
+        summary: 'Clear data, holds, history, and resets. Valid only in certain modes.',
+        items: [
+            { code: '—', name: 'Clear Data / Holds', jp: 'データ・ホールドクリア',
+              desc: 'Clears syrup management data, ingredient remaining amounts, sold-out holds, past failures.',
+              sequence: [
+                  { type: 'key', label: '[Mode]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Item]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Clear', color: 'orange' }
+              ],
+              result: 'Selected data cleared. Display shows default or zero values.',
+              note: 'Valid only when using [Beverage] key. Press End to confirm.' }
+        ]
+    },
+    register: {
+        name: 'Register', jp: '登録', icon: '📝', color: 'color-purple',
+        category: 'Execute Key',
+        summary: 'Register frequently used item screens to M1–M5 keys for quick access.',
+        items: [
+            { code: '—', name: 'Register Screen to M Key', jp: 'Mキーに画面登録',
+              desc: 'Registers up to 8 item screens to M1–M5 keys.',
+              sequence: [
+                  { type: 'key', label: 'Register', color: 'purple' }, { type: 'arrow' },
+                  { type: 'key', label: '[M1–M5]', color: 'purple' }, { type: 'arrow' },
+                  { type: 'key', label: '[Mode Key]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: '[Item]', color: 'blue' }, { type: 'arrow' },
+                  { type: 'key', label: 'Register', color: 'purple' }
+              ],
+              result: 'Item screen registered to M key. Press M1–M5 to quickly access.' }
+        ]
+    },
+    prevpage: {
+        name: 'Previous Page', jp: '前ページ', icon: '◀️', color: 'color-dark',
+        category: 'Navigate Key',
+        summary: 'Return the data display to the previous display screen.',
+        items: [
+            { code: '—', name: 'Previous Screen', jp: '前の画面',
+              desc: 'Moves to the previous display screen.',
+              sequence: [{ type: 'key', label: 'Prev Page', color: 'gray' }],
+              result: 'Display shows previous screen. In standby, cycles back through temperature → price counter → mechanical counter.' }
+        ]
+    },
+    nextpage: {
+        name: 'Next Page', jp: '次ページ', icon: '▶️', color: 'color-dark',
+        category: 'Navigate Key',
+        summary: 'Advance the data display to the next display screen.',
+        items: [
+            { code: '—', name: 'Next Screen', jp: '次の画面',
+              desc: 'Moves to the next display screen.',
+              sequence: [{ type: 'key', label: 'Next Page', color: 'gray' }],
+              result: 'Display shows next screen. In standby, cycles temperature → price counter → mechanical counter → temperature.' }
+        ]
+    },
+    num0: { name: 'Number Key 0', jp: '0', icon: '0️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 0. Used for entering values, item numbers, and dates.',
+        items: [{ code: '—', name: 'Input 0', jp: '0を入力', desc: 'Enters the digit 0 in the current input field.', result: '0 entered.' }] },
+    num1: { name: 'Number Key 1', jp: '1', icon: '1️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 1. Also used for setting Sunday in day-of-week settings.',
+        items: [{ code: '—', name: 'Input 1', jp: '1を入力', desc: 'Enters the digit 1. Also Sunday setting.', result: '1 entered.' }] },
+    num2: { name: 'Number Key 2', jp: '2', icon: '2️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 2. Also Monday.',
+        items: [{ code: '—', name: 'Input 2', jp: '2を入力', desc: 'Enters digit 2. Also Monday.', result: '2 entered.' }] },
+    num3: { name: 'Number Key 3', jp: '3', icon: '3️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 3. Also Tuesday.',
+        items: [{ code: '—', name: 'Input 3', jp: '3を入力', desc: 'Enters digit 3. Also Tuesday.', result: '3 entered.' }] },
+    num4: { name: 'Number Key 4', jp: '4', icon: '4️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 4. Also Wednesday.',
+        items: [{ code: '—', name: 'Input 4', jp: '4を入力', desc: 'Enters digit 4. Also Wednesday.', result: '4 entered.' }] },
+    num5: { name: 'Number Key 5', jp: '5', icon: '5️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 5. Also Thursday.',
+        items: [{ code: '—', name: 'Input 5', jp: '5を入力', desc: 'Enters digit 5. Also Thursday.', result: '5 entered.' }] },
+    num6: { name: 'Number Key 6', jp: '6', icon: '6️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 6. Also Friday.',
+        items: [{ code: '—', name: 'Input 6', jp: '6を入力', desc: 'Enters digit 6. Also Friday.', result: '6 entered.' }] },
+    num7: { name: 'Number Key 7', jp: '7', icon: '7️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 7. Also Saturday.',
+        items: [{ code: '—', name: 'Input 7', jp: '7を入力', desc: 'Enters digit 7. Also Saturday.', result: '7 entered.' }] },
+    num8: { name: 'Number Key 8', jp: '8', icon: '8️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 8.',
+        items: [{ code: '—', name: 'Input 8', jp: '8を入力', desc: 'Enters digit 8.', result: '8 entered.' }] },
+    num9: { name: 'Number Key 9', jp: '9', icon: '9️⃣', color: 'color-gray', category: 'Input Key',
+        summary: 'Input digit 9.',
+        items: [{ code: '—', name: 'Input 9', jp: '9を入力', desc: 'Enters digit 9.', result: '9 entered.' }] },
+    decimal: { name: 'Decimal Point', jp: '小数点', icon: '•', color: 'color-gray', category: 'Input Key',
+        summary: 'Input decimal point for values.',
+        items: [{ code: '—', name: 'Input Decimal', jp: '小数点を入力', desc: 'Inserts a decimal point.', result: 'Decimal point entered.' }] },
+    m1: { name: 'M1 Key', jp: 'M1', icon: '1️⃣', color: 'color-purple', category: 'Memory Key',
+        summary: 'Quick access to registered item screen 1.',
+        items: [{ code: '—', name: 'Access M1 Screen', jp: 'M1画面', desc: 'Accesses item screen registered to M1.', sequence: [{ type: 'key', label: 'M1', color: 'purple' }], result: 'Registered screen displayed.' }] },
+    m2: { name: 'M2 Key', jp: 'M2', icon: '2️⃣', color: 'color-purple', category: 'Memory Key',
+        summary: 'Quick access to registered item screen 2.', items: [{ code: '—', name: 'Access M2 Screen', jp: 'M2画面', desc: 'Accesses item screen registered to M2.', result: 'Registered screen displayed.' }] },
+    m3: { name: 'M3 Key', jp: 'M3', icon: '3️⃣', color: 'color-purple', category: 'Memory Key',
+        summary: 'Quick access to registered item screen 3.', items: [{ code: '—', name: 'Access M3 Screen', jp: 'M3画面', desc: 'Accesses item screen registered to M3.', result: 'Registered screen displayed.' }] },
+    m4: { name: 'M4 Key', jp: 'M4', icon: '4️⃣', color: 'color-purple', category: 'Memory Key',
+        summary: 'Quick access to registered item screen 4.', items: [{ code: '—', name: 'Access M4 Screen', jp: 'M4画面', desc: 'Accesses item screen registered to M4.', result: 'Registered screen displayed.' }] },
+    m5: { name: 'M5 Key', jp: 'M5', icon: '5️⃣', color: 'color-purple', category: 'Memory Key',
+        summary: 'Quick access to registered item screen 5.', items: [{ code: '—', name: 'Access M5 Screen', jp: 'M5画面', desc: 'Accesses item screen registered to M5.', result: 'Registered screen displayed.' }] },
+
+    // ===== DIRECT FUNCTION KEYS =====
+    syrupcont: {
+        name: 'Syrup Continuous Dispensing', jp: 'シロップ連続出し', icon: '🍯', color: 'color-teal',
+        category: 'Direct Function Key',
+        summary: 'Directly starts syrup continuous dispensing. Used for priming gear pumps, bleeding air from BIB, and flow rate testing.',
+        items: [
+            { code: '—', name: 'Start/Stop Syrup Dispensing', jp: 'シロップ連続出し',
+              desc: 'Press to start syrup dispensing. Press again to stop.',
+              sequence: [
+                  { type: 'key', label: 'Syrup Cont', color: 'blue' }
+              ],
+              result: 'Syrup dispensed from nozzle. Press again to stop.',
+              caution: 'Cannot run multiple syrup pumps simultaneously. Never operate gear pump >20 seconds.',
+              note: 'Also accessible via [Test] 03 → Cursor → Memory for individual syrup selection.' }
+        ]
+    },
+    cuptest: {
+        name: 'Cup Test', jp: 'カップテスト', icon: '🥤', color: 'color-teal',
+        category: 'Direct Function Key',
+        summary: 'Directly performs a cup dispensing test.',
+        items: [
+            { code: '—', name: 'Dispense Cup', jp: 'カップテスト',
+              desc: 'Dispenses a cup from the selected drop ring column.',
+              sequence: [
+                  { type: 'key', label: 'Cup Test', color: 'blue' }
+              ],
+              result: 'Cup drops from drop ring column.',
+              note: 'Also accessible via [Test] 02 for specific cup 1 or cup 2 selection.' }
+        ]
+    },
+    icecont: {
+        name: 'Ice Continuous Dispensing', jp: '氷連続出し', icon: '🧊', color: 'color-teal',
+        category: 'Direct Function Key',
+        summary: 'Directly starts ice continuous dispensing. Used for ice maker cleaning and testing.',
+        items: [
+            { code: '—', name: 'Start/Stop Ice Dispensing', jp: '氷連続出し',
+              desc: 'Press to start ice dispensing. Press again to stop.',
+              sequence: [
+                  { type: 'key', label: 'Ice Cont', color: 'blue' }
+              ],
+              result: 'Ice dispensed from chute. Press again to stop.',
+              note: 'Also accessible via [Test] 03 → Cursor → Memory.' }
+        ]
+    },
+    carbcont: {
+        name: 'Carbonated Water Continuous Dispensing', jp: '炭酸水連続出し', icon: '💧', color: 'color-teal',
+        category: 'Direct Function Key',
+        summary: 'Directly starts carbonated water continuous dispensing.',
+        items: [
+            { code: '—', name: 'Start/Stop Carbonated Water', jp: '炭酸水連続出し',
+              desc: 'Press to start carbonated water dispensing. Press again to stop.',
+              sequence: [
+                  { type: 'key', label: 'Carb Cont', color: 'blue' }
+              ],
+              result: 'Carbonated water dispensed from nozzle. Press again to stop.' }
+        ]
+    },
+    coldcont: {
+        name: 'Cold Water Continuous Dispensing', jp: '冷水連続出し', icon: '🚰', color: 'color-teal',
+        category: 'Direct Function Key',
+        summary: 'Directly starts cold water continuous dispensing.',
+        items: [
+            { code: '—', name: 'Start/Stop Cold Water', jp: '冷水連続出し',
+              desc: 'Press to start cold water dispensing. Press again to stop.',
+              sequence: [
+                  { type: 'key', label: 'Cold Cont', color: 'blue' }
+              ],
+              result: 'Cold water dispensed from nozzle. Press again to stop.' }
+        ]
+    },
+    allrinse: {
+        name: 'All System Rinse', jp: '全系統リンス', icon: '🧼', color: 'color-indigo',
+        category: 'Direct Function Key',
+        summary: 'Performs complete system rinse: brewer hot water rinse + paddle rinse + syrup system rinse in sequence.',
+        items: [
+            { code: '—', name: 'All System Rinse', jp: '全系統リンス',
+              desc: 'Sequentially performs brewer rinse, paddle rinse, and syrup system rinse.',
+              sequence: [
+                  { type: 'key', label: 'All Rinse', color: 'blue' }
+              ],
+              result: 'Brewer rinse → Paddle rinse → Syrup system rinse. Display shows "***** Rinse in progress *****".',
+              note: 'Recommended after any rinse valve cleaning. Hook rinse cover onto ingredient chute cover first.' }
+        ]
+    },
+    powderrinse: {
+        name: 'Powder System Rinse', jp: '粉系リンス', icon: '🥄', color: 'color-indigo',
+        category: 'Direct Function Key',
+        summary: 'Performs powder system hot water rinse. (Not supported on this machine.)',
+        items: [
+            { code: '—', name: 'Powder Rinse', jp: '粉系リンス',
+              desc: 'Performs powder system hot water rinse.',
+              result: 'Not supported on this machine.',
+              note: 'Use [Cleaning] 02 → select powder rinse for supported functions.' }
+        ]
+    },
+    brewerrinse: {
+        name: 'Brewer Rinse', jp: 'ブリュアリンス', icon: '☕', color: 'color-indigo',
+        category: 'Direct Function Key',
+        summary: 'Performs coffee brewer hot water rinse.',
+        items: [
+            { code: '—', name: 'Brewer Rinse', jp: 'ブリュアリンス',
+              desc: 'Runs hot water through the coffee brewer.',
+              sequence: [
+                  { type: 'key', label: 'Brewer Rinse', color: 'blue' }
+              ],
+              result: 'Brewer hot water rinse runs. Display shows rinse progress.',
+              note: 'Also accessible via [Cleaning] 02 → Cursor → Memory for individual rinse selection.' }
+        ]
+    },
+    soldoutlamp: {
+        name: 'Sold-out Lamp', jp: '売切ランプ', icon: '🔴', color: 'color-gray',
+        category: 'Indicator',
+        summary: 'Indicates when a beverage or ingredient is sold out. Lights when a specific ingredient runs out.',
+        items: [
+            { code: '—', name: 'Sold-out Indicator', jp: '売切ランプ',
+              desc: 'Individual sold-out lamps light when a beverage or ingredient is unavailable.',
+              result: 'Lamp lights when: ingredient empty, cup sold-out, temperature hold, or component failure.',
+              note: 'See Module 13 Error Code Reference for which lamps are affected by each failure.' }
+        ]
+    }
+};
+
+// ===== KEY SELECTION =====
+let activeKey = null;
+
+function selectKey(keyId) {
+    // Remove previous active
+    document.querySelectorAll('.kb-key').forEach(k => k.classList.remove('active'));
+    // Add active to clicked
+    const btn = document.querySelector(`.kb-key[data-key="${keyId}"]`);
+    if (btn) btn.classList.add('active');
+
+    // Get data
+    const data = keyboardData[keyId];
+    if (!data) return;
+
+    activeKey = keyId;
+
+    // Update display text
+    const displayText = document.getElementById('displayText');
+    displayText.innerHTML = `<strong>[${data.name}]</strong> selected<br>${data.items.length} sub-item${data.items.length !== 1 ? 's' : ''} available — see panel →`;
+
+    // Render detail panel
+    renderDetail(keyId, data);
+}
+
+function renderDetail(keyId, data) {
+    const panel = document.getElementById('detailContent');
+    const placeholder = document.getElementById('detailPlaceholder');
+    if (placeholder) placeholder.style.display = 'none';
+
+    const itemsHtml = data.items.map((item, idx) => {
+        const codeClass = item.code.length > 4 ? 'wide' : '';
+        let bodyHtml = '';
+
+        if (item.desc) bodyHtml += `<div class="desc">${item.desc}</div>`;
+
+        if (item.sequence && item.sequence.length > 0) {
+            bodyHtml += `<div style="font-size:0.72rem;font-weight:700;color:#8899aa;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.3rem;">Button Sequence</div>`;
+            bodyHtml += `<div class="btn-sequence">`;
+            item.sequence.forEach(step => {
+                if (step.type === 'key') {
+                    bodyHtml += `<span class="btn-key ${step.color}">${step.label}</span>`;
+                } else if (step.type === 'arrow') {
+                    bodyHtml += `<span class="btn-arrow">→</span>`;
+                }
+            });
+            bodyHtml += `</div>`;
+        }
+
+        if (item.result) {
+            bodyHtml += `<div class="result-box"><div class="result-label">Expected Result</div>${item.result}</div>`;
+        }
+
+        if (item.caution) {
+            bodyHtml += `<div class="safety-box caution"><span class="safety-icon">⚠️</span><div class="safety-content"><strong>Caution:</strong> ${item.caution}</div></div>`;
+        }
+
+        if (item.note) {
+            bodyHtml += `<div class="safety-box info"><span class="safety-icon">💡</span><div class="safety-content"><strong>Note:</strong> ${item.note}</div></div>`;
+        }
+
+        return `
+            <div class="sub-item" id="sub-${idx}" onclick="toggleSubItem(${idx}, event)">
+                <div class="sub-item-header">
+                    <span class="sub-item-code ${codeClass}">${item.code}</span>
+                    <span class="sub-item-name">
+                        ${item.name}
+                        <span class="jp">${item.jp}</span>
+                    </span>
+                    <span class="sub-item-arrow">▼</span>
+                </div>
+                <div class="sub-item-body">
+                    <div class="sub-item-body-inner">${bodyHtml}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    panel.innerHTML = `
+        <div class="detail-header">
+            <div class="key-icon ${data.color}">${data.icon}</div>
+            <div>
+                <h3>${data.name}</h3>
+                <div class="jp-name">${data.jp}</div>
+                <span class="category-tag">${data.category}</span>
+            </div>
+        </div>
+        <div class="detail-summary">${data.summary}</div>
+        <div class="detail-section-title">
+            Functions & Sub-Items
+            <span class="count">${data.items.length}</span>
+        </div>
+        ${itemsHtml}
+    `;
+}
+
+function toggleSubItem(idx, event) {
+    event.stopPropagation();
+    const el = document.getElementById('sub-' + idx);
+    el.classList.toggle('open');
+}
+
+// ===== INITIAL STATE =====
+// Auto-select Beverage key on load for demonstration
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => selectKey('beverage'), 400);
+});
+</script>
+</body>
+</html>
